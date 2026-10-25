@@ -4,12 +4,12 @@ import { ContainerShape } from '../shapes/ContainerShape.js';
 import type { Shape } from '../shapes/Shape.js';
 import { ShapeTreeChangeSet } from '../shapes/ShapeTreeChangeSet.js';
 import type { ShapeSpec } from '../specs/ShapeSpec.js';
+import { CanvasSize } from './CanvasSize.js';
 import { ShapeStructurePlanner as Planner } from './ShapeStructurePlanner.js';
 import { ShapeTree } from './ShapeTree.js';
 
 export class SvgDocument {
-  readonly #width: number;
-  readonly #height: number;
+  #canvasSize: CanvasSize;
   readonly #tree = new ShapeTree();
   readonly #planner: Planner;
 
@@ -18,26 +18,26 @@ export class SvgDocument {
     height: number,
     shapeFactory = new ShapeFactory()
   ) {
-    if (
-      !Number.isFinite(width) ||
-      !Number.isFinite(height) ||
-      width <= 0 ||
-      height <= 0
-    ) {
-      throw new DomainError('canvas width and height must be positive finite numbers');
-    }
-
-    this.#width = width;
-    this.#height = height;
+    this.#canvasSize = new CanvasSize(width, height);
     this.#planner = new Planner(this.#tree, shapeFactory);
   }
 
   public get width(): number {
-    return this.#width;
+    return this.#canvasSize.width;
   }
 
   public get height(): number {
-    return this.#height;
+    return this.#canvasSize.height;
+  }
+
+  public get canvasSize(): CanvasSize {
+    return this.#canvasSize;
+  }
+
+  public resizeCanvas(width: number, height: number): CanvasSize {
+    const canvasSize = new CanvasSize(width, height);
+    this.#canvasSize = canvasSize;
+    return canvasSize;
   }
 
   public get elementCount(): number {

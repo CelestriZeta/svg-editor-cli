@@ -14,9 +14,9 @@ export class LineSpec extends ShapeSpec {
     y1: number,
     x2: number,
     y2: number,
-    stroke?: string
+    style = new ShapeStyle()
   ) {
-    super(id, new ShapeStyle(undefined, stroke));
+    super(id, style);
 
     if (![x1, y1, x2, y2].every(Number.isFinite)) {
       throw new DomainError('line geometry must be finite numbers');

@@ -1,4 +1,5 @@
 import { DomainError } from '../../../domain/DomainError.js';
+import { ShapeStyle } from '../../../domain/shapes/ShapeStyle.js';
 import { RectSpec } from '../../../domain/specs/RectSpec.js';
 import type { ShapeSpec } from '../../../domain/specs/ShapeSpec.js';
 import type { ShapeSpecBuilder } from '../contracts/ShapeSpecBuilder.js';
@@ -19,7 +20,7 @@ export class RectSpecBuilder implements ShapeSpecBuilder {
       this.numbers.parseShape('rect', yText, 'y'),
       this.numbers.parseShape('rect', widthText, 'width'),
       this.numbers.parseShape('rect', heightText, 'height'),
-      fill
+      new ShapeStyle(fill)
     );
   }
 }

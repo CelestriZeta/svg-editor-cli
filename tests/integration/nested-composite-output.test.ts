@@ -4,6 +4,7 @@ import { DocumentViewVisitor } from '../../src/application/queries/DocumentViewV
 import { TreeFormatter } from '../../src/cli/TreeFormatter.js';
 import { SvgDocument } from '../../src/domain/document/SvgDocument.js';
 import { Group } from '../../src/domain/shapes/Group.js';
+import { ShapeStyle } from '../../src/domain/shapes/ShapeStyle.js';
 import { GroupSpec } from '../../src/domain/specs/GroupSpec.js';
 import { RectSpec } from '../../src/domain/specs/RectSpec.js';
 import { SvgWriteVisitor } from '../../src/infrastructure/SvgWriteVisitor.js';
@@ -13,7 +14,10 @@ describe('nested composite output', () => {
     const document = new SvgDocument(200, 100);
     const outer = document.createShape(new GroupSpec('outer')) as Group;
     const inner = document.createShape(new GroupSpec('inner'), outer) as Group;
-    document.createShape(new RectSpec('r1', 1, 2, 3, 4, 'red'), inner);
+    document.createShape(
+      new RectSpec('r1', 1, 2, 3, 4, new ShapeStyle('red')),
+      inner
+    );
 
     const tree = new TreeFormatter().format(
       new DocumentViewVisitor().visit(document)

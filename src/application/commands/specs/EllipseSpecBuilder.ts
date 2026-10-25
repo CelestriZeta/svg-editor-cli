@@ -1,4 +1,5 @@
 import { DomainError } from '../../../domain/DomainError.js';
+import { ShapeStyle } from '../../../domain/shapes/ShapeStyle.js';
 import { EllipseSpec } from '../../../domain/specs/EllipseSpec.js';
 import type { ShapeSpec } from '../../../domain/specs/ShapeSpec.js';
 import type { ShapeSpecBuilder } from '../contracts/ShapeSpecBuilder.js';
@@ -19,7 +20,7 @@ export class EllipseSpecBuilder implements ShapeSpecBuilder {
       this.numbers.parseShape('ellipse', cyText, 'cy'),
       this.numbers.parseShape('ellipse', rxText, 'rx'),
       this.numbers.parseShape('ellipse', ryText, 'ry'),
-      fill
+      new ShapeStyle(fill)
     );
   }
 }

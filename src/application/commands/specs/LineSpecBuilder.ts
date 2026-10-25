@@ -1,4 +1,5 @@
 import { DomainError } from '../../../domain/DomainError.js';
+import { ShapeStyle } from '../../../domain/shapes/ShapeStyle.js';
 import { LineSpec } from '../../../domain/specs/LineSpec.js';
 import type { ShapeSpec } from '../../../domain/specs/ShapeSpec.js';
 import type { ShapeSpecBuilder } from '../contracts/ShapeSpecBuilder.js';
@@ -19,7 +20,7 @@ export class LineSpecBuilder implements ShapeSpecBuilder {
       this.numbers.parseShape('line', y1Text, 'y1'),
       this.numbers.parseShape('line', x2Text, 'x2'),
       this.numbers.parseShape('line', y2Text, 'y2'),
-      stroke
+      new ShapeStyle(undefined, stroke)
     );
   }
 }

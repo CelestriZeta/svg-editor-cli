@@ -7,8 +7,14 @@ export class TextSpec extends ShapeSpec {
   readonly #y: number;
   readonly #content: string;
 
-  public constructor(id: string, x: number, y: number, content: string) {
-    super(id, new ShapeStyle());
+  public constructor(
+    id: string,
+    x: number,
+    y: number,
+    content: string,
+    style = new ShapeStyle()
+  ) {
+    super(id, style);
 
     if (![x, y].every(Number.isFinite)) {
       throw new DomainError('text geometry must be finite numbers');

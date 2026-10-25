@@ -3,6 +3,7 @@ import { readFile } from 'node:fs/promises';
 import { afterEach, beforeEach, describe, expect, it } from 'vitest';
 
 import { SvgDocumentStore } from '../../src/infrastructure/SvgDocumentStore.js';
+import { SvgReader } from '../../src/infrastructure/SvgReader.js';
 import { SvgWriteVisitor } from '../../src/infrastructure/SvgWriteVisitor.js';
 import { ApplicationHarness } from '../support/ApplicationHarness.js';
 import { TemporaryDirectory } from '../support/TemporaryDirectory.js';
@@ -21,7 +22,7 @@ describe('six shapes -> tree -> save', () => {
   it('[CREATE-02/03/04/05/06, SAVE-05] dispatches and serializes all built-in shapes', async () => {
     const file = directory.file('shapes.svg');
     const harness = new ApplicationHarness(
-      new SvgDocumentStore(new SvgWriteVisitor())
+      new SvgDocumentStore(new SvgReader(), new SvgWriteVisitor())
     );
     const { repl } = harness;
 

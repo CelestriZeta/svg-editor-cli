@@ -3,6 +3,7 @@ import { mkdir, readdir, readFile } from 'node:fs/promises';
 import { afterEach, beforeEach, describe, expect, it } from 'vitest';
 
 import { SvgDocumentStore } from '../../src/infrastructure/SvgDocumentStore.js';
+import { SvgReader } from '../../src/infrastructure/SvgReader.js';
 import { SvgWriteVisitor } from '../../src/infrastructure/SvgWriteVisitor.js';
 import { ApplicationHarness } from '../support/ApplicationHarness.js';
 import { TemporaryDirectory } from '../support/TemporaryDirectory.js';
@@ -21,7 +22,7 @@ describe('init -> create rect -> tree -> save', () => {
   it('[SAVE-02/04/06, HIST-07] runs the complete path through a real file', async () => {
     const file = directory.file('demo.svg');
     const harness = new ApplicationHarness(
-      new SvgDocumentStore(new SvgWriteVisitor())
+      new SvgDocumentStore(new SvgReader(), new SvgWriteVisitor())
     );
     const { history, repl } = harness;
 
@@ -64,7 +65,7 @@ describe('init -> create rect -> tree -> save', () => {
   it('[EXEC-02] keeps history and path unchanged after a real write failure', async () => {
     const invalidFile = directory.file('missing/demo.svg');
     const harness = new ApplicationHarness(
-      new SvgDocumentStore(new SvgWriteVisitor())
+      new SvgDocumentStore(new SvgReader(), new SvgWriteVisitor())
     );
     const { history, repl } = harness;
 
@@ -89,7 +90,7 @@ describe('init -> create rect -> tree -> save', () => {
     const targetDirectory = directory.file('target');
     await mkdir(targetDirectory);
     const harness = new ApplicationHarness(
-      new SvgDocumentStore(new SvgWriteVisitor())
+      new SvgDocumentStore(new SvgReader(), new SvgWriteVisitor())
     );
     const { history, repl } = harness;
     await repl.executeLine('init 100 100');

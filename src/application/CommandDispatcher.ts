@@ -43,6 +43,11 @@ export class CommandDispatcher {
         create: (args) => documentCommands.createInit(args)
       },
       {
+        name: 'read',
+        syntax: 'read <file.svg>',
+        create: (args) => documentCommands.createRead(args)
+      },
+      {
         name: 'create',
         syntax:
           'create <rect|circle|ellipse|line|text|g> <id> [params...] [in <container-id>]',
@@ -112,6 +117,11 @@ export class CommandDispatcher {
         name: 'save',
         syntax: 'save [file.svg]',
         create: (args) => documentCommands.createSave(args)
+      },
+      {
+        name: 'canvas',
+        syntax: 'canvas [w] [h]',
+        create: (args) => documentCommands.createCanvas(args)
       },
       {
         name: 'help',

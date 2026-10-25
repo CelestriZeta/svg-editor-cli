@@ -11,10 +11,13 @@ import { HelpCommand } from '../../src/application/commands/HelpCommand.js';
 import { InitCommand } from '../../src/application/commands/InitCommand.js';
 import { InvalidCommand } from '../../src/application/commands/InvalidCommand.js';
 import { MoveShapeCommand } from '../../src/application/commands/MoveShapeCommand.js';
+import { ReadDocumentCommand } from '../../src/application/commands/ReadDocumentCommand.js';
 import { RedoCommand } from '../../src/application/commands/RedoCommand.js';
+import { ResizeCanvasCommand } from '../../src/application/commands/ResizeCanvasCommand.js';
 import { SaveCommand } from '../../src/application/commands/SaveCommand.js';
 import { ScaleShapeCommand } from '../../src/application/commands/ScaleShapeCommand.js';
 import { SetShapeAttributeCommand } from '../../src/application/commands/SetShapeAttributeCommand.js';
+import { ShowCanvasCommand } from '../../src/application/commands/ShowCanvasCommand.js';
 import { TreeCommand } from '../../src/application/commands/TreeCommand.js';
 import { UngroupShapeCommand } from '../../src/application/commands/UngroupShapeCommand.js';
 import { UndoCommand } from '../../src/application/commands/UndoCommand.js';
@@ -49,6 +52,9 @@ describe('CommandDispatcher', () => {
 
     expect(dispatcher.create(['init'])).toBeInstanceOf(InitCommand);
     await dispatcher.create(['init', '100', '50']).execute();
+    expect(dispatcher.create(['read', 'input.svg'])).toBeInstanceOf(
+      ReadDocumentCommand
+    );
     expect(dispatcher.create(['create', 'g', 'g1'])).toBeInstanceOf(
       CreateShapeCommand
     );
@@ -80,6 +86,10 @@ describe('CommandDispatcher', () => {
     expect(dispatcher.create(['undo'])).toBeInstanceOf(UndoCommand);
     expect(dispatcher.create(['redo'])).toBeInstanceOf(RedoCommand);
     expect(dispatcher.create(['save'])).toBeInstanceOf(SaveCommand);
+    expect(dispatcher.create(['canvas'])).toBeInstanceOf(ShowCanvasCommand);
+    expect(dispatcher.create(['canvas', '100', '50'])).toBeInstanceOf(
+      ResizeCanvasCommand
+    );
     expect(dispatcher.create(['help'])).toBeInstanceOf(HelpCommand);
   });
 
@@ -90,6 +100,8 @@ describe('CommandDispatcher', () => {
       [[], 'missing command'],
       [['missing'], 'unknown command: missing'],
       [['init', '1'], 'init requires zero or two arguments'],
+      [['read'], 'read requires one file path'],
+      [['read', 'a.svg', 'b.svg'], 'read requires one file path'],
       [['create', 'rect'], 'create requires a type and id'],
       [['create', 'g', 'g1', 'in'], "create g requires a container after 'in'"],
       [['delete'], 'delete requires one shape id'],
@@ -113,6 +125,8 @@ describe('CommandDispatcher', () => {
       [['undo', 'extra'], 'undo takes no arguments'],
       [['redo', 'extra'], 'redo takes no arguments'],
       [['save', 'a.svg', 'b.svg'], 'save accepts at most one file path'],
+      [['canvas', '1'], 'canvas requires zero or two arguments'],
+      [['canvas', '1', '2', '3'], 'canvas requires zero or two arguments'],
       [['help', 'extra'], 'help takes no arguments']
     ];
 

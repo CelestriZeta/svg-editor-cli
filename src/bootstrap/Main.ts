@@ -11,6 +11,7 @@ import { OutputFormatter } from '../cli/OutputFormatter.js';
 import { Repl } from '../cli/Repl.js';
 import { TreeFormatter } from '../cli/TreeFormatter.js';
 import { SvgDocumentStore } from '../infrastructure/SvgDocumentStore.js';
+import { SvgReader } from '../infrastructure/SvgReader.js';
 import { SvgWriteVisitor } from '../infrastructure/SvgWriteVisitor.js';
 
 export class Main {
@@ -18,7 +19,7 @@ export class Main {
     const session = new EditorSession();
     const documents = new DocumentService(
       session,
-      new SvgDocumentStore(new SvgWriteVisitor())
+      new SvgDocumentStore(new SvgReader(), new SvgWriteVisitor())
     );
     const history = new CommandHistory();
     const dispatcher = new CommandDispatcher(

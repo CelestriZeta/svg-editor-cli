@@ -11,6 +11,7 @@ describe('help', () => {
       [
         'commands:',
         '  init [w] [h]',
+        '  read <file.svg>',
         '  create <rect|circle|ellipse|line|text|g> <id> [params...] [in <container-id>]',
         '  delete <id>',
         '  move <id> <dx> <dy>',
@@ -25,6 +26,7 @@ describe('help', () => {
         '  undo',
         '  redo',
         '  save [file.svg]',
+        '  canvas [w] [h]',
         '  help'
       ].join('\n')
     );

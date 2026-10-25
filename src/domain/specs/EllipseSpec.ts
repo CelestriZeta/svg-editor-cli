@@ -14,9 +14,9 @@ export class EllipseSpec extends ShapeSpec {
     cy: number,
     rx: number,
     ry: number,
-    fill?: string
+    style = new ShapeStyle()
   ) {
-    super(id, new ShapeStyle(fill));
+    super(id, style);
 
     if (![cx, cy, rx, ry].every(Number.isFinite)) {
       throw new DomainError('ellipse geometry must be finite numbers');

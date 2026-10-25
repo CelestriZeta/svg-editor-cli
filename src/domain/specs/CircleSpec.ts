@@ -12,9 +12,9 @@ export class CircleSpec extends ShapeSpec {
     cx: number,
     cy: number,
     r: number,
-    fill?: string
+    style = new ShapeStyle()
   ) {
-    super(id, new ShapeStyle(fill));
+    super(id, style);
 
     if (![cx, cy, r].every(Number.isFinite)) {
       throw new DomainError('circle geometry must be finite numbers');

@@ -1,4 +1,5 @@
 import { DomainError } from '../../../domain/DomainError.js';
+import { ShapeStyle } from '../../../domain/shapes/ShapeStyle.js';
 import { CircleSpec } from '../../../domain/specs/CircleSpec.js';
 import type { ShapeSpec } from '../../../domain/specs/ShapeSpec.js';
 import type { ShapeSpecBuilder } from '../contracts/ShapeSpecBuilder.js';
@@ -18,7 +19,7 @@ export class CircleSpecBuilder implements ShapeSpecBuilder {
       this.numbers.parseShape('circle', cxText, 'cx'),
       this.numbers.parseShape('circle', cyText, 'cy'),
       this.numbers.parseShape('circle', rText, 'r'),
-      fill
+      new ShapeStyle(fill)
     );
   }
 }

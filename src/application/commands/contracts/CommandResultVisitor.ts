@@ -1,4 +1,7 @@
 import type { CanvasCreatedResult } from '../results/CanvasCreatedResult.js';
+import type { CanvasResizedResult } from '../results/CanvasResizedResult.js';
+import type { CanvasResult } from '../results/CanvasResult.js';
+import type { DocumentReadResult } from '../results/DocumentReadResult.js';
 import type { DocumentSavedResult } from '../results/DocumentSavedResult.js';
 import type { ErrorResult } from '../results/ErrorResult.js';
 import type { GroupCreatedResult } from '../results/GroupCreatedResult.js';
@@ -14,7 +17,10 @@ import type { TreeResult } from '../results/TreeResult.js';
 import type { UngroupedResult } from '../results/UngroupedResult.js';
 
 export interface CommandResultVisitor<T> {
+  visitCanvas(result: CanvasResult): T;
   visitCanvasCreated(result: CanvasCreatedResult): T;
+  visitCanvasResized(result: CanvasResizedResult): T;
+  visitDocumentRead(result: DocumentReadResult): T;
   visitDocumentSaved(result: DocumentSavedResult): T;
   visitError(result: ErrorResult): T;
   visitGroupCreated(result: GroupCreatedResult): T;

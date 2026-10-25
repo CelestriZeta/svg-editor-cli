@@ -1,6 +1,9 @@
 import type { CommandResult } from '../application/commands/contracts/CommandResult.js';
 import type { CommandResultVisitor } from '../application/commands/contracts/CommandResultVisitor.js';
 import type { CanvasCreatedResult } from '../application/commands/results/CanvasCreatedResult.js';
+import type { CanvasResizedResult } from '../application/commands/results/CanvasResizedResult.js';
+import type { CanvasResult } from '../application/commands/results/CanvasResult.js';
+import type { DocumentReadResult } from '../application/commands/results/DocumentReadResult.js';
 import type { DocumentSavedResult } from '../application/commands/results/DocumentSavedResult.js';
 import type { ErrorResult } from '../application/commands/results/ErrorResult.js';
 import type { GroupCreatedResult } from '../application/commands/results/GroupCreatedResult.js';
@@ -33,6 +36,26 @@ export class OutputFormatter implements CommandResultVisitor<string> {
 
   public visitCanvasCreated(result: CanvasCreatedResult): string {
     return `canvas ${result.width}x${result.height} created`;
+  }
+
+  public visitCanvas(result: CanvasResult): string {
+    return `canvas ${result.width}x${result.height}`;
+  }
+
+  public visitCanvasResized(result: CanvasResizedResult): string {
+    return `canvas resized to ${result.width}x${result.height}`;
+  }
+
+  public visitDocumentRead(result: DocumentReadResult): string {
+    const warnings = result.assignedIds.map(
+      (assignment) =>
+        `warning: assigned id ${assignment.id} to unnamed <${assignment.tagName}>`
+    );
+    const suffix = result.elementCount === 1 ? 'element' : 'elements';
+    return [
+      ...warnings,
+      `read ${result.path} (${result.elementCount} ${suffix})`
+    ].join('\n');
   }
 
   public visitDocumentSaved(result: DocumentSavedResult): string {

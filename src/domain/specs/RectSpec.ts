@@ -13,9 +13,9 @@ export class RectSpec extends ShapeSpec {
     y: number,
     width: number,
     height: number,
-    fill?: string
+    style = new ShapeStyle()
   ) {
-    super(id, new ShapeStyle(fill));
+    super(id, style);
 
     if (![x, y, width, height].every(Number.isFinite)) {
       throw new DomainError('rect geometry must be finite numbers');

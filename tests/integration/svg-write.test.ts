@@ -3,6 +3,7 @@ import { describe, expect, it } from 'vitest';
 import { SvgDocument } from '../../src/domain/document/SvgDocument.js';
 import { Rect } from '../../src/domain/shapes/Rect.js';
 import { ShapeAttributeUpdate } from '../../src/domain/shapes/ShapeAttributeUpdate.js';
+import { ShapeStyle } from '../../src/domain/shapes/ShapeStyle.js';
 import { RectSpec } from '../../src/domain/specs/RectSpec.js';
 import { TextSpec } from '../../src/domain/specs/TextSpec.js';
 import { SvgWriteVisitor } from '../../src/infrastructure/SvgWriteVisitor.js';
@@ -11,7 +12,14 @@ describe('SVG writing', () => {
   it('[SAVE-04/05] escapes XML content and serializes optional styles', () => {
     const document = new SvgDocument(100, 50);
     const rect = document.createShape(
-      new RectSpec('r&"1', 1, 2, 3, 4, 'red&"')
+      new RectSpec(
+        'r&"1',
+        1,
+        2,
+        3,
+        4,
+        new ShapeStyle('red&"')
+      )
     ) as Rect;
     rect.set(ShapeAttributeUpdate.text('stroke', '<blue>'));
     rect.set(ShapeAttributeUpdate.number('stroke-width', 2.5));

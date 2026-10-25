@@ -7,6 +7,7 @@ import { Group } from '../../src/domain/shapes/Group.js';
 import { Line } from '../../src/domain/shapes/Line.js';
 import { Rect } from '../../src/domain/shapes/Rect.js';
 import { ShapeAttributeUpdate } from '../../src/domain/shapes/ShapeAttributeUpdate.js';
+import { ShapeStyle } from '../../src/domain/shapes/ShapeStyle.js';
 import { Text } from '../../src/domain/shapes/Text.js';
 import { CircleSpec } from '../../src/domain/specs/CircleSpec.js';
 import { EllipseSpec } from '../../src/domain/specs/EllipseSpec.js';
@@ -19,16 +20,16 @@ describe('shape model', () => {
   it('[CREATE-01/02/03/04/05/06/08] creates all six SVG shape kinds', () => {
     const document = new SvgDocument(400, 300);
     const rect = document.createShape(
-      new RectSpec('rect', 1, 2, 30, 40, 'red')
+      new RectSpec('rect', 1, 2, 30, 40, new ShapeStyle('red'))
     );
     const circle = document.createShape(
       new CircleSpec('circle', 50, 60, 10)
     );
     const ellipse = document.createShape(
-      new EllipseSpec('ellipse', 70, 80, 12, 8, 'blue')
+      new EllipseSpec('ellipse', 70, 80, 12, 8, new ShapeStyle('blue'))
     );
     const line = document.createShape(
-      new LineSpec('line', 1, 2, 3, 4, 'black')
+      new LineSpec('line', 1, 2, 3, 4, new ShapeStyle(undefined, 'black'))
     );
     const text = document.createShape(
       new TextSpec('text', 5, 6, 'Hello SVG')
