@@ -1,4 +1,5 @@
 import { DomainError } from '../DomainError.js';
+import { ShapeStyle } from '../shapes/ShapeStyle.js';
 import { ShapeSpec } from './ShapeSpec.js';
 
 export class RectSpec extends ShapeSpec {
@@ -6,8 +7,6 @@ export class RectSpec extends ShapeSpec {
   readonly #y: number;
   readonly #width: number;
   readonly #height: number;
-  readonly #fill: string | undefined;
-
   public constructor(
     id: string,
     x: number,
@@ -16,7 +15,7 @@ export class RectSpec extends ShapeSpec {
     height: number,
     fill?: string
   ) {
-    super(id);
+    super(id, new ShapeStyle(fill));
 
     if (![x, y, width, height].every(Number.isFinite)) {
       throw new DomainError('rect geometry must be finite numbers');
@@ -24,15 +23,10 @@ export class RectSpec extends ShapeSpec {
     if (width <= 0 || height <= 0) {
       throw new DomainError('rect width and height must be positive');
     }
-    if (fill !== undefined && fill.length === 0) {
-      throw new DomainError('rect fill must not be empty');
-    }
-
     this.#x = x;
     this.#y = y;
     this.#width = width;
     this.#height = height;
-    this.#fill = fill;
   }
 
   public override readonly type = 'rect';
@@ -53,7 +47,4 @@ export class RectSpec extends ShapeSpec {
     return this.#height;
   }
 
-  public get fill(): string | undefined {
-    return this.#fill;
-  }
 }

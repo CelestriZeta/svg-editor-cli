@@ -6,22 +6,21 @@ export class RectView extends ShapeView {
   readonly #y: number;
   readonly #width: number;
   readonly #height: number;
-  readonly #fill: string | undefined;
-
   public constructor(
     id: string,
     x: number,
     y: number,
     width: number,
     height: number,
-    fill?: string
+    fill?: string,
+    stroke?: string,
+    strokeWidth?: number
   ) {
-    super(id, 'rect');
+    super(id, fill, stroke, strokeWidth);
     this.#x = x;
     this.#y = y;
     this.#width = width;
     this.#height = height;
-    this.#fill = fill;
   }
 
   public get x(): number {
@@ -38,10 +37,6 @@ export class RectView extends ShapeView {
 
   public get height(): number {
     return this.#height;
-  }
-
-  public get fill(): string | undefined {
-    return this.#fill;
   }
 
   public override accept<T>(visitor: ShapeViewVisitor<T>): T {

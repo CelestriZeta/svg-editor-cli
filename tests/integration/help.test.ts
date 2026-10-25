@@ -11,7 +11,7 @@ describe('help', () => {
       [
         'commands:',
         '  init [w] [h]',
-        '  create rect <id> <x> <y> <width> <height> [fill]',
+        '  create <rect|circle|ellipse|line|text|g> <id> [params...]',
         '  tree',
         '  save [file.svg]',
         '  help'

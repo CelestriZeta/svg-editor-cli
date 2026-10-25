@@ -43,9 +43,9 @@
 | ARCH-02 | A | 执行 `pnpm run test` | 测试运行器可执行 TypeScript 测试 | 通过 |
 | ARCH-03 | A | 执行 `pnpm run build` | 生产代码成功输出到 `dist/` | 通过 |
 | ARCH-04 | A | 检查 `src/domain` 的 import | 不导入 CLI、文件系统、XML 库或基础设施 | 通过（阶段 2 静态检查） |
-| ARCH-05 | A | 检查生产类文件 | 一类一文件，文件名与类名一致，字段不公开为可变数据袋 | 通过（阶段 2 静态检查） |
+| ARCH-05 | A | 检查生产类文件 | 一类一文件，文件名与类名一致，字段不公开为可变数据袋；容器children不暴露普通写方法 | 通过（阶段 3 架构复审） |
 | ARCH-06 | A | 搜索标签或类型名字分派 | 只出现在 `CommandDispatcher` 和 `ShapeFactory` | 通过（阶段 2 静态检查） |
-| ARCH-07 | A | 检查生产模块依赖 | 无循环依赖，且依赖方向符合 README 1.7 | 通过（阶段 2 静态检查） |
+| ARCH-07 | A | 检查生产模块依赖 | 无循环依赖，且依赖方向符合 README 1.7；树变更只经文档与内部协议 | 通过（阶段 3 架构复审） |
 | ARCH-08 | A | 检查命令实现 | 命令只校验和转发，不直接改树、id 索引或文件 | 通过（阶段 2 静态检查） |
 | ARCH-09 | A | 检查启动装配 | `bootstrap` 注入具体实现，生产模块不反向依赖它 | 通过（阶段 2 静态检查） |
 | ARCH-10 | A | 搜索本阶段范围外能力 | 没有 `EditorApi`、插件加载、GUI 或 `box` 实现 | 通过（阶段 2 静态检查） |
@@ -55,42 +55,42 @@
 | ID | 层级 | Given / When | Then | 状态 |
 |---|---|---|---|---|
 | CREATE-01 | U | 创建 `rect`，给出 x、y、w、h 和可选 fill | 属性和值正确；省略 fill 时不保存该属性 | 通过（阶段 2） |
-| CREATE-02 | U | 创建 `circle`，给出 cx、cy、r 和可选 fill | 属性和值正确；省略 fill 时不保存该属性 | 待实现 |
-| CREATE-03 | U | 创建 `ellipse`，给出 cx、cy、rx、ry 和可选 fill | 属性和值正确；省略 fill 时不保存该属性 | 待实现 |
-| CREATE-04 | U | 创建 `line`，给出 x1、y1、x2、y2 和可选 stroke | 属性和值正确；省略 stroke 时不保存该属性 | 待实现 |
-| CREATE-05 | U | 创建 `text`，给出 x、y 和含空格文本 | 文本保存为子文本，空格和大小写保持不变 | 待实现 |
-| CREATE-06 | U | 创建空 `g` | 容器没有子节点，可以作为后续操作目标 | 待实现 |
+| CREATE-02 | U | 创建 `circle`，给出 cx、cy、r 和可选 fill | 属性和值正确；省略 fill 时不保存该属性 | 通过（阶段 3） |
+| CREATE-03 | U | 创建 `ellipse`，给出 cx、cy、rx、ry 和可选 fill | 属性和值正确；省略 fill 时不保存该属性 | 通过（阶段 3） |
+| CREATE-04 | U | 创建 `line`，给出 x1、y1、x2、y2 和可选 stroke | 属性和值正确；省略 stroke 时不保存该属性 | 通过（阶段 3） |
+| CREATE-05 | U | 创建 `text`，给出 x、y 和含空格文本 | 文本保存为子文本，空格和大小写保持不变 | 通过（阶段 3） |
+| CREATE-06 | U | 创建空 `g` | 容器没有子节点，可以作为后续操作目标 | 通过（阶段 3） |
 | CREATE-07 | C | 使用已存在 id 创建 | 返回 `error: id already exists: <id>` 且满足 `FAIL-STATE` | 通过（阶段 2） |
-| CREATE-08 | U | 分别创建 `r1` 和 `R1` | 两个 id 均合法，证明大小写敏感 | 待实现 |
+| CREATE-08 | U | 分别创建 `r1` 和 `R1` | 两个 id 均合法，证明大小写敏感 | 通过（阶段 3） |
 | CREATE-09 | C | 创建六种受支持类型之外的 `hexagon` | 返回 `error: unknown shape type: hexagon (is the plugin loaded?)` 且满足 `FAIL-STATE` | 通过（阶段 2） |
 | CREATE-10 | E | 执行 `create box ...` | 按未知类型拒绝，不能创建容器或子节点 | 待实现 |
 | CREATE-11 | U | 六种类型分别使用 `in <gid>` 创建 | 节点成为指定容器的最后一个子节点 | 待实现 |
 | CREATE-12 | C | `in` 指向不存在的 id | 返回 `error: no such container: <id>` 且满足 `FAIL-STATE` | 待实现 |
 | CREATE-13 | C | `in` 指向叶子图形 | 返回 `error: not a container: <id>` 且满足 `FAIL-STATE` | 待实现 |
 | CREATE-14 | C | 缺少必需参数、参数过多、数字非法或 id 为空 | 返回单行 `error:`，不得部分创建，且满足 `FAIL-STATE` | 部分通过（阶段 2 覆盖缺参、空字符串和十六进制；id 为空待补） |
-| SET-01 | U | 对每种图形设置自身白名单中的几何属性 | 只有目标属性变化，类型和父子关系不变 | 待实现 |
-| SET-02 | U | 设置 `fill`、`stroke`、`stroke-width` | 普通叶子正确保存对应样式 | 待实现 |
-| SET-03 | U | 对 `text` 设置 `text` | 只替换文本内容，不改 x/y | 待实现 |
-| SET-04 | U | 对普通 `g` 设置样式 | 只修改 g 自身样式，不覆盖或传播给子孙 | 待实现 |
-| SET-05 | C | 对某类型设置其他类型的几何属性 | 返回 `error: unknown attribute: <attr>` 且满足 `FAIL-STATE` | 待实现 |
-| SET-06 | C | 设置需求白名单外的属性，包括 `font-size`、`text-anchor` | 返回 `error: unknown attribute: <attr>` 且满足 `FAIL-STATE` | 待实现 |
-| SET-07 | C | 设置非法数字或空文本 | 返回单行 `error:`，保留原值且满足 `FAIL-STATE` | 待实现 |
+| SET-01 | U | 对每种图形设置自身白名单中的几何属性 | 只有目标属性变化，类型和父子关系不变 | 通过（阶段 3 类型化 Update API） |
+| SET-02 | U | 设置 `fill`、`stroke`、`stroke-width` | 普通叶子正确保存对应样式 | 通过（阶段 3） |
+| SET-03 | U | 对 `text` 设置 `text` | 只替换文本内容，不改 x/y | 通过（阶段 3） |
+| SET-04 | U | 对普通 `g` 设置样式 | 只修改 g 自身样式，不覆盖或传播给子孙 | 通过（阶段 3） |
+| SET-05 | C | 对某类型设置其他类型的几何属性 | 返回 `error: unknown attribute: <attr>` 且满足 `FAIL-STATE` | 通过（阶段 3 领域错误） |
+| SET-06 | C | 设置需求白名单外的属性，包括 `font-size`、`text-anchor` | 返回 `error: unknown attribute: <attr>` 且满足 `FAIL-STATE` | 通过（阶段 3 领域错误） |
+| SET-07 | C | 设置非法数字或空文本 | 返回单行 `error:`，保留原值且满足 `FAIL-STATE` | 通过（阶段 3 领域错误；CLI 待阶段 5） |
 
 ## 几何与 Composite
 
 | ID | 层级 | Given / When | Then | 状态 |
 |---|---|---|---|---|
-| GEO-01 | U | 对叶子执行 `move`，使用正负浮点增量 | 全部位置属性按增量变化，非位置尺寸不变 | 待实现 |
-| GEO-02 | U | 对多层容器执行 `move` | 全部子孙递归平移一次，父子结构不变 | 待实现 |
-| GEO-03 | U | 对叶子执行正数 `scale` | 位置和自身全部尺寸按同一 factor 缩放 | 待实现 |
-| GEO-04 | U | 对多层容器执行 `scale` | 全部子孙递归缩放一次，不重复缩放 | 待实现 |
-| GEO-05 | U | 对 `text` 执行 `scale` | 只缩放 x、y；不新增或修改 font-size | 待实现 |
-| GEO-06 | C | `scale` 使用 0、负数、NaN 或 Infinity | 返回 `error: scale factor must be positive` 或统一数值错误，且满足 `FAIL-STATE` | 待实现 |
-| GEO-07 | C | 多节点容器缩放中某个后代数值非法 | 在执行前完成全部校验，所有节点均保持原值 | 待实现 |
-| GEO-08 | U | Visitor 遍历嵌套容器 | 顺序为 enterGroup -> 子树 -> leaveGroup | 待实现 |
-| GEO-09 | U | Visitor 在 enterGroup 跳过子树 | 不访问该容器的任何子孙，但后续兄弟仍正常访问 | 待实现 |
-| DELETE-01 | U | 删除叶子 | 节点、id 索引和父级引用同时移除 | 待实现 |
-| DELETE-02 | U | 删除容器 | 整个子树删除，操作记录为一个 undo 单元 | 待实现 |
+| GEO-01 | U | 对叶子执行 `move`，使用正负浮点增量 | 全部位置属性按增量变化，非位置尺寸不变 | 通过（阶段 3） |
+| GEO-02 | U | 对多层容器执行 `move` | 全部子孙递归平移一次，父子结构不变 | 通过（阶段 3） |
+| GEO-03 | U | 对叶子执行正数 `scale` | 位置和自身全部尺寸按同一 factor 缩放 | 通过（阶段 3） |
+| GEO-04 | U | 对多层容器执行 `scale` | 全部子孙递归缩放一次，不重复缩放 | 通过（阶段 3） |
+| GEO-05 | U | 对 `text` 执行 `scale` | 只缩放 x、y；不新增或修改 font-size | 通过（阶段 3） |
+| GEO-06 | C | `scale` 使用 0、负数、NaN 或 Infinity | 返回 `error: scale factor must be positive` 或统一数值错误，且满足 `FAIL-STATE` | 通过（阶段 3 领域 API） |
+| GEO-07 | C | 多节点容器缩放中某个后代数值非法 | 在执行前完成全部校验，所有节点均保持原值 | 通过（阶段 3 先 prepare 后 apply） |
+| GEO-08 | U | Visitor 遍历嵌套容器 | 顺序为 enterGroup -> 子树 -> leaveGroup | 通过（阶段 3） |
+| GEO-09 | U | Visitor 在 enterGroup 跳过子树 | 不访问该容器的任何子孙，但后续兄弟仍正常访问 | 通过（阶段 3） |
+| DELETE-01 | U | 删除叶子 | 节点、id 索引和父级引用同时移除 | 通过（阶段 3） |
+| DELETE-02 | U | 删除容器 | 整个子树删除，操作记录为一个 undo 单元 | 部分通过（阶段 3 覆盖整树删除和 id 清理；undo 单元待阶段 4/5） |
 
 ## 树结构与顺序
 
@@ -177,7 +177,7 @@
 | SAVE-02 | I | 使用显式路径 save 成功 | 写入该路径，并将其设为新的默认路径 | 通过（阶段 2） |
 | SAVE-03 | I | init 后执行无参数 save | 返回单行路径错误且满足 `FAIL-STATE` | 通过（阶段 2） |
 | SAVE-04 | I | 保存支持范围内的文档 | 输出标准 SVG 声明、命名空间、尺寸、viewBox 和正确层级 | 通过（阶段 2 的 rect 范围） |
-| SAVE-05 | I | 保存省略 fill/stroke 的图形 | 输出中不主动补写可选属性 | 待实现 |
+| SAVE-05 | I | 保存省略 fill/stroke 的图形 | 输出中不主动补写可选属性 | 通过（阶段 3 六种图形） |
 | SAVE-06 | I | 成功保存 | 先写同目录临时文件，再替换目标；临时文件清理 | 通过（阶段 2 真实临时目录） |
 | SAVE-07 | I | 临时文件创建或写入失败 | 原文件、当前文档、路径、历史与屏障不变，临时文件清理 | 待实现 |
 | SAVE-08 | I | 最终替换失败 | 旧文件仍可读；当前文档、路径、历史和屏障不变，临时文件清理 | 待实现 |

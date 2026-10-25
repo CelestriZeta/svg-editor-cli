@@ -24,6 +24,12 @@
 - 2026-10-25 完成阶段 2 架构审查与修复：用 `RectSpec` 隔离领域对象和 CLI token；拆分 `Command` 与 `UndoableCommand`；引入 Canvas/Shape/Saved/Help 语义结果和 `ShapeViewVisitor`；命令描述表同源生成 help；预期错误由 Guard 转换，未知错误不再泄漏实现消息并保留 cause。新增空数字和十六进制输入回归。
 - 测试已从单一 `stage2.test.ts` 拆为 CLI、domain、application、integration、e2e 和 support 目录；目录重整后当前 8 个测试文件、10 个测试通过。`pnpm run check` 通过，真实 CLI 回放确认空字符串和十六进制数字被拒绝，文档、树和 help 输出正常。
 - 2026-10-25 完成目录审查与修正：`application/commands` 分离 contracts/results/support；只读投影移入 `application/queries`；领域按 document/shapes/specs/visitor 分组；集成测试按失败状态、文档生命周期和 help 拆分；删除无行为价值的基线测试和非空目录 `.gitkeep`。`pnpm run check` 与构建产物 CLI 回放通过。
+- 2026-10-25 完成阶段 3 领域模型与 Composite：新增 `Circle`、`Ellipse`、`Line`、`Text`、`ContainerShape`、`Group` 及对应类型化规格；`Shape` 统一封装 id、样式、父级、set/move/scale 契约；`Group` 递归平移/缩放，Visitor 支持组进入、递归、离开和子树跳过。
+- `SvgDocument` 已用唯一 id 索引提供查找、父级查询和子树删除，元素计数包含嵌套节点；`create` 已通过集中类型映射支持六种内置图形，`tree` 与 `save` 已能递归输出组和全部叶子。`in`、group/ungroup/addto/front/back 仍按计划属于阶段 4。
+- 阶段 3 新增测试先因缺少图形类和命令类型分派失败；实现后领域、嵌套输出和六图形 CLI 链路测试通过。自查期间发现并修正了嵌套 SVG 根层多行缩进、移动溢出误用缩放错误文案及数值属性接受十六进制的问题。
+- 阶段 3 最终 `pnpm run check` 通过：12 个测试文件、19 个测试，严格类型检查和生产构建均成功；构建产物管道回放创建六种图形并输出正确顺序的 tree。静态检查确认领域层未引用 CLI、Node 文件系统、XML 或基础设施，图形名分派仍只在命令类型映射和 `ShapeFactory`，新增生产类保持一类一文件。
+- 2026-10-25 阶段 3 架构复审发现并修正四项隐患：公开 `appendChild/removeChild` 可绕过文档 id 索引；`Shape.set` 接收命令字符串；容器 move/scale 重复执行校验和修改；子树收集与只读视图存在重复遍历/重复状态。树变更改为仅供 `SvgDocument` 和容器协作者使用的 symbol 协议，属性修改改为类型化 `ShapeAttributeUpdate`，几何操作改为 `prepareMove/prepareScale` 与 `apply/revert` ChangeSet，子树收集复用 `ShapeCollector` Visitor，并移除 `ShapeView.type`。
+- 架构修正后 `pnpm run check` 通过：13 个测试文件、22 个测试，严格类型检查和生产构建均成功；新增测试确认容器不存在普通 `appendChild/removeChild` API、文档删除保持 id 索引一致、属性更新不再解析命令字符串，以及已准备几何变更在 apply 前不修改状态并可精确 revert。
 - exFAT 不支持符号链接，pnpm 项目配置使用 hoisted 布局；`.npmrc` 与 `pnpm-workspace.yaml` 中保留了该平台设置。
 
 ## 实际实现架构
@@ -36,12 +42,12 @@
 - `src/application/commands/results/`：Canvas、Shape、Saved、Error、Help 和 Tree 语义结果。
 - `src/application/commands/support/`：预期命令错误转换。
 - `src/application/commands/`：内置具体命令，保持平铺。
-- `src/application/queries/`：只读查询模型和访问者。
+- `src/application/queries/`：六种图形的只读投影、组投影和访问者。
 - `src/application/ports/`：文档存储及端口错误。
 - `src/domain/document/`：文档 id、顺序和结构不变量。
-- `src/domain/shapes/`：图形层次及叶子/容器实现。
+- `src/domain/shapes/`：`Shape`、`ContainerShape`/`Group`、六种叶子图形、不可变 `ShapeStyle`、类型化 `ShapeAttributeUpdate`、几何 ChangeSet，以及只供文档协作者使用的树变更 symbol 协议。
 - `src/domain/specs/`：类型化创建规格，禁止外部 token 进入领域。
-- `src/domain/visitor/`：领域遍历契约。
+- `src/domain/visitor/`：领域遍历契约和复用该契约的 `ShapeCollector`。
 - `src/infrastructure/`：SVG 序列化、原子文件存储和 Node.js IO 适配。
 - `src/bootstrap/`：生产对象装配与 CLI 入口。
 - 依赖方向保持为 `bootstrap -> cli/infrastructure/application -> domain`；领域不依赖终端、文件系统、XML 或基础设施。
@@ -50,7 +56,7 @@
 
 ## 已定方案与实现进展
 
-- 采用 TypeScript、面向对象、一类一文件；Command 已用于阶段 2 命令，Composite 的 Group 与统一操作仍待阶段 3。
+- 采用 TypeScript、面向对象、一类一文件；Command 已用于现有编辑/查询命令，Composite 已由 `ContainerShape` 和 `Group` 落地统一几何/属性操作。
 - 模块：`cli`、`application`（commands 内部再分 contracts/results/support，查询投影独立为 queries）、`domain`（document/shapes/specs/visitor）、`infrastructure`、`bootstrap`，具体职责和依赖见提交文档。
 - 架构方案已完成模式选型与职责细化，依据项目需求说明取舍。
 - AI 协作记录仅保留关键决策，已补充本次目录压平及去除纯转发层的讨论。
@@ -73,7 +79,7 @@
 
 ## 必须持续记住的约束
 
-- 六种类型：`rect` / `circle` / `ellipse` / `line` / `text` / `g`；`box` 是后续阶段目标。
+- 六种类型：`rect` / `circle` / `ellipse` / `line` / `text` / `g` 已实现领域建模与创建；`box` 是后续阶段目标。
 - id 全局唯一且大小写敏感；CLI 创建必须显式给 id，外部读入缺 id 才自动补齐并警告，且不能与已有 id 碰撞。
 - 双引号保护含空格参数；只有整行开头的 `#` 是注释，不可吞掉颜色参数。
 - `scale` 对全部几何属性（含位置）等比缩放；容器操作递归作用于子孙。
@@ -89,11 +95,20 @@
 
 测试清单还标出了需求未规定、实现前必须固定的细节：非法尺寸与数值范围、group 目标异常文案、addto 成环文案、front/back 边界是否入栈、空栈 undo/redo 行为、最终文件替换失败的可保证范围。实现相应功能前先在本文件记录实际决定。
 
+阶段 3 已固定的补充边界：
+
+- `fill` / `stroke` 必须为非空文本；`stroke-width` 必须是非负有限十进制数；各尺寸属性必须为正。`set` 白名单外的属性由具体图形拒绝。
+- 图形移动或缩放先对全部受影响节点计算并检查有限值，再同步提交；失败不修改任何几何。普通 `g` 的 `set` 只改组自身样式，不传播给子节点。
+- `SvgDocument.deleteShape` 删除完整子树并从 id 索引移除；被删除子树内部保留父子引用，供后续局部变更记录和 undo 恢复使用，顶层被删节点与原父级断开。
+- `SvgDocument.createShape(spec, parent?)` 已提供受控父级参数并校验父容器属于当前文档；CLI 的 `in` 语法、跨父级收编和顺序调整仍未实现，留给阶段 4。
+- 普通应用代码不能通过字符串方法直接修改容器 children 或形状 parent；容器挂载、摘除和 parent 写入只在 `ShapeTreeMutation` 内部 symbol 协议中存在，生产调用点限定为 `SvgDocument` 与 `ContainerShape` 自身。
+- `Shape.set` 只接收 `ShapeAttributeUpdate`，数值和文本在创建更新值时已定型；领域不再解析 CLI/十六进制等外部数字语法。`move/scale` 先生成包含精确 before/after 的 `GeometryChangeSet`，再由公共入口原子应用。
+
 ## 下一步建议顺序
 
-1. 按 `doc/DEVELOPMENT_PLAN.md` 阶段 3 先写 `Shape`、`Group`、其余五种叶子图形、统一几何操作和 Visitor 的失败测试。
-2. 完善 `SvgDocument` 的 id 索引、父子关系、同级顺序和不变量。
-3. 依序完成局部变更、树结构编辑、undo/redo 命令、SVG 读取和完整 CLI。
+1. 进入 `doc/DEVELOPMENT_PLAN.md` 阶段 4：先为 `create ... in`、`group`、`ungroup`、`addto`、`front`、`back` 及祖先/重复/未知目标写失败测试。
+2. 在 `SvgDocument` 内实现候选状态校验、有序子树重挂接和精确局部 `ChangeSet`，保持阶段 3 的失败原子性。
+3. 依序完成 undo/redo 命令、SVG 读取和完整 CLI。
 4. 按 `doc/README.md` 验收矩阵回放场景，补充边界测试和浏览器预览。
 5. 填写最终一致性自查，完成交付；只有用户确认后才提交和推送。
 

@@ -1,7 +1,12 @@
 import { DomainError } from '../domain/DomainError.js';
 import type { SvgDocument } from '../domain/document/SvgDocument.js';
+import { CircleSpec } from '../domain/specs/CircleSpec.js';
+import { EllipseSpec } from '../domain/specs/EllipseSpec.js';
+import { GroupSpec } from '../domain/specs/GroupSpec.js';
+import { LineSpec } from '../domain/specs/LineSpec.js';
 import { RectSpec } from '../domain/specs/RectSpec.js';
 import type { ShapeSpec } from '../domain/specs/ShapeSpec.js';
+import { TextSpec } from '../domain/specs/TextSpec.js';
 import { CreateShapeCommand } from './commands/CreateShapeCommand.js';
 import type { Command } from './commands/contracts/Command.js';
 import { HelpCommand } from './commands/HelpCommand.js';
@@ -19,16 +24,31 @@ interface CommandDefinition {
   create(args: readonly string[]): Command;
 }
 
+type ShapeSpecBuilder = (
+  id: string,
+  parameters: readonly string[]
+) => ShapeSpec;
+
 const DECIMAL_NUMBER = /^[+-]?(?:\d+(?:\.\d*)?|\.\d+)(?:[eE][+-]?\d+)?$/;
 
 export class CommandDispatcher {
   readonly #definitions: ReadonlyMap<string, CommandDefinition>;
+  readonly #shapeSpecBuilders: ReadonlyMap<string, ShapeSpecBuilder>;
 
   public constructor(
     private readonly session: EditorSession,
     private readonly documents: DocumentService,
     private readonly viewVisitor: DocumentViewVisitor
   ) {
+    this.#shapeSpecBuilders = new Map<string, ShapeSpecBuilder>([
+      ['rect', (id, parameters) => this.createRectSpec(id, parameters)],
+      ['circle', (id, parameters) => this.createCircleSpec(id, parameters)],
+      ['ellipse', (id, parameters) => this.createEllipseSpec(id, parameters)],
+      ['line', (id, parameters) => this.createLineSpec(id, parameters)],
+      ['text', (id, parameters) => this.createTextSpec(id, parameters)],
+      ['g', (id, parameters) => this.createGroupSpec(id, parameters)]
+    ]);
+
     const definitions: CommandDefinition[] = [
       {
         name: 'init',
@@ -37,7 +57,7 @@ export class CommandDispatcher {
       },
       {
         name: 'create',
-        syntax: 'create rect <id> <x> <y> <width> <height> [fill]',
+        syntax: 'create <rect|circle|ellipse|line|text|g> <id> [params...]',
         create: (args) => this.createShape(args)
       },
       {
@@ -136,14 +156,14 @@ export class CommandDispatcher {
     id: string,
     parameters: readonly string[]
   ): ShapeSpec {
-    switch (type) {
-      case 'rect':
-        return this.createRectSpec(id, parameters);
-      default:
-        throw new DomainError(
-          `unknown shape type: ${type} (is the plugin loaded?)`
-        );
+    const builder = this.#shapeSpecBuilders.get(type);
+    if (builder === undefined) {
+      throw new DomainError(
+        `unknown shape type: ${type} (is the plugin loaded?)`
+      );
     }
+
+    return builder(id, parameters);
   }
 
   private createRectSpec(
@@ -155,16 +175,104 @@ export class CommandDispatcher {
     }
 
     const [xText, yText, widthText, heightText, fill] = parameters;
-    const x = this.parseRectNumber(xText, 'x');
-    const y = this.parseRectNumber(yText, 'y');
-    const width = this.parseRectNumber(widthText, 'width');
-    const height = this.parseRectNumber(heightText, 'height');
+    const x = this.parseShapeNumber('rect', xText, 'x');
+    const y = this.parseShapeNumber('rect', yText, 'y');
+    const width = this.parseShapeNumber('rect', widthText, 'width');
+    const height = this.parseShapeNumber('rect', heightText, 'height');
     return new RectSpec(id, x, y, width, height, fill);
   }
 
-  private parseRectNumber(value: string | undefined, field: string): number {
+  private createCircleSpec(
+    id: string,
+    parameters: readonly string[]
+  ): CircleSpec {
+    if (parameters.length !== 3 && parameters.length !== 4) {
+      throw new DomainError('circle requires cx, cy and r');
+    }
+
+    const [cxText, cyText, rText, fill] = parameters;
+    return new CircleSpec(
+      id,
+      this.parseShapeNumber('circle', cxText, 'cx'),
+      this.parseShapeNumber('circle', cyText, 'cy'),
+      this.parseShapeNumber('circle', rText, 'r'),
+      fill
+    );
+  }
+
+  private createEllipseSpec(
+    id: string,
+    parameters: readonly string[]
+  ): EllipseSpec {
+    if (parameters.length !== 4 && parameters.length !== 5) {
+      throw new DomainError('ellipse requires cx, cy, rx and ry');
+    }
+
+    const [cxText, cyText, rxText, ryText, fill] = parameters;
+    return new EllipseSpec(
+      id,
+      this.parseShapeNumber('ellipse', cxText, 'cx'),
+      this.parseShapeNumber('ellipse', cyText, 'cy'),
+      this.parseShapeNumber('ellipse', rxText, 'rx'),
+      this.parseShapeNumber('ellipse', ryText, 'ry'),
+      fill
+    );
+  }
+
+  private createLineSpec(
+    id: string,
+    parameters: readonly string[]
+  ): LineSpec {
+    if (parameters.length !== 4 && parameters.length !== 5) {
+      throw new DomainError('line requires x1, y1, x2 and y2');
+    }
+
+    const [x1Text, y1Text, x2Text, y2Text, stroke] = parameters;
+    return new LineSpec(
+      id,
+      this.parseShapeNumber('line', x1Text, 'x1'),
+      this.parseShapeNumber('line', y1Text, 'y1'),
+      this.parseShapeNumber('line', x2Text, 'x2'),
+      this.parseShapeNumber('line', y2Text, 'y2'),
+      stroke
+    );
+  }
+
+  private createTextSpec(
+    id: string,
+    parameters: readonly string[]
+  ): TextSpec {
+    if (parameters.length !== 3) {
+      throw new DomainError('text requires x, y and content');
+    }
+
+    const [xText, yText, content] = parameters;
+    return new TextSpec(
+      id,
+      this.parseShapeNumber('text', xText, 'x'),
+      this.parseShapeNumber('text', yText, 'y'),
+      content ?? ''
+    );
+  }
+
+  private createGroupSpec(
+    id: string,
+    parameters: readonly string[]
+  ): GroupSpec {
+    if (parameters.length !== 0) {
+      throw new DomainError('g does not accept parameters');
+    }
+
+    return new GroupSpec(id);
+  }
+
+  private parseShapeNumber(
+    type: string,
+    value: string | undefined,
+    field: string
+  ): number {
     if (value === undefined || !DECIMAL_NUMBER.test(value)) {
-      throw new DomainError(`rect ${field} must be a number`);
+      throw new DomainError(`${type} ${field} must be a number`);
     }
 
     return Number(value);
