@@ -36,6 +36,7 @@ export class ShapeGeometryChange implements ChangeSet {
   }
 
   private write(direction: 'before' | 'after'): void {
+    // 撤销直接写回捕获的旧值，不用反向运算，避免浮点误差累积。
     const applied: GeometryValueChange[] = [];
     try {
       for (const value of this.#values) {

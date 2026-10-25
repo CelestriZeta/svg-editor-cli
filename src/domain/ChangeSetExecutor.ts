@@ -34,6 +34,7 @@ export class ChangeSetExecutor {
     changes: readonly ChangeSet[],
     direction: 'apply' | 'revert'
   ): void {
+    // 变更之间可能有先后依赖，撤销和失败补偿都必须逆序执行。
     const ordered = direction === 'apply' ? changes : [...changes].reverse();
     const applied: ChangeSet[] = [];
     try {

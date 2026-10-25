@@ -59,6 +59,7 @@ export class ShapeTree {
   public disown(shape: Shape): void {
     this.requireIndexed(shape);
     const subtree = [...new ShapeCollector().collect(shape)];
+    // 只摘除子树根并注销 id，保留子树内部关系，供撤销时整体重新接入。
     this.detach(shape);
     for (const node of subtree) {
       this.#shapesById.delete(node.id);
@@ -79,6 +80,7 @@ export class ShapeTree {
     }
 
     const [beforeParent, beforeIndex] = this.locationOf(shape);
+    // 目标下标以摘除后的列表为准；同父级移动时需扣除节点自身。
     const targetCount =
       this.childrenFor(parent).length - (beforeParent === parent ? 1 : 0);
     this.requireValidIndex(index, targetCount);

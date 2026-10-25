@@ -9,6 +9,7 @@ export abstract class EditChangeSetCommand extends UndoableCommand {
   #changeSet: ChangeSet | undefined;
 
   public override get undoHandler(): UndoableCommand | undefined {
+    // 成功但没有状态变化的编辑不入历史，也不清空已有 redo。
     return this.#changeSet?.hasChanges === true ? this : undefined;
   }
 
@@ -17,6 +18,7 @@ export abstract class EditChangeSetCommand extends UndoableCommand {
       const changeSet = this.prepareChange();
       changeSet.apply();
       this.#changeSet = changeSet;
+      // 结果构造也是命令的一部分；若失败，必须撤回已提交的变更。
       try {
         return this.createResult(EditDirection.Applied, changeSet.hasChanges);
       } catch (error) {

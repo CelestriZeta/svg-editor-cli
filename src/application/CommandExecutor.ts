@@ -11,6 +11,7 @@ export class CommandExecutor {
 
   public execute(command: Command): Promise<CommandResult> {
     const operation = this.#tail.then(() => this.run(command));
+    // 队列尾部吸收失败，让后续命令继续串行执行；当前调用仍收到原操作的结果。
     this.#tail = operation.then(
       () => undefined,
       () => undefined

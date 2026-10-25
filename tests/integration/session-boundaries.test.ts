@@ -10,13 +10,17 @@ describe('session boundaries', () => {
 
     expect(await repl.executeLine('help')).toContain('  init [w] [h]');
     const expected = "error: no document. use 'init' or 'read' first";
-    expect(await repl.executeLine('tree')).toBe(expected);
-    expect(await repl.executeLine('tree r1')).toBe(expected);
-    expect(await repl.executeLine('show r1')).toBe(expected);
-    expect(await repl.executeLine('create rect r1 0 0 1 1')).toBe(expected);
-    expect(await repl.executeLine('group cluster r1 r2')).toBe(expected);
-    expect(await repl.executeLine('save demo.svg')).toBe(expected);
+    for (const command of [
+      'tree', 'tree r1', 'show r1', 'create rect r1 0 0 1 1',
+      'group cluster r1 r2', 'save demo.svg', 'save', 'canvas', 'canvas 10 20',
+      'delete r1', 'move r1 1 2', 'scale r1 2', 'set r1 fill red',
+      'ungroup g1', 'addto g1 r1', 'front r1', 'back r1', 'undo', 'redo'
+    ]) {
+      expect(await repl.executeLine(command), command).toBe(expected);
+    }
     expect(harness.history.undoCount()).toBe(0);
+    expect(harness.history.redoCount()).toBe(0);
+    expect(harness.history.isBlocked()).toBe(false);
   });
 
   it('[DOC-03/04] rejects invalid init values and clears the default path', async () => {
@@ -42,7 +46,15 @@ describe('session boundaries', () => {
     expect(history.undoCount()).toBe(undoCount);
     expect(history.isBlocked()).toBe(true);
 
+    await repl.executeLine('move r1 1 2');
+    await repl.executeLine('move r1 3 4');
+    await repl.executeLine('undo');
+    expect(history.undoCount()).toBe(1);
+    expect(history.redoCount()).toBe(1);
     expect(await repl.executeLine('init 30 40')).toBe('canvas 30x40 created');
+    expect(await repl.executeLine('tree')).toBe('svg (30x40)');
+    expect(history.undoCount()).toBe(0);
+    expect(history.redoCount()).toBe(0);
     expect(await repl.executeLine('save')).toBe(
       "error: no file path; use 'save <file.svg>'"
     );

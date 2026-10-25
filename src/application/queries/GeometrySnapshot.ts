@@ -15,6 +15,7 @@ export class GeometrySnapshot {
     private readonly endPosition?: ShapeAnchor,
     private readonly textContent?: string
   ) {
+    // readonly 只约束类型；复制并冻结每层集合，防止调用方在运行期改写快照。
     this.#attributes = Object.freeze(
       attributes.map(([name, value]) => Object.freeze([name, value] as const))
     );

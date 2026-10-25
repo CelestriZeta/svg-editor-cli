@@ -14,6 +14,7 @@ import type { ShapeSpec } from '../specs/ShapeSpec.js';
 import { GroupSpec } from '../specs/GroupSpec.js';
 import type { ShapeTree } from './ShapeTree.js';
 
+// 这里只校验并生成局部变更，不修改当前树；提交与撤销由变更集合负责。
 export class ShapeStructurePlanner {
   public constructor(
     private readonly tree: ShapeTree,
@@ -66,6 +67,7 @@ export class ShapeStructurePlanner {
     }
 
     const group = this.shapeFactory.create(groupSpec, this.tree) as Group;
+    // 跨父级分组挂到最近公共祖先末尾，组内顺序遵循命令给出的 id 顺序。
     const parent = this.commonAncestor(targets);
     const changes: ShapeTreeChange[] = [
       new ShapeInsertionChange(

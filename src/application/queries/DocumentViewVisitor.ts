@@ -28,6 +28,7 @@ export class DocumentViewVisitor extends ShapeVisitor<ShapeSnapshot> {
   }
 
   public inspect(shape: Shape): ShapeSnapshot {
+    // 单独实例只投影当前节点，避免影响此访问者后续的完整子树查询。
     return new DocumentViewVisitor(false).visitSubtree(shape);
   }
 

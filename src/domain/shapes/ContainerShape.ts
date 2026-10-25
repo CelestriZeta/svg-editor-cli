@@ -13,6 +13,7 @@ export abstract class ContainerShape extends Shape {
     dy: number
   ): GeometryChangeSet {
     Shape.requireMoveDelta(dx, dy);
+    // 先递归算完所有后代的候选值，避免后续节点溢出时前面的节点已被修改。
     const changes: ShapeGeometryChange[] = [];
     for (const child of this.children) {
       changes.push(...child.prepareMove(dx, dy).changes);

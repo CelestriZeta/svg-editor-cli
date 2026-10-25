@@ -46,6 +46,7 @@ export class CommandHistory {
       throw new DomainError('nothing to undo');
     }
     const result = await command.undo();
+    // 先恢复文档，再迁移历史；失败时命令仍留在原栈，redo 同理。
     if (result.succeeded) {
       this.#undoStack.pop();
       this.#redoStack.push(command);

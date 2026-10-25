@@ -16,6 +16,7 @@ export class Group extends ContainerShape {
   public override readonly type = 'g';
 
   public override accept<T>(visitor: ShapeVisitor<T>): T {
+    // 遍历由 Composite 统一控制；访问者可跳过子树，以支持只查看容器自身。
     if (!visitor.enterGroup(this)) {
       return visitor.leaveGroup(this, []);
     }

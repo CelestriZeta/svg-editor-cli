@@ -1,64 +1,63 @@
 # 项目工作记忆
 
-最后更新：2026-10-25。
-
 ## 事实来源与优先级
 
 - 用户当前指令优先，其次遵循根目录 `AGENTS.md` 的协作约定。
-- `phase_cli_1.md` 是课程需求原文；`doc/README.md` 的原架构设计描述自 2026-10-25 起冻结。若实际实现与设计存在冲突，只在本文件记录偏差和决策，不回写架构设计。
+- `phase_cli_1.md` 是课程需求原文；用户明确要求整理最终提交 README，已据此更新文档。后续实现偏差仍在本文件记录；README 维护须区分方案和实际调整，不回溯虚构设计过程。
 - 本文件记录已知事实、决策和下一步，不把计划写成已完成。
 
 ## 当前状态
 
-- 初始化前仓库仅有 `phase_cli_1.md`；尚无源代码、依赖清单、运行脚本或测试。
+- 最终提交文档已按用户要求整理，README 包含架构方案、过程记录、一致性自查和质量保证手段；项目维护文档中的日期标记已移除。Git 交付仍等待用户检查及明确指令。
+- 初始化前仓库仅有 `phase_cli_1.md`；以下保留逐步开发的历史事实，阶段能力以阶段 8 验收记录为准。
 - 已建立提交文档框架和拟定架构，以及 `.gitignore`、`.gitattributes`、`.editorconfig` 和根目录协作说明。
-- 已选择 Node.js 24、pnpm 11.25、TypeScript 7 严格模式和 Vitest 5；项目已安装依赖并生成锁文件。尚未选择 XML 库。
-- 仓库已有分步提交；当前阶段 7 改动尚未暂存、提交或推送，未创建 `final` tag。
+- 已选择 Node.js 24、pnpm 11.25、TypeScript 7 严格模式、Vitest 5 和 saxes XML 解析库；项目已安装依赖并生成锁文件。
+- 本轮开始时阶段 7 与简化重构已提交为 `8439b03`，工作区干净；阶段 8 改动未暂存、提交或推送，未创建 `final` tag。
 - README 已记录阶段 2 的实际实现证据和验证结果；最终一致性自查结论仍留待完整验收。
 - 按用户最新要求和课程第 1.2 节要求，完整项目文档已从根目录移至 `doc/README.md`，需求相对链接和协作约定已同步更新。
-- 2026-10-25 已将工作区同步到 `origin/main` 的 `fe368ed`；同步后无差异，随后按该版本架构建立 `doc/DEVELOPMENT_PLAN.md`，记录 TDD 工作流程，并按顺序列出工程基线、最小链路、领域模型、结构编辑、命令历史、SVG IO、CLI 和验收阶段。该文件是计划，不代表业务功能已实现。
-- 2026-10-25 已完成阶段一：建立 TypeScript 严格模式、Vitest、构建与启动脚本，创建模块目录和分层测试清单，固化 README 1.9 的实现边界。冒烟测试先失败、后通过；类型检查、测试、构建和启动均有实际记录，但尚无业务功能测试。
+- 已将工作区同步到 `origin/main` 的 `fe368ed`；同步后无差异，随后按该版本架构建立 `doc/DEVELOPMENT_PLAN.md`，记录 TDD 工作流程，并按顺序列出工程基线、最小链路、领域模型、结构编辑、命令历史、SVG IO、CLI 和验收阶段。该文件是计划，不代表业务功能已实现。
+- 已完成阶段一：建立 TypeScript 严格模式、Vitest、构建与启动脚本，创建模块目录和分层测试清单，固化 README 1.9 的实现边界。冒烟测试先失败、后通过；类型检查、测试、构建和启动均有实际记录，但尚无业务功能测试。
 - `tests/README.md` 初版扩展为 127 项带 ID 的测试设计；阶段 4 复核后为 139 条，覆盖创建参数、属性白名单、Composite、树结构、局部变更、命令历史、文档与 SVG IO、CLI 和端到端验收；统一失败断言为 `FAIL-STATE`。
-- 2026-10-25 已完成阶段 2：通过新增测试先确认缺失模块失败，再实现 `init -> create rect -> tree -> save` 的最小纵向链路。当前可按名称创建矩形、查询树、以显式或沿用路径保存 SVG；真实临时目录写入、失败保持状态、历史屏障、文档替换和构建产物 CLI 回放均有测试或执行证据。
+- 已完成阶段 2：通过新增测试先确认缺失模块失败，再实现 `init -> create rect -> tree -> save` 的最小纵向链路。当前可按名称创建矩形、查询树、以显式或沿用路径保存 SVG；真实临时目录写入、失败保持状态、历史屏障、文档替换和构建产物 CLI 回放均有测试或执行证据。
 - 阶段 2 新增 `Command` 体系、命令执行器与历史骨架、`EditorSession`、`DocumentService`、`SvgDocument`、`Rect`、查询/SVG Visitor、`DocumentStore` 适配器、分词与基础 REPL。尚未实现六种图形中的其余五种、Group、树结构编辑、undo/redo 命令和 read。
-- 2026-10-25 完成阶段 2 架构审查与修复：用 `RectSpec` 隔离领域对象和 CLI token；拆分 `Command` 与 `UndoableCommand`；引入 Canvas/Shape/Saved/Help 语义结果和 `ShapeViewVisitor`；命令描述表同源生成 help；预期错误由 Guard 转换，未知错误不再泄漏实现消息并保留 cause。新增空数字和十六进制输入回归。
+- 完成阶段 2 架构审查与修复：用 `RectSpec` 隔离领域对象和 CLI token；拆分 `Command` 与 `UndoableCommand`；引入 Canvas/Shape/Saved/Help 语义结果和 `ShapeViewVisitor`；命令描述表同源生成 help；预期错误由 Guard 转换，未知错误不再泄漏实现消息并保留 cause。新增空数字和十六进制输入回归。
 - 测试已从单一 `stage2.test.ts` 拆为 CLI、domain、application、integration、e2e 和 support 目录；目录重整后当前 8 个测试文件、10 个测试通过。`pnpm run check` 通过，真实 CLI 回放确认空字符串和十六进制数字被拒绝，文档、树和 help 输出正常。
-- 2026-10-25 完成目录审查与修正：`application/commands` 分离 contracts/results/support；只读投影移入 `application/queries`；领域按 document/shapes/specs/visitor 分组；集成测试按失败状态、文档生命周期和 help 拆分；删除无行为价值的基线测试和非空目录 `.gitkeep`。`pnpm run check` 与构建产物 CLI 回放通过。
-- 2026-10-25 完成阶段 3 领域模型与 Composite：新增 `Circle`、`Ellipse`、`Line`、`Text`、`ContainerShape`、`Group` 及对应类型化规格；`Shape` 统一封装 id、样式、父级、set/move/scale 契约；`Group` 递归平移/缩放，Visitor 支持组进入、递归、离开和子树跳过。
+- 完成目录审查与修正：`application/commands` 分离 contracts/results/support；只读投影移入 `application/queries`；领域按 document/shapes/specs/visitor 分组；集成测试按失败状态、文档生命周期和 help 拆分；删除无行为价值的基线测试和非空目录 `.gitkeep`。`pnpm run check` 与构建产物 CLI 回放通过。
+- 完成阶段 3 领域模型与 Composite：新增 `Circle`、`Ellipse`、`Line`、`Text`、`ContainerShape`、`Group` 及对应类型化规格；`Shape` 统一封装 id、样式、父级、set/move/scale 契约；`Group` 递归平移/缩放，Visitor 支持组进入、递归、离开和子树跳过。
 - `SvgDocument` 已用唯一 id 索引提供查找、父级查询和子树删除，元素计数包含嵌套节点；`create` 已通过集中类型映射支持六种内置图形，`tree` 与 `save` 已能递归输出组和全部叶子。阶段 3 结束时 `in`、group/ungroup/addto/front/back 尚未实现。
 - 阶段 3 新增测试先因缺少图形类和命令类型分派失败；实现后领域、嵌套输出和六图形 CLI 链路测试通过。自查期间发现并修正了嵌套 SVG 根层多行缩进、移动溢出误用缩放错误文案及数值属性接受十六进制的问题。
 - 阶段 3 最终 `pnpm run check` 通过：12 个测试文件、19 个测试，严格类型检查和生产构建均成功；构建产物管道回放创建六种图形并输出正确顺序的 tree。静态检查确认领域层未引用 CLI、Node 文件系统、XML 或基础设施，图形名分派仍只在命令类型映射和 `ShapeFactory`，新增生产类保持一类一文件。
-- 2026-10-25 阶段 3 架构复审发现并修正四项隐患：公开 `appendChild/removeChild` 可绕过文档 id 索引；`Shape.set` 接收命令字符串；容器 move/scale 重复执行校验和修改；子树收集与只读视图存在重复遍历/重复状态。树变更改为仅供 `SvgDocument` 和容器协作者使用的 symbol 协议，属性修改改为类型化 `ShapeAttributeUpdate`，几何操作改为 `prepareMove/prepareScale` 与 `apply/revert` ChangeSet，子树收集复用 `ShapeCollector` Visitor，并移除 `ShapeView.type`。
+- 阶段 3 架构复审发现并修正四项隐患：公开 `appendChild/removeChild` 可绕过文档 id 索引；`Shape.set` 接收命令字符串；容器 move/scale 重复执行校验和修改；子树收集与只读视图存在重复遍历/重复状态。树变更改为仅供 `SvgDocument` 和容器协作者使用的 symbol 协议，属性修改改为类型化 `ShapeAttributeUpdate`，几何操作改为 `prepareMove/prepareScale` 与 `apply/revert` ChangeSet，子树收集复用 `ShapeCollector` Visitor，并移除 `ShapeView.type`。
 - 架构修正后 `pnpm run check` 通过：13 个测试文件、22 个测试，严格类型检查和生产构建均成功；新增测试确认容器不存在普通 `appendChild/removeChild` API、文档删除保持 id 索引一致、属性更新不再解析命令字符串，以及已准备几何变更在 apply 前不修改状态并可精确 revert。
-- 2026-10-25 已完成阶段 4：新增统一 `ChangeSet` 契约、插入/删除/重挂接/解组树变更、属性存在性快照和精确局部恢复；`SvgDocument` 在提交前计算最近公共祖先与目标位置，并集中维护树、父引用和 id 索引。CLI 已支持 `create ... in`、`group`、`ungroup`、`addto`、`front`、`back`。
+- 已完成阶段 4：新增统一 `ChangeSet` 契约、插入/删除/重挂接/解组树变更、属性存在性快照和精确局部恢复；`SvgDocument` 在提交前计算最近公共祖先与目标位置，并集中维护树、父引用和 id 索引。CLI 已支持 `create ... in`、`group`、`ungroup`、`addto`、`front`、`back`。
 - 阶段 4 测试先失败于缺失的结构准备 API 和命令，共 11 项预期失败；实现后新增领域、命令契约和 CLI 测试，覆盖跨父级分组、组内重排、解组原位替换、防环、空变更、删除/属性精确恢复以及命令 undo/redo。
 - 阶段 4 自查期间修正了解组逆序恢复的索引依赖、命令在“变更已应用但结果构造失败”时的回滚窗口、缺失容器错误语义，以及 `front`/`back` 的 z-order 方向。最终 `pnpm run check` 通过：17 个测试文件、36 个测试，严格类型检查和生产构建成功。
 - 构建产物回放成功执行嵌套创建、group、ungroup、addto、back/front，并输出父级和同级顺序正确的 tree；另一次空解组后继续引用已删除 id 的回放按规则输出 `error: no such shape`，未作为成功路径证据。
-- 2026-10-25 完成测试条目复审与补全：清单共 139 条，当前 91 条通过、15 条部分通过、30 条待实现、3 条 N/A。补齐当前已实现能力的分发、执行器串行化、目标失败、同容器 `addto`、结构命令 undo/redo、CLI 引号/数字、会话与路径、保存替换失败、XML 转义、元素计数和架构守卫；未实现阶段能力保持明确未完成。
+- 完成测试条目复审与补全：清单共 139 条，当前 91 条通过、15 条部分通过、30 条待实现、3 条 N/A。补齐当前已实现能力的分发、执行器串行化、目标失败、同容器 `addto`、结构命令 undo/redo、CLI 引号/数字、会话与路径、保存替换失败、XML 转义、元素计数和架构守卫；未实现阶段能力保持明确未完成。
 - 补测后发现并修正 `create ... in` 缺少容器 id 时的错误顺序，使命令在形状参数校验前返回 `create <type> requires a container after 'in'`。新增自动守卫确认领域无外部依赖、生产运行期导入无环、类文件名一致、分派集中、命令不直接改树，以及测试集无 skip/todo。
 - 测试补全后 `pnpm run check` 通过：23 个测试文件、57 个测试，严格类型检查和生产构建成功。
-- 2026-10-25 完成架构复审问题修复：删除公开的 `ShapeTreeMutation` symbol 写协议，图形对象只保留只读父子视图；文档私有 `ShapeTree` 维护 children、parent 和 id 索引，`ShapeStructurePlanner` 负责候选结构规划，`SvgDocument` 收缩为聚合根门面。
+- 完成架构复审问题修复：删除公开的 `ShapeTreeMutation` symbol 写协议，图形对象只保留只读父子视图；文档私有 `ShapeTree` 维护 children、parent 和 id 索引，`ShapeStructurePlanner` 负责候选结构规划，`SvgDocument` 收缩为聚合根门面。
 - 修复 create redo：redo 现在直接复用首次 `ShapeTreeChangeSet`，不再重建图形对象；新增对象身份回归。属性修改改为每类统一的 `ShapeAttributeSlot` 定义，移除每种图形三套平行 switch。
 - 新增 `ChangeSetExecutor`：组合变更提交或恢复失败时尝试全部补偿动作，并用 `AggregateError` 同时保留提交错误和回滚错误。结构结果改为 `GroupCreatedResult`、`UngroupedResult`、`ShapeMovedIntoContainerResult`、`ShapeReorderedResult` 多态结果，不再使用可产生非法组合的通用结果数据袋。
 - 命令参数规格拆为六个 Builder，类型名映射仍只存在于 `CommandDispatcher`；数字解析独立。构建脚本现在先清理 `dist`，防止已删除模块的旧产物残留。
 - 架构修复后 `pnpm run check` 通过：23 个测试文件、58 个测试；构建产物确认 create redo 保持同一对象，旧 `ShapeTreeMutation.js` 不再生成。
-- 2026-10-25 已完成阶段 5：新增 `delete`、`move`、`scale`、`set`、`undo`、`redo` 命令及多态结果，Dispatcher、Executor、Main 和测试装配共享同一 `CommandHistory`。每条成功且有状态变化的编辑命令作为一个撤销单元，新编辑清空 redo。
+- 已完成阶段 5：新增 `delete`、`move`、`scale`、`set`、`undo`、`redo` 命令及多态结果，Dispatcher、Executor、Main 和测试装配共享同一 `CommandHistory`。每条成功且有状态变化的编辑命令作为一个撤销单元，新编辑清空 redo。
 - 历史迁移采用“命令恢复成功后才移动栈元素”：undo/redo 结果失败或抛出异常时，文档、undo/redo 栈和屏障均保持操作前状态；IO 屏障后统一返回 `error: undo not allowed after io command`，空栈分别返回 `error: nothing to undo` / `error: nothing to redo`。
 - 阶段 5 首轮目标测试先因 `move`/`undo` 未知和缺少 `redoCount` 失败；实现后目标测试通过。全量回归曾发现统一变更基类丢失 `hasChanges` 导致边界重排误报，已将实际变更标志重新传入多态结果并再次通过回归。
 - 阶段 5 代码复查发现并修复：结果类型上编辑方向命名与 z-order 方向冲突；样式更新仍按属性名 `switch`；撤销历史取栈顶使用类型断言；未执行命令与快照取值缺少显式约束。现在样式通过类型化 `withFill`/`withStroke`/`withStrokeWidth` 修改，剩余 `switch` 仅处理命令类别、图形工厂规格类型和结果值自身枚举。
 - 阶段 5 架构复审进一步修正了四项结构债务：`CommandHistory` 改为 Dispatcher 的强制依赖，消除 Dispatcher 与 Executor 静默持有不同历史的可能；`CreateShapeCommand` 改由 `EditChangeSetCommand` 提供统一事务流程；Dispatcher 不再承载参数解析和具体命令构造，拆出文档、创建、图形编辑、结构编辑、历史和查询六个命令工厂；`ShapeAttributeUpdate` 与属性槽统一使用 `ShapeAttributeValueKind`，不再保留并行字符串协议。
 - 架构拆分后 `CommandDispatcher` 为 151 行，只负责定义表、名称查找和 help；最大命令工厂 82 行。新增源码守卫禁止 Dispatcher 默认构造历史、直接实例化具体编辑命令，并固定创建命令与属性种类的统一契约。
 - 阶段 5 最终 `pnpm run check` 通过：24 个测试文件、64 个测试，严格类型检查和生产构建成功。构建产物回放通过 Composite 移动与 undo、文本 set、子树 delete 与 undo/redo，输出与树状态一致。
-- 2026-10-25 已完成阶段 6：新增 `read`、无参数 `save` 和 `canvas` 查询/修改；SVG 读取使用 `saxes@6.0.0` 严格解析，支持六种内置图形、嵌套 `g`、命名空间、注释、实体、文本和公共样式属性，并在成功替换会话后输出缺 id 警告。
+- 已完成阶段 6：新增 `read`、无参数 `save` 和 `canvas` 查询/修改；SVG 读取使用 `saxes@6.0.0` 严格解析，支持六种内置图形、嵌套 `g`、命名空间、注释、实体、文本和公共样式属性，并在成功替换会话后输出缺 id 警告。
 - 阶段 6 目标测试先因缺少 `SvgReader` 失败；实现后读取、缺 id 冲突规避、重复 id、未知元素/属性、`transform`/`style`/`class`、DOCTYPE、非法 XML、命名空间、viewBox、缺省样式、默认路径、失败原子性和 canvas 历史屏障均通过。
 - 阶段 6 新增 `CanvasSize` 维护画布宽高不变量；`DocumentService.read` 只接收已完成的候选文档，成功后一次性替换会话和默认路径。端口返回 `LoadedDocument`/`ImportedShapeId`，命令层再映射为独立结果模型，避免 `commands/results -> ports` 依赖。
 - 阶段 6 风格与漏洞复查发现并修正两点：解析器原先使用 `instanceof` 分支处理文本/容器，改为节点多态的子节点与文本接收契约；读取结果集合补齐防御性复制。XML 解析拒绝 DOCTYPE 和处理指令，不加载外部实体，所有不支持的 SVG 内容显式失败而不是静默丢弃。
 - 阶段 6 最终 `pnpm run check` 通过：26 个测试文件、78 个测试，严格类型检查和生产构建成功。构建产物完成 `create -> save -> read -> tree -> canvas -> save -> read` 回放，尺寸、嵌套结构、样式和文本 round-trip 正确；`pnpm audit --prod` 报告 `No known vulnerabilities found`，`saxes` 实际版本为 6.0.0。
-- 2026-10-25 已完成阶段 7：新增 `tree [id]`、`show <id>` 和完整 `help`，查询命令通过 `DocumentViewVisitor` 生成全树、子树或单图形明细；交互式 stdin 显示 `svg>` 提示，管道与自动化流保持无提示符的逐行回放。
+- 已完成阶段 7：新增 `tree [id]`、`show <id>` 和完整 `help`，查询命令通过 `DocumentViewVisitor` 生成全树、子树或单图形明细；交互式 stdin 显示 `svg>` 提示，管道与自动化流保持无提示符的逐行回放。
 - 阶段 7 新测试先因 `tree <id>` 被拒绝、`show` 未注册而失败；实现后覆盖六种图形明细、根级与嵌套父级、未知 id、参数错误、查询不入历史、无文档边界和交互提示符。
 - 阶段 7 风格与漏洞复查发现并修正三项问题：15 字符图形标签会与首个属性粘连，现改为固定列宽且至少保留一个分隔；父级摘要曾在应用查询模型 `ShapeReference.toString()` 中拼接 CLI 文案，现由 `ShowFormatter` 独占展示格式；查询命令最初未经过执行守卫，未知 id 被包装为 `command failed`，现与其他命令一致返回具体单行错误。
 - 阶段 7 最终 `pnpm run check` 通过：27 个测试文件、82 个测试，严格类型检查和生产构建成功。构建产物回放验证全树、子树、六类 `show` 明细及未知 id；真实 TTY 回放确认启动提示、输入回显和连续 `svg>` 提示正常；`pnpm audit --prod` 报告 `No known vulnerabilities found`。
-- 2026-10-25 完成全仓架构与 OOP 复查：未发现上帝类、贫血领域模型、层级反向依赖或按图形名称散落 `switch`；最大生产类为 252 行的 `ShapeStructurePlanner`，职责仍集中在结构变更规划。主要隐患是局部命令构造时序、结果语义、方向条件分派、明细查询过度遍历和守卫覆盖不足，均已在同轮修正。
+- 完成全仓架构与 OOP 复查：未发现上帝类、贫血领域模型、层级反向依赖或按图形名称散落 `switch`；最大生产类为 252 行的 `ShapeStructurePlanner`，职责仍集中在结构变更规划。主要隐患是局部命令构造时序、结果语义、方向条件分派、明细查询过度遍历和守卫覆盖不足，均已在同轮修正。
 - 架构复查修正了以下问题：`front`/`back` 基类不再按方向字符串条件分派，由具体命令分别实现；移动/缩放结果准确反映空操作；删除、移动、缩放和设置命令不在构造期读取可变文档；单图形几何写入失败会回滚已应用值；`show <g>` 使用不进入子节点的明细 Visitor；移除 `SvgDocument.removeShape` 纯转发别名和无用导入。
 - 架构守卫已扩展到分层依赖、全部生产类声明、命令绕过 ChangeSet 检查、零变化结果、命令构造边界和明细根节点投影；`tsconfig` 开启 `noUnusedLocals`、`noUnusedParameters` 和 `noImplicitReturns`。复查后 `pnpm run check` 通过：28 个测试文件、86 个测试，严格类型检查和生产构建成功。
 - 仍有明确阶段边界风险：六种图形仍由封闭的领域/查询 Visitor 和多处注册表共同覆盖，新增 `box` 或插件类型必须协调修改这些扩展点；深层 SVG 的读取、查询和保存仍使用递归遍历与逐层缩进，极端嵌套下存在栈深和输出体积膨胀风险。这两项不影响当前六种内置图形的正确性，但插件化或处理不可信超大文件前必须重新评估。
@@ -177,7 +176,7 @@
 - `tree`/`show` 的未知 id、参数错误和无文档错误均为单行 `error:`，不改文档、历史或 IO 屏障。
 - 交互终端启用 `svg>` 提示并由 `readline` 处理输入回显；非交互管道不输出提示符，保持可回放脚本和自动化测试输出稳定。
 
-## 2026-10-25 架构简化重构（本轮）
+## 架构简化重构（本轮）
 
 用户要求按已讨论方案简化。保留四层依赖、Command、Composite、六种内置图形、局部精确历史和 IO 隔离；未修改冻结的 `doc/README.md`，未暂存、提交、推送或创建 tag。
 
@@ -204,12 +203,55 @@
 
 本轮属于架构重构；阶段 8 的完整课程验收、真实浏览器预览与 final tag 仍未完成。
 
+## 阶段 8：集成验收与文档收尾
+
+开发与本轮验收已完成，等待用户检查工作区。未提交、推送或创建 final tag；没有将本轮检查等同于用户验收确认。
+
+实际改动与证据：
+
+- 新增 `tests/e2e/course-acceptance.test.ts`：自行构建生产入口，在隔离临时目录启动真实 CLI，逐字比较课程典型会话和流程图输出及 SVG；验证 other.svg 缺 id 警告、7 元素、另存再读语义等价，并回放失败后的树、路径、redo 与屏障行为。
+- 新增 `tests/integration/save-failure-atomicity.test.ts`：在真实文件上注入临时文件创建、部分写入及同目标 rename 失败，检查旧文件、临时文件清理、完整历史状态、默认路径和 redo 可用性。未将故障注入描述为真实磁盘损坏或断电恢复能力。
+- 扩展 session 边界测试，覆盖全部依赖文档命令；init 前同时准备非空 undo/redo 和默认路径，验证整体清理。init/read 本身是建立文档的入口，不属于无文档禁用命令。
+- 新增 `tests/fixtures/acceptance/` 的两个回放脚本、完整期望输出、需求原始 other.svg，以及实际生成的 demo.svg/flowchart.svg。输出逐项与需求核对；固定列宽、线段显式 stroke、ASCII 启动提示等展示差异记录在验收文档。
+- 发现容器移动 undo 的摘要沿用了正向增量；先用两个失败回归确认，再修改 `MoveShapeCommand.createResult`，让 undo 的语义结果携带反向位移，redo 仍使用正向位移；精确几何恢复流程未改动。
+- 增加需求示例所用 `npm run cli` 启动别名（先构建），`.txt` 固定 LF 保证期望输出跨平台一致。
+- 补齐 README 预留结果区的一致性自查与验收事实；冻结的第 1 节架构方案和第 2 节过程设计未改。测试矩阵 140 项：137 通过、3 N/A；自动化套件 31 文件、96 测试。
+
+架构自查：实际检查类/字段封装、职责与层级依赖、分派与多态、Command/Composite 契约、领域类型输入、展示隔离、异常与失败原子性、扩展点及测试组织。本轮发现的问题是移动结果的撤销语义，已在命令结果构造处修正，未将方向计算散入 formatter、领域或新协议。创建参数工厂属于 create 子命令分派，领域/读取方向分别通过 ShapeFactory/SvgElementFactory 集中构建。无新增公共数据袋、树写入口或标签 switch；封闭 Visitor 与插件扩展继续留在既定后续边界。
+
+实际检查命令与结果：
+
+- `node_modules/.bin/tsc.cmd --noEmit`：通过。
+- `node_modules/.bin/vitest.cmd run`：31 个文件、96 个测试通过；修复前的两个移动撤销用例按预期失败。
+- `node scripts/clean.mjs`、`node_modules/.bin/tsc.cmd -p tsconfig.build.json`：通过。
+- `git diff --check`：通过。直接调用本地工具避开前轮 pnpm 用户缓存问题，未声称本轮运行 pnpm check 或新的依赖漏洞审计。
+- `'help' | npm.cmd run cli`：正常启动并输出完整命令帮助；npm 对现有 pnpm 配置 `node-linker` 提示兼容性警告，CLI 退出码为 0。对照 HEAD 验证 README 第 3 节之前的全部内容逐字未变。
+- 初次 Computer Use 因无法识别浏览器 URL 停止，已停止该 UI 操作；受限环境的首次无头 Edge 未生成截图。随后获准使用独立 `.cache/acceptance-render` 配置运行无头 Edge，打开明确的项目本地 SVG，成功生成并实际查看 `doc/acceptance/demo.png` 和 `flowchart.png`。demo 的红圆/蓝矩形/标题及流程图的蓝橙矩形、连接线、中英文文字、撤销后 y=100 均符合样本。未操作用户现有浏览器配置，未声称跨浏览器或用户亲自验收。
+
+可复现入口与详细证据：[阶段 8 验收记录](acceptance/README.md)。剩余工作仅为用户代码检查及后续明确授权的 Git 交付。
+
+## 中文注释补充
+
+按用户要求，在 14 个生产 TypeScript 文件中补充必要的中文注释，并将保存清理处已有英文注释改为中文。注释集中解释逆序补偿、子树删除保留内部关系、移动目标下标、跨父级分组顺序、Composite 候选值准备、几何精确恢复、命令串行队列、历史迁移与空变更、结果构造失败回滚、查询隔离及运行期冻结、同目录临时文件替换、显式 id 预收集和分词边界。未为简单访问器、明显的转发或图形几何计算逐行加注释。
+
+本轮核对上述 14 个文件的差异，均为注释变更；保留开始时已有的阶段 8 工作区改动，未改冻结的 README，也未暂存、提交、推送或创建 tag。架构自查覆盖字段封装、职责和依赖方向、多态与分派、Command/Composite、领域输入、展示隔离、失败原子性、扩展点与测试组织；本轮未发现需要修改实现的新增问题，未改变类、契约、依赖或行为。
+
+实际验证：`node_modules/.bin/tsc.cmd --noEmit` 通过；`node_modules/.bin/vitest.cmd run` 通过（31 个文件、96 个测试，含架构守卫、树结构、历史及 IO 失败边界）。本轮只改注释，未新增测试。
+
+## 最终提交文档整理
+
+本轮将 README 整理为作业要求的四部分，补充安装、构建和启动入口；替换早期待实现说明与重复验证日志，保留关键讨论、设计取舍、方案与实现差异、失败原子性边界和真实验收证据。未将实现调整冒充为最初设计。
+
+同步清理工作记忆、开发计划、验收记录、测试清单，保留开发阶段顺序和测试事实；作业原文保持不变。协作规则同步反映用户授权的文档整理，未改变 Git 审查与授权要求。本轮不修改生产代码、测试实现或依赖。
+
+实际验证：`node_modules/.bin/tsc.cmd --noEmit` 通过；`node_modules/.bin/vitest.cmd run` 通过（31 个文件、96 个测试）；`node scripts/clean.mjs` 和 `node_modules/.bin/tsc.cmd -p tsconfig.build.json` 通过；`'help' | node dist/bootstrap/entry.js` 正常输出全部命令并退出。脚本检查 6 份维护文档的日期标记、代码块闭合与 22 个本地链接均通过，README 四个必需部分和 PlantUML 图均存在。构建产物在 dist 中，沿用仓库忽略规则；本轮未重新生成浏览器截图，README 引用已有渲染证据。源码与架构说明对照未发现需修改实现的问题。
+
 ## 下一步建议顺序
 
-1. 进入 `doc/DEVELOPMENT_PLAN.md` 阶段 8，回放需求第 6 节典型会话和 6.1 流程图版本 A。
-2. 保存典型 SVG，用浏览器检查几何、颜色、层级和文字，并记录实际证据。
-3. 完成最终一致性自查、全量验收和文档结果区；只有用户确认检查完成后才提交、推送并创建 `final` tag。
+1. 用户检查阶段 8 工作区差异及验收证据。
+2. 用户提供提交信息后才提交；用户确认检查完成并要求推送后才推送。
+3. 最终验收确认后，按用户明确指令创建并推送 `final` tag。
 
 ## 维护规则
 
-每次完成一个实际工作阶段，更新当前状态、实际实现架构、决策和剩余问题。`doc/README.md` 仅保留冻结的原架构设计和允许补充的结果记录；不在此保存凭据、私密配置或未经验证的完成结论。
+每次完成一个实际工作阶段，更新当前状态、实际实现架构、决策和剩余问题。README 作为最终提交文档，按用户要求维护，并保留方案与实际调整的区别；本文件持续记录开发事实，不添加日期标记，不保存凭据、私密配置或未经验证的完成结论。

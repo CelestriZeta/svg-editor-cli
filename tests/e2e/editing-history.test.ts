@@ -113,11 +113,17 @@ describe('shape editing and undo history', () => {
       'rect#r1        x=15 y=15 w=30 h=40'
     );
     expect(await repl.executeLine('undo')).toBe(
-      'g#group moved back by (5,-5)'
+      'g#group moved back by (-5,5)'
     );
     expect(await repl.executeLine('tree')).toContain(
       'rect#r1        x=10 y=20 w=30 h=40'
     );
+
+    expect(await repl.executeLine('redo')).toBe('g#group moved by (5,-5)');
+    expect(await repl.executeLine('tree')).toContain(
+      'rect#r1        x=15 y=15 w=30 h=40'
+    );
+    expect(await repl.executeLine('undo')).toBe('g#group moved back by (-5,5)');
 
     expect(await repl.executeLine('scale group 2')).toBe(
       'g#group scaled by 2'

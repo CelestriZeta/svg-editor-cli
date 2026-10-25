@@ -25,6 +25,7 @@ export class SvgDocumentStore implements DocumentStore {
   }
 
   public async save(path: string, document: SvgDocument): Promise<void> {
+    // 临时文件与目标放在同一目录，写完后再 rename 替换，避免直接截断旧文件。
     const temporaryPath = `${path}.${process.pid}.${randomUUID()}.tmp`;
 
     try {
@@ -34,7 +35,7 @@ export class SvgDocumentStore implements DocumentStore {
       try {
         await rm(temporaryPath, { force: true });
       } catch {
-        // Preserve the original write or replacement failure.
+        // 清理失败不覆盖原先的写入或替换错误。
       }
     }
   }

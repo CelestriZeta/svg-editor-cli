@@ -3,7 +3,7 @@ import { DomainError } from '../../domain/DomainError.js';
 import type { GeometryChangeSet } from '../../domain/shapes/GeometryChangeSet.js';
 import { DocumentViewVisitor } from '../queries/DocumentViewVisitor.js';
 import type { CommandResult } from './contracts/CommandResult.js';
-import type { EditDirection } from './results/EditDirection.js';
+import { EditDirection } from './results/EditDirection.js';
 import { ShapeMovedResult } from './results/ShapeMovedResult.js';
 import { EditChangeSetCommand } from './EditChangeSetCommand.js';
 
@@ -31,11 +31,12 @@ export class MoveShapeCommand extends EditChangeSetCommand {
     changed: boolean
   ): CommandResult {
     const shape = this.document.requireShape(this.shapeId);
+    const deltaSign = direction === EditDirection.Undone ? -1 : 1;
     return new ShapeMovedResult(
       this.requireShapeType(),
       this.shapeId,
-      this.dx,
-      this.dy,
+      deltaSign * this.dx,
+      deltaSign * this.dy,
       this.viewVisitor.inspect(shape).geometry.anchor,
       changed,
       direction

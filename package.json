@@ -9,6 +9,7 @@
   },
   "scripts": {
     "build": "node scripts/clean.mjs && tsc -p tsconfig.build.json",
+    "cli": "node dist/bootstrap/entry.js",
     "check": "pnpm run typecheck && pnpm run test && pnpm run build",
     "start": "node dist/bootstrap/entry.js",
     "test": "vitest run",

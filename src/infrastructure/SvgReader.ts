@@ -10,6 +10,7 @@ export class SvgReader {
 
   public read(source: string): LoadedDocument {
     const canvas = this.parser.parse(source);
+    // 先收集整份文件的显式 id，防止自动分配占用后面才出现的名称。
     const explicitIds = new Set<string>();
     for (const child of canvas.children) {
       child.collectExplicitIds(explicitIds);
