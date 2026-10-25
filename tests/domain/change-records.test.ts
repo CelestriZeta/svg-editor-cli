@@ -1,8 +1,11 @@
 import { describe, expect, it } from 'vitest';
 
+import { GroupSpec } from '../../src/domain/specs/GroupSpec.js';
 import { SvgDocument } from '../../src/domain/document/SvgDocument.js';
 import { Rect } from '../../src/domain/shapes/Rect.js';
-import { ShapeTreeChangeSet } from '../../src/domain/shapes/ShapeTreeChangeSet.js';
+import { GeometryValueChange } from '../../src/domain/shapes/GeometryValueChange.js';
+import { ShapeGeometryChange } from '../../src/domain/shapes/ShapeGeometryChange.js';
+import { CompositeChangeSet } from '../../src/domain/CompositeChangeSet.js';
 import { ShapeAttributeUpdate } from '../../src/domain/shapes/ShapeAttributeUpdate.js';
 import { Text } from '../../src/domain/shapes/Text.js';
 import { RectSpec } from '../../src/domain/specs/RectSpec.js';
@@ -63,7 +66,7 @@ describe('shape attribute change records', () => {
       },
       () => events.push('second:revert')
     );
-    const changes = new ShapeTreeChangeSet([first, second]);
+    const changes = new CompositeChangeSet([first, second]);
 
     let failure: unknown;
     try {
@@ -76,4 +79,39 @@ describe('shape attribute change records', () => {
     expect(failure).toBeInstanceOf(AggregateError);
     expect((failure as AggregateError).errors).toHaveLength(2);
   });
+
+  it('[CHANGE-03/04] rolls back partial geometry writes in one shape', () => {
+    const document = new SvgDocument(100, 100);
+    const rect = document.createShape(
+      new RectSpec('r1', 1, 2, 3, 4)
+    ) as Rect;
+    const change = new ShapeGeometryChange(rect, [
+      new GeometryValueChange('x', 1, 10),
+      new GeometryValueChange('width', 3, 0)
+    ]);
+
+    expect(() => change.apply()).toThrow('width must be positive');
+    expect(rect).toMatchObject({ x: 1, width: 3 });
+  });
+  it('rolls back a mixed geometry, attribute and tree edit when a later action fails', () => {
+    const document = new SvgDocument(100, 100);
+    document.createShape(new GroupSpec('g1'));
+    const rect = document.createShape(new RectSpec('r1', 1, 2, 3, 4)) as Rect;
+    const changes = new CompositeChangeSet([
+      rect.prepareMove(10, 20),
+      rect.prepareSet(ShapeAttributeUpdate.text('fill', 'red')),
+      document.prepareAddTo('g1', 'r1'),
+      new RecordingShapeTreeChange(() => { throw new Error('later action failed'); }, () => undefined)
+    ]);
+
+    expect(() => changes.apply()).toThrow('later action failed');
+    expect(rect.x).toBe(1);
+    expect(rect.y).toBe(2);
+    expect(rect.fill).toBeUndefined();
+    expect(rect.parent).toBeUndefined();
+    expect([...document.children].map((shape) => shape.id)).toEqual(['g1', 'r1']);
+    expect(document.requireShape('r1')).toBe(rect);
+    expect([...document.requireContainer('g1').children]).toEqual([]);
+  });
+
 });

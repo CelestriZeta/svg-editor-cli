@@ -1,8 +1,9 @@
+import type { ShapeTreeChange } from '../shapes/ShapeTreeChange.js';
 import { DomainError } from '../DomainError.js';
 import { ShapeFactory } from '../ShapeFactory.js';
 import { ContainerShape } from '../shapes/ContainerShape.js';
 import type { Shape } from '../shapes/Shape.js';
-import { ShapeTreeChangeSet } from '../shapes/ShapeTreeChangeSet.js';
+import type { CompositeChangeSet } from '../CompositeChangeSet.js';
 import type { ShapeSpec } from '../specs/ShapeSpec.js';
 import { CanvasSize } from './CanvasSize.js';
 import { ShapeStructurePlanner as Planner } from './ShapeStructurePlanner.js';
@@ -56,7 +57,7 @@ export class SvgDocument {
   public prepareCreateShape(
     spec: ShapeSpec,
     parent?: ContainerShape
-  ): ShapeTreeChangeSet {
+  ): CompositeChangeSet<ShapeTreeChange> {
     return this.#planner.prepareCreate(spec, parent);
   }
 
@@ -93,37 +94,33 @@ export class SvgDocument {
     return shape;
   }
 
-  public prepareDeleteShape(id: string): ShapeTreeChangeSet {
+  public prepareDeleteShape(id: string): CompositeChangeSet<ShapeTreeChange> {
     return this.#planner.prepareDelete(id);
   }
 
   public prepareGroup(
     newGroupId: string,
     targetIds: readonly string[]
-  ): ShapeTreeChangeSet {
+  ): CompositeChangeSet<ShapeTreeChange> {
     return this.#planner.prepareGroup(newGroupId, targetIds);
   }
 
-  public prepareUngroup(groupId: string): ShapeTreeChangeSet {
+  public prepareUngroup(groupId: string): CompositeChangeSet<ShapeTreeChange> {
     return this.#planner.prepareUngroup(groupId);
   }
 
   public prepareAddTo(
     containerId: string,
     shapeId: string
-  ): ShapeTreeChangeSet {
+  ): CompositeChangeSet<ShapeTreeChange> {
     return this.#planner.prepareAddTo(containerId, shapeId);
   }
 
-  public prepareFront(shapeId: string): ShapeTreeChangeSet {
+  public prepareFront(shapeId: string): CompositeChangeSet<ShapeTreeChange> {
     return this.#planner.prepareFront(shapeId);
   }
 
-  public prepareBack(shapeId: string): ShapeTreeChangeSet {
+  public prepareBack(shapeId: string): CompositeChangeSet<ShapeTreeChange> {
     return this.#planner.prepareBack(shapeId);
-  }
-
-  public removeShape(id: string): void {
-    this.deleteShape(id);
   }
 }

@@ -8,6 +8,8 @@ import { DocumentViewVisitor } from '../../src/application/queries/DocumentViewV
 import { CommandLineParser } from '../../src/cli/CommandLineParser.js';
 import { OutputFormatter } from '../../src/cli/OutputFormatter.js';
 import { Repl } from '../../src/cli/Repl.js';
+import { ShapeFormatter } from '../../src/cli/ShapeFormatter.js';
+import { ShowFormatter } from '../../src/cli/ShowFormatter.js';
 import { TreeFormatter } from '../../src/cli/TreeFormatter.js';
 
 export class ApplicationHarness {
@@ -27,7 +29,11 @@ export class ApplicationHarness {
       new DocumentViewVisitor()
     );
     this.#executor = new CommandExecutor(this.#history);
-    this.#formatter = new OutputFormatter(new TreeFormatter());
+    const shapes = new ShapeFormatter();
+    this.#formatter = new OutputFormatter(
+      new TreeFormatter(shapes),
+      new ShowFormatter(shapes)
+    );
     this.#repl = new Repl(
       new CommandLineParser(),
       dispatcher,

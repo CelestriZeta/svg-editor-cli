@@ -1,20 +1,20 @@
 import type { SvgDocument } from '../../domain/document/SvgDocument.js';
-import type { ShapeTreeChangeSet } from '../../domain/shapes/ShapeTreeChangeSet.js';
+import type { CompositeChangeSet } from '../../domain/CompositeChangeSet.js';
 import type { CommandResult } from './contracts/CommandResult.js';
 import type { EditDirection } from './results/EditDirection.js';
 import { GroupCreatedResult } from './results/GroupCreatedResult.js';
-import { TreeEditCommand } from './TreeEditCommand.js';
+import { EditChangeSetCommand } from './EditChangeSetCommand.js';
 
-export class GroupShapesCommand extends TreeEditCommand {
+export class GroupShapesCommand extends EditChangeSetCommand {
   public constructor(
-    document: SvgDocument,
+    private readonly document: SvgDocument,
     private readonly groupId: string,
     private readonly targetIds: readonly string[]
   ) {
-    super(document);
+    super();
   }
 
-  protected prepareChange(): ShapeTreeChangeSet {
+  protected prepareChange(): CompositeChangeSet {
     return this.document.prepareGroup(this.groupId, this.targetIds);
   }
 

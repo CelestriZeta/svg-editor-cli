@@ -1,6 +1,5 @@
 import { RectSpec } from '../domain/specs/RectSpec.js';
 import type { ShapeSpec } from '../domain/specs/ShapeSpec.js';
-import type { ShapeStyle } from '../domain/shapes/ShapeStyle.js';
 import type { SvgAttributes } from './SvgAttributes.js';
 import { SvgStyledElement } from './SvgStyledElement.js';
 

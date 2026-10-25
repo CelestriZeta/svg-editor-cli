@@ -10,9 +10,10 @@ export class ShapeMovedResult extends StructureChangedResult {
     private readonly deltaX: number,
     private readonly deltaY: number,
     private readonly position: ShapeAnchor | undefined,
+    changed: boolean,
     direction: EditDirection = EditDirection.Applied
   ) {
-    super(shapeType, shapeId, true, direction);
+    super(shapeType, shapeId, changed, direction);
   }
 
   public get dx(): number {

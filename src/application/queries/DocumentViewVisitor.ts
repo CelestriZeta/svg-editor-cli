@@ -7,104 +7,69 @@ import type { Shape } from '../../domain/shapes/Shape.js';
 import type { Text } from '../../domain/shapes/Text.js';
 import { ShapeVisitor } from '../../domain/visitor/ShapeVisitor.js';
 import type { SvgDocument } from '../../domain/document/SvgDocument.js';
-import { CircleView } from './CircleView.js';
 import { DocumentView } from './DocumentView.js';
-import { EllipseView } from './EllipseView.js';
-import { GroupView } from './GroupView.js';
-import { LineView } from './LineView.js';
-import { RectView } from './RectView.js';
-import type { ShapeView } from './ShapeView.js';
-import { TextView } from './TextView.js';
+import { GeometrySnapshot } from './GeometrySnapshot.js';
+import { ShapeAnchor } from './ShapeAnchor.js';
+import { ShapeReference } from './ShapeReference.js';
+import { ShapeSnapshot } from './ShapeSnapshot.js';
 
-export class DocumentViewVisitor extends ShapeVisitor<ShapeView> {
+export class DocumentViewVisitor extends ShapeVisitor<ShapeSnapshot> {
+  public constructor(private readonly recursive = true) {
+    super();
+  }
+
   public visit(document: SvgDocument): DocumentView {
-    const children: ShapeView[] = [];
+    return new DocumentView(document.width, document.height,
+      [...document.children].map((shape) => this.visitSubtree(shape)));
+  }
 
-    for (const shape of document.children) {
-      children.push(this.visitShape(shape));
-    }
+  public visitSubtree(shape: Shape): ShapeSnapshot {
+    return shape.accept(this);
+  }
 
-    return new DocumentView(document.width, document.height, children);
+  public inspect(shape: Shape): ShapeSnapshot {
+    return new DocumentViewVisitor(false).visitSubtree(shape);
   }
 
   public enterGroup(): boolean {
-    return true;
+    return this.recursive;
   }
 
-  public leaveGroup(group: Group, children: readonly ShapeView[]): GroupView {
-    return new GroupView(
-      group.id,
-      children,
-      group.fill,
-      group.stroke,
-      group.strokeWidth
-    );
+  public leaveGroup(group: Group, children: readonly ShapeSnapshot[]): ShapeSnapshot {
+    return this.snapshot(group, GeometrySnapshot.empty(), children);
   }
 
-  public visitCircle(circle: Circle): CircleView {
-    return new CircleView(
-      circle.id,
-      circle.cx,
-      circle.cy,
-      circle.r,
-      circle.fill,
-      circle.stroke,
-      circle.strokeWidth
-    );
+  public visitCircle(circle: Circle): ShapeSnapshot {
+    return this.snapshot(circle, GeometrySnapshot.named([
+      ['cx', circle.cx], ['cy', circle.cy], ['r', circle.r]
+    ], new ShapeAnchor(circle.cx, circle.cy)));
   }
 
-  public visitEllipse(ellipse: Ellipse): EllipseView {
-    return new EllipseView(
-      ellipse.id,
-      ellipse.cx,
-      ellipse.cy,
-      ellipse.rx,
-      ellipse.ry,
-      ellipse.fill,
-      ellipse.stroke,
-      ellipse.strokeWidth
-    );
+  public visitEllipse(ellipse: Ellipse): ShapeSnapshot {
+    return this.snapshot(ellipse, GeometrySnapshot.named([
+      ['cx', ellipse.cx], ['cy', ellipse.cy], ['rx', ellipse.rx], ['ry', ellipse.ry]
+    ], new ShapeAnchor(ellipse.cx, ellipse.cy)));
   }
 
-  public visitLine(line: Line): LineView {
-    return new LineView(
-      line.id,
-      line.x1,
-      line.y1,
-      line.x2,
-      line.y2,
-      line.fill,
-      line.stroke,
-      line.strokeWidth
-    );
+  public visitLine(line: Line): ShapeSnapshot {
+    return this.snapshot(line, GeometrySnapshot.segment(
+      new ShapeAnchor(line.x1, line.y1), new ShapeAnchor(line.x2, line.y2)));
   }
 
-  public visitRect(rect: Rect): RectView {
-    return new RectView(
-      rect.id,
-      rect.x,
-      rect.y,
-      rect.width,
-      rect.height,
-      rect.fill,
-      rect.stroke,
-      rect.strokeWidth
-    );
+  public visitRect(rect: Rect): ShapeSnapshot {
+    return this.snapshot(rect, GeometrySnapshot.named([
+      ['x', rect.x], ['y', rect.y], ['width', rect.width], ['height', rect.height]
+    ], new ShapeAnchor(rect.x, rect.y)));
   }
 
-  public visitText(text: Text): TextView {
-    return new TextView(
-      text.id,
-      text.x,
-      text.y,
-      text.content,
-      text.fill,
-      text.stroke,
-      text.strokeWidth
-    );
+  public visitText(text: Text): ShapeSnapshot {
+    return this.snapshot(text, GeometrySnapshot.text(new ShapeAnchor(text.x, text.y), text.content));
   }
 
-  private visitShape(shape: Shape): ShapeView {
-    return shape.accept(this);
+  private snapshot(shape: Shape, geometry: GeometrySnapshot, children: readonly ShapeSnapshot[] = []): ShapeSnapshot {
+    const parent = shape.parent;
+    return new ShapeSnapshot(new ShapeReference(shape.type, shape.id), geometry,
+      shape.fill, shape.stroke, shape.strokeWidth,
+      parent === undefined ? undefined : new ShapeReference(parent.type, parent.id), children);
   }
 }

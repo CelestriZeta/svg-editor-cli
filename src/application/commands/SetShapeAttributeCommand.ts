@@ -1,5 +1,6 @@
 import type { SvgDocument } from '../../domain/document/SvgDocument.js';
-import type { ShapeAttributeChangeSet } from '../../domain/shapes/ShapeAttributeChangeSet.js';
+import { DomainError } from '../../domain/DomainError.js';
+import type { CompositeChangeSet } from '../../domain/CompositeChangeSet.js';
 import type { ShapeAttributeUpdate } from '../../domain/shapes/ShapeAttributeUpdate.js';
 import { ShapeAttributeValueKind } from '../../domain/shapes/ShapeAttributeValueKind.js';
 import type { CommandResult } from './contracts/CommandResult.js';
@@ -9,7 +10,7 @@ import { ShapeAttributeSnapshot } from './results/ShapeAttributeSnapshot.js';
 import { ShapeAttributeSetResult } from './results/ShapeAttributeSetResult.js';
 
 export class SetShapeAttributeCommand extends EditChangeSetCommand {
-  readonly #shapeType: string;
+  #shapeType: string | undefined;
 
   public constructor(
     private readonly document: SvgDocument,
@@ -17,11 +18,11 @@ export class SetShapeAttributeCommand extends EditChangeSetCommand {
     private readonly update: ShapeAttributeUpdate
   ) {
     super();
-    this.#shapeType = document.requireShape(shapeId).type;
   }
 
-  protected prepareChange(): ShapeAttributeChangeSet {
+  protected prepareChange(): CompositeChangeSet {
     const shape = this.document.requireShape(this.shapeId);
+    this.#shapeType = shape.type;
     return shape.prepareSet(this.update);
   }
 
@@ -29,12 +30,19 @@ export class SetShapeAttributeCommand extends EditChangeSetCommand {
     const shape = this.document.requireShape(this.shapeId);
     const value = shape.attributeValue(this.update.name);
     return new ShapeAttributeSetResult(
-      this.#shapeType,
+      this.requireShapeType(),
       this.shapeId,
       this.update.name,
       this.snapshot(value),
       direction
     );
+  }
+
+  private requireShapeType(): string {
+    if (this.#shapeType === undefined) {
+      throw new DomainError('command has not been prepared');
+    }
+    return this.#shapeType;
   }
 
   private snapshot(value: {

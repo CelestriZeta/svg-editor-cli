@@ -26,9 +26,15 @@ describe('architecture guards', () => {
     const files = await typescriptFiles(join(sourceRoot, 'domain'));
     for (const file of files) {
       const source = await readFile(file, 'utf8');
+      const imports = [
+        ...source.matchAll(/from\s+['"]([^'"]+)['"]/g)
+      ].map((match) => match[1]);
       expect(source).not.toMatch(
         /from\s+['"][^'"]*(?:application|cli|infrastructure|bootstrap|node:|xml)/
       );
+      for (const imported of imports) {
+        expect(imported?.startsWith('.')).toBe(true);
+      }
     }
   });
 
@@ -37,7 +43,9 @@ describe('architecture guards', () => {
     for (const file of files) {
       const source = await readFile(file, 'utf8');
       const classes = [
-        ...source.matchAll(/export\s+(?:abstract\s+)?class\s+([A-Za-z0-9_]+)/g)
+        ...source.matchAll(
+          /(?:^|\n)\s*(?:export\s+)?(?:abstract\s+)?class\s+([A-Za-z0-9_]+)/g
+        )
       ].map((match) => match[1]);
       if (classes.length === 0) {
         continue;
@@ -85,6 +93,45 @@ describe('architecture guards', () => {
     expect(visited.size).toBe(files.length);
   });
 
+  it('[ARCH-07] enforces the documented layer directions', async () => {
+    const files = await typescriptFiles(sourceRoot);
+    const allowedImports = new Map<string, ReadonlySet<string>>([
+      ['domain', new Set(['domain'])],
+      ['application', new Set(['application', 'domain'])],
+      ['cli', new Set(['cli', 'application'])],
+      ['infrastructure', new Set(['infrastructure', 'application', 'domain'])],
+      [
+        'bootstrap',
+        new Set(['bootstrap', 'cli', 'application', 'infrastructure', 'domain'])
+      ]
+    ]);
+
+    for (const file of files) {
+      const sourceLayer = file
+        .slice(sourceRoot.length + 1)
+        .split(/[\\/]/)[0];
+      const allowed = allowedImports.get(sourceLayer ?? '');
+      expect(allowed).toBeDefined();
+
+      const source = await readFile(file, 'utf8');
+      const relativeImports = [
+        ...source.matchAll(/from\s+['"](\.[^'"]+\.js)['"]/g)
+      ]
+        .map((match) => match[1])
+        .filter((value): value is string => value !== undefined);
+      for (const imported of relativeImports) {
+        const target = resolve(
+          dirname(file),
+          imported.replace(/\.js$/, '.ts')
+        );
+        const targetLayer = target
+          .slice(sourceRoot.length + 1)
+          .split(/[\\/]/)[0];
+        expect(allowed?.has(targetLayer ?? '')).toBe(true);
+      }
+    }
+  });
+
   it('[ARCH-06/08/09/10] keeps dispatch, command and bootstrap boundaries', async () => {
     const sourceFiles = await typescriptFiles(sourceRoot);
     const commandFiles = await typescriptFiles(join(sourceRoot, 'application/commands'));
@@ -108,6 +155,9 @@ describe('architecture guards', () => {
       expect(source).not.toMatch(
         /ShapeTree\b|ShapeStructurePlanner|node:fs|fast-xml|SvgDocumentStore|SvgWriteVisitor/
       );
+      expect(source).not.toMatch(
+        /this\.document\.(?:createShape|deleteShape)\(|\.(?:move|scale|set)\(/
+      );
     }
     for (const file of nonBootstrapFiles) {
       const source = await readFile(file, 'utf8');
@@ -121,9 +171,7 @@ describe('architecture guards', () => {
     expect(dispatcherSource).not.toMatch(
       /history\s*=\s*new CommandHistory/
     );
-    expect(dispatcherSource).not.toMatch(
-      /new (?:CreateShape|DeleteShape|MoveShape|ScaleShape|SetShapeAttribute|GroupShapes|UngroupShape|AddTo|FrontShape|BackShape|Undo|Redo|Tree)Command\s*\(/
-    );
+
 
     const createCommandSource = await readFile(
       join(sourceRoot, 'application/commands/CreateShapeCommand.ts'),

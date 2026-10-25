@@ -1,20 +1,20 @@
 import type { SvgDocument } from '../../domain/document/SvgDocument.js';
-import type { ShapeTreeChangeSet } from '../../domain/shapes/ShapeTreeChangeSet.js';
+import type { CompositeChangeSet } from '../../domain/CompositeChangeSet.js';
 import type { CommandResult } from './contracts/CommandResult.js';
-import { TreeEditCommand } from './TreeEditCommand.js';
+import { EditChangeSetCommand } from './EditChangeSetCommand.js';
 import type { EditDirection } from './results/EditDirection.js';
 import { ShapeMovedIntoContainerResult } from './results/ShapeMovedIntoContainerResult.js';
 
-export class AddToCommand extends TreeEditCommand {
+export class AddToCommand extends EditChangeSetCommand {
   public constructor(
-    document: SvgDocument,
+    private readonly document: SvgDocument,
     private readonly containerId: string,
     private readonly shapeId: string
   ) {
-    super(document);
+    super();
   }
 
-  protected prepareChange(): ShapeTreeChangeSet {
+  protected prepareChange(): CompositeChangeSet {
     return this.document.prepareAddTo(this.containerId, this.shapeId);
   }
 

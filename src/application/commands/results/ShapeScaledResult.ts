@@ -9,9 +9,10 @@ export class ShapeScaledResult extends StructureChangedResult {
     shapeId: string,
     private readonly scaleFactor: number,
     private readonly position: ShapeAnchor | undefined,
+    changed: boolean,
     direction: EditDirection = EditDirection.Applied
   ) {
-    super(shapeType, shapeId, true, direction);
+    super(shapeType, shapeId, changed, direction);
   }
 
   public get factor(): number {

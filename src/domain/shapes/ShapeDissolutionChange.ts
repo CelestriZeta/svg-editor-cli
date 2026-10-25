@@ -1,4 +1,5 @@
 import type { ShapeTree } from '../document/ShapeTree.js';
+import { ChangeSetExecutor } from '../ChangeSetExecutor.js';
 import type { ContainerShape } from './ContainerShape.js';
 import type { Group } from './Group.js';
 import type { Shape } from './Shape.js';
@@ -80,4 +81,3 @@ export class ShapeDissolutionChange extends ShapeTreeChange {
     }
   }
 }
-import { ChangeSetExecutor } from '../ChangeSetExecutor.js';

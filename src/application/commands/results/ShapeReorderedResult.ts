@@ -1,6 +1,6 @@
+import type { ReorderDirection } from '../contracts/ReorderDirection.js';
 import type { CommandResultVisitor } from '../contracts/CommandResultVisitor.js';
 import { EditDirection } from './EditDirection.js';
-import type { ReorderDirection } from './ReorderDirection.js';
 import { StructureChangedResult } from './StructureChangedResult.js';
 
 export class ShapeReorderedResult extends StructureChangedResult {

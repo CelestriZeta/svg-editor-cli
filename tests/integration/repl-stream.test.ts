@@ -28,4 +28,29 @@ describe('REPL stream', () => {
       ].join('\n')
     );
   });
+
+  it('[CLI-01] writes the svg prompt in interactive mode', async () => {
+    const harness = new ApplicationHarness(new RecordingDocumentStore());
+    const output: string[] = [];
+    const lines = async function* (): AsyncGenerator<string> {
+      yield 'init 10 20';
+      yield 'canvas';
+    };
+
+    await harness.repl.run(
+      lines(),
+      (text) => output.push(text),
+      { showPrompt: true }
+    );
+
+    expect(output.join('')).toBe(
+      [
+        "svg-editor 0.1 - type 'help' for commands",
+        'svg> canvas 10x20 created',
+        'svg> canvas 10x20',
+        'svg> ',
+        ''
+      ].join('\n')
+    );
+  });
 });

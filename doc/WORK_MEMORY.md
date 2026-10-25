@@ -13,7 +13,7 @@
 - 初始化前仓库仅有 `phase_cli_1.md`；尚无源代码、依赖清单、运行脚本或测试。
 - 已建立提交文档框架和拟定架构，以及 `.gitignore`、`.gitattributes`、`.editorconfig` 和根目录协作说明。
 - 已选择 Node.js 24、pnpm 11.25、TypeScript 7 严格模式和 Vitest 5；项目已安装依赖并生成锁文件。尚未选择 XML 库。
-- 仓库已有分步提交；当前阶段 6 改动尚未暂存、提交或推送，未创建 `final` tag。
+- 仓库已有分步提交；当前阶段 7 改动尚未暂存、提交或推送，未创建 `final` tag。
 - README 已记录阶段 2 的实际实现证据和验证结果；最终一致性自查结论仍留待完整验收。
 - 按用户最新要求和课程第 1.2 节要求，完整项目文档已从根目录移至 `doc/README.md`，需求相对链接和协作约定已同步更新。
 - 2026-10-25 已将工作区同步到 `origin/main` 的 `fe368ed`；同步后无差异，随后按该版本架构建立 `doc/DEVELOPMENT_PLAN.md`，记录 TDD 工作流程，并按顺序列出工程基线、最小链路、领域模型、结构编辑、命令历史、SVG IO、CLI 和验收阶段。该文件是计划，不代表业务功能已实现。
@@ -54,6 +54,14 @@
 - 阶段 6 新增 `CanvasSize` 维护画布宽高不变量；`DocumentService.read` 只接收已完成的候选文档，成功后一次性替换会话和默认路径。端口返回 `LoadedDocument`/`ImportedShapeId`，命令层再映射为独立结果模型，避免 `commands/results -> ports` 依赖。
 - 阶段 6 风格与漏洞复查发现并修正两点：解析器原先使用 `instanceof` 分支处理文本/容器，改为节点多态的子节点与文本接收契约；读取结果集合补齐防御性复制。XML 解析拒绝 DOCTYPE 和处理指令，不加载外部实体，所有不支持的 SVG 内容显式失败而不是静默丢弃。
 - 阶段 6 最终 `pnpm run check` 通过：26 个测试文件、78 个测试，严格类型检查和生产构建成功。构建产物完成 `create -> save -> read -> tree -> canvas -> save -> read` 回放，尺寸、嵌套结构、样式和文本 round-trip 正确；`pnpm audit --prod` 报告 `No known vulnerabilities found`，`saxes` 实际版本为 6.0.0。
+- 2026-10-25 已完成阶段 7：新增 `tree [id]`、`show <id>` 和完整 `help`，查询命令通过 `DocumentViewVisitor` 生成全树、子树或单图形明细；交互式 stdin 显示 `svg>` 提示，管道与自动化流保持无提示符的逐行回放。
+- 阶段 7 新测试先因 `tree <id>` 被拒绝、`show` 未注册而失败；实现后覆盖六种图形明细、根级与嵌套父级、未知 id、参数错误、查询不入历史、无文档边界和交互提示符。
+- 阶段 7 风格与漏洞复查发现并修正三项问题：15 字符图形标签会与首个属性粘连，现改为固定列宽且至少保留一个分隔；父级摘要曾在应用查询模型 `ShapeReference.toString()` 中拼接 CLI 文案，现由 `ShowFormatter` 独占展示格式；查询命令最初未经过执行守卫，未知 id 被包装为 `command failed`，现与其他命令一致返回具体单行错误。
+- 阶段 7 最终 `pnpm run check` 通过：27 个测试文件、82 个测试，严格类型检查和生产构建成功。构建产物回放验证全树、子树、六类 `show` 明细及未知 id；真实 TTY 回放确认启动提示、输入回显和连续 `svg>` 提示正常；`pnpm audit --prod` 报告 `No known vulnerabilities found`。
+- 2026-10-25 完成全仓架构与 OOP 复查：未发现上帝类、贫血领域模型、层级反向依赖或按图形名称散落 `switch`；最大生产类为 252 行的 `ShapeStructurePlanner`，职责仍集中在结构变更规划。主要隐患是局部命令构造时序、结果语义、方向条件分派、明细查询过度遍历和守卫覆盖不足，均已在同轮修正。
+- 架构复查修正了以下问题：`front`/`back` 基类不再按方向字符串条件分派，由具体命令分别实现；移动/缩放结果准确反映空操作；删除、移动、缩放和设置命令不在构造期读取可变文档；单图形几何写入失败会回滚已应用值；`show <g>` 使用不进入子节点的明细 Visitor；移除 `SvgDocument.removeShape` 纯转发别名和无用导入。
+- 架构守卫已扩展到分层依赖、全部生产类声明、命令绕过 ChangeSet 检查、零变化结果、命令构造边界和明细根节点投影；`tsconfig` 开启 `noUnusedLocals`、`noUnusedParameters` 和 `noImplicitReturns`。复查后 `pnpm run check` 通过：28 个测试文件、86 个测试，严格类型检查和生产构建成功。
+- 仍有明确阶段边界风险：六种图形仍由封闭的领域/查询 Visitor 和多处注册表共同覆盖，新增 `box` 或插件类型必须协调修改这些扩展点；深层 SVG 的读取、查询和保存仍使用递归遍历与逐层缩进，极端嵌套下存在栈深和输出体积膨胀风险。这两项不影响当前六种内置图形的正确性，但插件化或处理不可信超大文件前必须重新评估。
 - exFAT 不支持符号链接，pnpm 项目配置使用 hoisted 布局；`.npmrc` 与 `pnpm-workspace.yaml` 中保留了该平台设置。
 
 ## 实际实现架构
@@ -61,18 +69,19 @@
 本节是实际实现架构的唯一演进记录。后续目录、职责和依赖调整只更新本节，不改写 `doc/README.md` 的原架构设计。
 
 - `src/cli/`：命令分词、REPL、结果排版和 CLI 语法错误。
-- `src/application/`：命令分发、串行执行、历史、会话和文档协调；`CommandDispatcher` 只维护集中名称定义表与 help，具体参数解释和构造由命令工厂承担。
-- `src/application/commands/contracts/`：Command、UndoableCommand、ShapeSpecBuilder、命令类别（含独立 History 类别）、结果及结果 Visitor 契约。
-- `src/application/commands/results/`：Canvas 查询/创建/调整、文档读取/保存、Shape、编辑方向、多态 Structure、Error、Help 和 Tree 语义结果；每类结构结果只允许合法字段组合。
+- `src/application/`：命令分发、串行执行、历史、会话和文档协调；`CommandDispatcher` 维护集中名称定义表与 help，并直接创建参数简单的结构、历史和查询命令。文档参数与数值/属性解码仍由有实际解析职责的工厂承担。
+- `src/application/commands/contracts/`：Command、UndoableCommand、ShapeSpecBuilder、命令类别（含独立 History 类别）、编辑/重排方向、结果及结果 Visitor 契约。
+- `src/application/commands/results/`：Canvas 查询/创建/调整、文档读取/保存、Shape、编辑方向、多态 Structure、Error、Help、全树、子树和 Shape 明细语义结果；每类结果只允许合法字段组合。
 - `src/application/commands/support/`：预期命令错误转换。
-- `src/application/commands/factories/`：按文档、创建、图形编辑、结构编辑、历史和查询拆分命令参数解析与构造；Dispatcher 注入的同一 `CommandHistory` 被强制传给历史命令工厂。
-- `src/application/commands/`：内置具体命令保持平铺；`EditChangeSetCommand` 为局部变更命令提供准备、提交、撤销、重做和失败反向恢复，`TreeEditCommand` 在此之上约束结构变更；`specs/` 用六个 Builder 隔离参数规格，命令名到 Builder 的映射仍集中在 `CommandDispatcher`。
-- `src/application/queries/`：六种图形的只读投影、组投影和访问者。
-- `src/application/queries/` 同时提供统一 `ShapeAnchorProjector`，只读投影图形位置摘要；展示文案仍只由 `OutputFormatter` 生成。
+- `src/application/commands/factories/`：保留 `CreateShapeCommandFactory`、`DocumentCommandFactory`、`ShapeEditCommandFactory`，负责图形规格、画布参数和数值/属性更新的解码；删除结构、历史和查询三类薄工厂。Dispatcher 直接将注入的同一 `CommandHistory` 传给 undo/redo 命令。
+- `src/application/commands/`：内置具体命令保持平铺；`EditChangeSetCommand` 为局部变更命令提供准备、提交、撤销、重做和失败反向恢复，结构命令直接继承该基类，删除无独立行为的 `TreeEditCommand`；`specs/` 用六个 Builder 隔离参数规格，`CreateShapeCommandFactory` 集中维护 `create` 子命令的图形类型到 Builder 映射。
+- `src/application/queries/`：统一不可变 `ShapeSnapshot`、`GeometrySnapshot` 与 `DocumentView`；`ShapeReference` 保存类型/id，`ShapeAnchor` 保存坐标。只有 `DocumentViewVisitor` 负责从领域对象投影，支持全树、子树和不访问子节点的 `inspect`；move/scale 的位置摘要复用该投影。删除六种 View 子类、`ShapeView`、`ShapeViewVisitor`、独立明细包装与 Visitor、位置摘要 Visitor。
+- `GeometrySnapshot` 使用封闭的几何属性名类型、数值元组及明确的线段/文本工厂，保存语义数据，不包含 CLI 文案。查询快照不是可写领域模型；集合复制并冻结，领域行为仍由 Shape/Composite 承担。
+- `src/cli/` 的 `ShapeFormatter` 直接排版查询快照，共用于 `TreeFormatter` 和 `ShowFormatter`；删除 `ShapeDescription` 及其 Visitor，不再复制一层展示模型，也不按图形名字重新分派。宽高缩写、坐标括号、父级摘要等文案只存在于 CLI。
 - `src/application/ports/`：定义 `DocumentStore`、`LoadedDocument`、`ImportedShapeId` 和读写错误；导入元数据由读取适配器产生，命令映射为自己的结果模型，不把基础设施细节带入命令结果。
 - `src/domain/document/`：`SvgDocument` 聚合根；私有 `ShapeTree` 维护根顺序、父级、children 与 id 索引；`ShapeStructurePlanner` 负责结构候选校验和 ChangeSet 规划。
 - `src/domain/document/CanvasSize`：封装正有限宽高约束；`SvgDocument` 通过整体替换尺寸对象调整画布。
-- `src/domain/shapes/`：`Shape`、`ContainerShape`/`Group`、六种叶子图形、不可变 `ShapeStyle`、`ShapeAttributeSlot`、类型化属性/几何快照和局部树变更。图形不暴露父级、子级或树对象写入口。
+- `src/domain/shapes/`：`Shape`、`ContainerShape`/`Group`、五种叶子图形、不可变 `ShapeStyle`、`ShapeAttributeSlot`、类型化属性/几何记录和局部树变更。图形不暴露父级、子级或树对象写入口。`CompositeChangeSet` 在 domain 根目录统一组合执行、恢复与空变更判断；几何集合仅保留构造单图形记录的便利工厂，树与属性集合不再保留平行类。
 - `src/domain/specs/`：类型化创建规格，禁止外部 token 进入领域。
 - `src/domain/visitor/`：领域遍历契约和复用该契约的 `ShapeCollector`。
 - `src/infrastructure/`：SVG 序列化、严格 SVG/XML 解析、原子文件存储和 Node.js IO 适配。`SvgTreeParser` 用 `saxes` 构建基础设施解析树，`SvgElementFactory` 集中完成 SVG 标签到解析节点的映射；该映射是图形工厂在读取方向的唯一集中分派点，不向领域传入 XML 语法。
@@ -141,7 +150,7 @@
 - `front` 表示同级 z-order 最后（数组末尾），`back` 表示同级最前（数组开头）；已位于对应边界时返回确定性结果、空 ChangeSet，且不进入 undo 栈。
 - 结构命令先准备完整 ChangeSet 再同步提交；失败目标不改变树、父引用、id 索引或历史。命令在结果构造失败时回滚已提交 ChangeSet。
 - 组合 ChangeSet 的提交、恢复和内部补偿都必须尝试全部动作；回滚或补偿失败与原始异常一起通过 `AggregateError` 报告。
-- create redo 必须复用首次 ChangeSet 和同一 Shape 对象；结构命令继续复用共享 `TreeEditCommand` 记录。
+- create redo 必须复用首次 ChangeSet 和同一 Shape 对象；阶段 4 时结构命令复用共享 `TreeEditCommand` 记录；本轮简化后直接复用 `EditChangeSetCommand`。
 
 阶段 5 已固定的补充边界：
 
@@ -161,11 +170,45 @@
 - `read` 成功将默认路径设为输入路径；无参数 `save` 写回该路径。`canvas` 无参数为查询，不入历史；带两个合法尺寸时整体替换画布尺寸，并按文档命令建立 IO 屏障。
 - 新规格统一接收不可变 `ShapeStyle`，读取公共 `fill`/`stroke`/`stroke-width` 时不需要为每种图形保留平行样式构造协议。
 
+阶段 7 已固定的补充边界：
+
+- `tree` 无参数保留 `svg (w x h)` 画布根；`tree <id>` 以目标图形自身为根显示完整子树，不额外插入 `svg` 行。
+- `show <id>` 首行显示 `type#id` 与实际父级；根级图形显示 `parent=svg`。几何属性和样式属性分别成行，省略未设置的样式。
+- `tree`/`show` 的未知 id、参数错误和无文档错误均为单行 `error:`，不改文档、历史或 IO 屏障。
+- 交互终端启用 `svg>` 提示并由 `readline` 处理输入回显；非交互管道不输出提示符，保持可回放脚本和自动化测试输出稳定。
+
+## 2026-10-25 架构简化重构（本轮）
+
+用户要求按已讨论方案简化。保留四层依赖、Command、Composite、六种内置图形、局部精确历史和 IO 隔离；未修改冻结的 `doc/README.md`，未暂存、提交、推送或创建 tag。
+
+实际改动：
+
+- 新增泛型 `CompositeChangeSet`，统一组合变更集合的状态、空变更判断和 apply/revert；继续由 `ChangeSetExecutor` 执行失败补偿。删除树/属性两套重复集合，几何集合只保留有用途的单图形构造工厂。
+- 删除 `TreeEditCommand`；结构命令直接复用 `EditChangeSetCommand` 的准备、提交、结果失败恢复和 undo/redo 流程，`ReorderShapeCommand` 保留 front/back 共用的结果逻辑。
+- 删除结构、历史和查询三个薄命令工厂，简单命令创建收回 Dispatcher 定义表，help 仍同源。保留图形创建、文档参数和数值/属性编辑三类具有实际解码逻辑的工厂，避免 Dispatcher 同时承载全部解析细节。
+- 用统一不可变查询快照替换六种查询 View、第二套 Visitor 和展示 Description；统一 Visitor 供 tree、show 和编辑位置摘要使用。几何、父级、样式与孩子集合均在投影时捕获，CLI 排版不读取可变领域对象。
+- 生产 TypeScript 文件从本轮开始的 162 个减少到 147 个；查询目录从 15 个文件减少到 6 个。原有阶段 7 未提交改动继续保留。
+- 调整禁止 Dispatcher 构造具体命令的旧源码断言；保留依赖方向、无运行期循环、一类一文件、Command 不绕过变更记录、分派位置和领域隔离守卫。
+
+架构自查实际发现与修正：查询集合仅有 TypeScript readonly 不足以阻止运行期修改，本轮对集合及其数值元组防御性复制并冻结，并冻结快照和坐标值。明细投影通过独立、无共享可变状态的非递归 Visitor 实例实现，避免查询模式污染后续全树投影。领域仍封装行为和校验；应用快照只用于查询，不解析外部 token、不包含展示文案；CLI 只按明确的几何语义排版，没有新增图形名 switch。Command/Composite、精确旧值恢复和提交后失败补偿契约保持；插件/box 未扩展。
+
+验证证据：
+
+- `pnpm run check` 启动时因 pnpm 尝试创建工作区外用户缓存目录而返回 EPERM，未将该命令记为通过；改用已安装的本地工具执行其等价步骤。
+- `node_modules/.bin/tsc.cmd --noEmit` 通过。
+- `node_modules/.bin/vitest.cmd run` 通过：29 个文件、90 个测试，包含已有树结构、历史、失败状态、IO、架构和 e2e 回归；新增快照隔离/冻结、不访问明细子节点、文本空白/线段排版以及混合变更补偿回归。
+- 新回归初次使用空文本时被现有 TextSpec 校验拒绝；测试已改为合法的单空格文本，未修改业务规则。
+- `node scripts/clean.mjs` 与 `node_modules/.bin/tsc.cmd -p tsconfig.build.json` 通过。
+- 构建产物 `node dist/bootstrap/entry.js` 实际回放六种图形创建、嵌套、分组/解组、move/scale、undo/redo、属性修改、addto、front/back、删除恢复、tree/show 和 save/read；无 error，父级、尺寸、SVG 样式与文本断言通过。烟测 SVG 已清理，未新增交付样例。
+- 检查清理后的 dist，已删除的集合、继承层、View/Visitor 和薄工厂产物均不存在；`git diff --check` 通过。
+
+本轮属于架构重构；阶段 8 的完整课程验收、真实浏览器预览与 final tag 仍未完成。
+
 ## 下一步建议顺序
 
-1. 进入 `doc/DEVELOPMENT_PLAN.md` 阶段 7，补 `tree <id>`、`show` 和最终完整 CLI。
-2. 完成当前命令集下的 help、无文档边界和显示命令回归。
-3. 按 `doc/README.md` 验收矩阵回放完整场景并做浏览器预览，最后填写一致性自查；只有用户确认后才提交和推送。
+1. 进入 `doc/DEVELOPMENT_PLAN.md` 阶段 8，回放需求第 6 节典型会话和 6.1 流程图版本 A。
+2. 保存典型 SVG，用浏览器检查几何、颜色、层级和文字，并记录实际证据。
+3. 完成最终一致性自查、全量验收和文档结果区；只有用户确认检查完成后才提交、推送并创建 `final` tag。
 
 ## 维护规则
 

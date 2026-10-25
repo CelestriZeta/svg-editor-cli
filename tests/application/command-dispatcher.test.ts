@@ -18,6 +18,7 @@ import { SaveCommand } from '../../src/application/commands/SaveCommand.js';
 import { ScaleShapeCommand } from '../../src/application/commands/ScaleShapeCommand.js';
 import { SetShapeAttributeCommand } from '../../src/application/commands/SetShapeAttributeCommand.js';
 import { ShowCanvasCommand } from '../../src/application/commands/ShowCanvasCommand.js';
+import { ShowCommand } from '../../src/application/commands/ShowCommand.js';
 import { TreeCommand } from '../../src/application/commands/TreeCommand.js';
 import { UngroupShapeCommand } from '../../src/application/commands/UngroupShapeCommand.js';
 import { UndoCommand } from '../../src/application/commands/UndoCommand.js';
@@ -83,6 +84,8 @@ describe('CommandDispatcher', () => {
     expect(dispatcher.create(['front', 'r1'])).toBeInstanceOf(FrontShapeCommand);
     expect(dispatcher.create(['back', 'r1'])).toBeInstanceOf(BackShapeCommand);
     expect(dispatcher.create(['tree'])).toBeInstanceOf(TreeCommand);
+    expect(dispatcher.create(['tree', 'g1'])).toBeInstanceOf(TreeCommand);
+    expect(dispatcher.create(['show', 'r1'])).toBeInstanceOf(ShowCommand);
     expect(dispatcher.create(['undo'])).toBeInstanceOf(UndoCommand);
     expect(dispatcher.create(['redo'])).toBeInstanceOf(RedoCommand);
     expect(dispatcher.create(['save'])).toBeInstanceOf(SaveCommand);
@@ -121,7 +124,9 @@ describe('CommandDispatcher', () => {
       [['addto', 'g1'], 'addto requires a container id and a shape id'],
       [['front'], 'front requires one shape id'],
       [['back', 'r1', 'extra'], 'back requires one shape id'],
-      [['tree', 'extra'], 'tree takes no arguments'],
+      [['tree', 'r1', 'extra'], 'tree takes at most one argument'],
+      [['show'], 'show requires one shape id'],
+      [['show', 'r1', 'extra'], 'show requires one shape id'],
       [['undo', 'extra'], 'undo takes no arguments'],
       [['redo', 'extra'], 'redo takes no arguments'],
       [['save', 'a.svg', 'b.svg'], 'save accepts at most one file path'],

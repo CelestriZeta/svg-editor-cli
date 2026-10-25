@@ -1,7 +1,7 @@
 import type { SvgDocument } from '../../domain/document/SvgDocument.js';
 import type { ContainerShape } from '../../domain/shapes/ContainerShape.js';
 import type { ShapeSpec } from '../../domain/specs/ShapeSpec.js';
-import type { ShapeTreeChangeSet } from '../../domain/shapes/ShapeTreeChangeSet.js';
+import type { CompositeChangeSet } from '../../domain/CompositeChangeSet.js';
 import type { CommandResult } from './contracts/CommandResult.js';
 import { EditChangeSetCommand } from './EditChangeSetCommand.js';
 import { EditDirection } from './results/EditDirection.js';
@@ -16,7 +16,7 @@ export class CreateShapeCommand extends EditChangeSetCommand {
     super();
   }
 
-  protected prepareChange(): ShapeTreeChangeSet {
+  protected prepareChange(): CompositeChangeSet {
     return this.document.prepareCreateShape(this.spec, this.parent);
   }
 

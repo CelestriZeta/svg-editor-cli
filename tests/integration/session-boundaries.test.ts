@@ -11,6 +11,8 @@ describe('session boundaries', () => {
     expect(await repl.executeLine('help')).toContain('  init [w] [h]');
     const expected = "error: no document. use 'init' or 'read' first";
     expect(await repl.executeLine('tree')).toBe(expected);
+    expect(await repl.executeLine('tree r1')).toBe(expected);
+    expect(await repl.executeLine('show r1')).toBe(expected);
     expect(await repl.executeLine('create rect r1 0 0 1 1')).toBe(expected);
     expect(await repl.executeLine('group cluster r1 r2')).toBe(expected);
     expect(await repl.executeLine('save demo.svg')).toBe(expected);

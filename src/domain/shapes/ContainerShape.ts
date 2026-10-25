@@ -1,5 +1,3 @@
-import { DomainError } from '../DomainError.js';
-import type { ShapeTree } from '../document/ShapeTree.js';
 import { GeometryChangeSet } from './GeometryChangeSet.js';
 import { Shape } from './Shape.js';
 import type { ShapeAttributeSlot } from './ShapeAttributeSlot.js';

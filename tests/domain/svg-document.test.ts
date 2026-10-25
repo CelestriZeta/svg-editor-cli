@@ -14,7 +14,7 @@ describe('SvgDocument', () => {
     expect(shape.id).toBe('r1');
     expect(document.elementCount).toBe(1);
 
-    document.removeShape('r1');
+    document.deleteShape('r1');
 
     expect(document.elementCount).toBe(0);
     expect([...document.children]).toEqual([]);

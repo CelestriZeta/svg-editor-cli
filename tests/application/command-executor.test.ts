@@ -5,6 +5,8 @@ import { CommandHistory } from '../../src/application/CommandHistory.js';
 import { ErrorResult } from '../../src/application/commands/results/ErrorResult.js';
 import { HelpResult } from '../../src/application/commands/results/HelpResult.js';
 import { OutputFormatter } from '../../src/cli/OutputFormatter.js';
+import { ShapeFormatter } from '../../src/cli/ShapeFormatter.js';
+import { ShowFormatter } from '../../src/cli/ShowFormatter.js';
 import { TreeFormatter } from '../../src/cli/TreeFormatter.js';
 import { ControlledCommand } from '../support/ControlledCommand.js';
 import { ThrowingCommand } from '../support/ThrowingCommand.js';
@@ -12,7 +14,11 @@ import { ThrowingCommand } from '../support/ThrowingCommand.js';
 describe('CommandExecutor', () => {
   it('[CLI-08] does not expose an unexpected implementation error', async () => {
     const executor = new CommandExecutor(new CommandHistory());
-    const formatter = new OutputFormatter(new TreeFormatter());
+    const shapes = new ShapeFormatter();
+    const formatter = new OutputFormatter(
+      new TreeFormatter(shapes),
+      new ShowFormatter(shapes)
+    );
     const result = await executor.execute(
       new ThrowingCommand('private implementation detail')
     );

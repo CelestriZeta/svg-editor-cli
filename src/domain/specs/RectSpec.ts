@@ -46,5 +46,4 @@ export class RectSpec extends ShapeSpec {
   public get height(): number {
     return this.#height;
   }
-
 }

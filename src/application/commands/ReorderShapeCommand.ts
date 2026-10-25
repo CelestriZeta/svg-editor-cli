@@ -1,26 +1,22 @@
 import type { SvgDocument } from '../../domain/document/SvgDocument.js';
-import type { ShapeTreeChangeSet } from '../../domain/shapes/ShapeTreeChangeSet.js';
+import type { CompositeChangeSet } from '../../domain/CompositeChangeSet.js';
+import type { ReorderDirection } from './contracts/ReorderDirection.js';
 import type { CommandResult } from './contracts/CommandResult.js';
-import { TreeEditCommand } from './TreeEditCommand.js';
+import { EditChangeSetCommand } from './EditChangeSetCommand.js';
 import type { EditDirection } from './results/EditDirection.js';
-import type { ReorderDirection } from './results/ReorderDirection.js';
 import { ShapeReorderedResult } from './results/ShapeReorderedResult.js';
 
-export abstract class ReorderShapeCommand extends TreeEditCommand {
+export abstract class ReorderShapeCommand extends EditChangeSetCommand {
   protected constructor(
-    document: SvgDocument,
-    private readonly shapeId: string
+    protected readonly document: SvgDocument,
+    protected readonly shapeId: string
   ) {
-    super(document);
+    super();
   }
 
   protected abstract get direction(): ReorderDirection;
 
-  protected prepareChange(): ShapeTreeChangeSet {
-    return this.direction === 'front'
-      ? this.document.prepareFront(this.shapeId)
-      : this.document.prepareBack(this.shapeId);
-  }
+  protected abstract override prepareChange(): CompositeChangeSet;
 
   protected createResult(
     direction: EditDirection,

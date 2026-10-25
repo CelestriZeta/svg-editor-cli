@@ -1,11 +1,19 @@
+import type { SvgDocument } from '../domain/document/SvgDocument.js';
+import { CommandDocumentBinding } from './commands/support/CommandDocumentBinding.js';
+import { AddToCommand } from './commands/AddToCommand.js';
+import { BackShapeCommand } from './commands/BackShapeCommand.js';
+import { FrontShapeCommand } from './commands/FrontShapeCommand.js';
+import { GroupShapesCommand } from './commands/GroupShapesCommand.js';
+import { UngroupShapeCommand } from './commands/UngroupShapeCommand.js';
+import { UndoCommand } from './commands/UndoCommand.js';
+import { RedoCommand } from './commands/RedoCommand.js';
+import { TreeCommand } from './commands/TreeCommand.js';
+import { ShowCommand } from './commands/ShowCommand.js';
 import type { CommandHistory } from './CommandHistory.js';
 import type { Command } from './commands/contracts/Command.js';
 import { CreateShapeCommandFactory } from './commands/factories/CreateShapeCommandFactory.js';
 import { DocumentCommandFactory } from './commands/factories/DocumentCommandFactory.js';
-import { HistoryCommandFactory } from './commands/factories/HistoryCommandFactory.js';
-import { QueryCommandFactory } from './commands/factories/QueryCommandFactory.js';
 import { ShapeEditCommandFactory } from './commands/factories/ShapeEditCommandFactory.js';
-import { StructureCommandFactory } from './commands/factories/StructureCommandFactory.js';
 import { HelpCommand } from './commands/HelpCommand.js';
 import { InvalidCommand } from './commands/InvalidCommand.js';
 import { CommandNumberParser } from './commands/support/CommandNumberParser.js';
@@ -32,9 +40,8 @@ export class CommandDispatcher {
     const documentCommands = new DocumentCommandFactory(documents, numbers);
     const createShape = new CreateShapeCommandFactory(session, numbers);
     const shapeEdits = new ShapeEditCommandFactory(session, numbers);
-    const structureEdits = new StructureCommandFactory(session);
-    const historyCommands = new HistoryCommandFactory(session, history);
-    const queries = new QueryCommandFactory(session, viewVisitor);
+    const inDocument = (create: (document: SvgDocument) => Command): Command =>
+      CommandDocumentBinding.withDocument(session, create);
 
     const definitions: CommandDefinition[] = [
       {
@@ -76,42 +83,58 @@ export class CommandDispatcher {
       {
         name: 'group',
         syntax: 'group <new-gid> <id1> <id2>...',
-        create: (args) => structureEdits.createGroup(args)
+        create: (args) => args[0] === undefined
+          ? new InvalidCommand('group requires a new group id and target ids')
+          : inDocument((document) => new GroupShapesCommand(document, args[0] ?? '', args.slice(1)))
       },
       {
         name: 'ungroup',
         syntax: 'ungroup <gid>',
-        create: (args) => structureEdits.createUngroup(args)
+        create: (args) => this.exact(args, 1, 'ungroup requires one container id', () =>
+          inDocument((document) => new UngroupShapeCommand(document, args[0] ?? '')))
       },
       {
         name: 'addto',
         syntax: 'addto <gid> <id>',
-        create: (args) => structureEdits.createAddTo(args)
+        create: (args) => this.exact(args, 2, 'addto requires a container id and a shape id', () =>
+          inDocument((document) => new AddToCommand(document, args[0] ?? '', args[1] ?? '')))
       },
       {
         name: 'front',
         syntax: 'front <id>',
-        create: (args) => structureEdits.createReorder(args, 'front')
+        create: (args) => this.exact(args, 1, 'front requires one shape id', () =>
+          inDocument((document) => new FrontShapeCommand(document, args[0] ?? '')))
       },
       {
         name: 'back',
         syntax: 'back <id>',
-        create: (args) => structureEdits.createReorder(args, 'back')
+        create: (args) => this.exact(args, 1, 'back requires one shape id', () =>
+          inDocument((document) => new BackShapeCommand(document, args[0] ?? '')))
       },
       {
         name: 'tree',
-        syntax: 'tree',
-        create: (args) => queries.createTree(args)
+        syntax: 'tree [id]',
+        create: (args) => args.length > 1
+          ? new InvalidCommand('tree takes at most one argument')
+          : inDocument((document) => new TreeCommand(document, viewVisitor, args[0]))
+      },
+      {
+        name: 'show',
+        syntax: 'show <id>',
+        create: (args) => this.exact(args, 1, 'show requires one shape id', () =>
+          inDocument((document) => new ShowCommand(document, args[0] ?? '', viewVisitor)))
       },
       {
         name: 'undo',
         syntax: 'undo',
-        create: (args) => historyCommands.createUndo(args)
+        create: (args) => this.exact(args, 0, 'undo takes no arguments', () =>
+          inDocument(() => new UndoCommand(history)))
       },
       {
         name: 'redo',
         syntax: 'redo',
-        create: (args) => historyCommands.createRedo(args)
+        create: (args) => this.exact(args, 0, 'redo takes no arguments', () =>
+          inDocument(() => new RedoCommand(history)))
       },
       {
         name: 'save',
@@ -147,6 +170,15 @@ export class CommandDispatcher {
     }
 
     return definition.create(args);
+  }
+
+  private exact(
+    args: readonly string[],
+    count: number,
+    error: string,
+    create: () => Command
+  ): Command {
+    return args.length === count ? create() : new InvalidCommand(error);
   }
 
   private createHelp(args: readonly string[]): Command {

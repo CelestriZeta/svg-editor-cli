@@ -4,7 +4,7 @@ import type { ShapeVisitor } from '../visitor/ShapeVisitor.js';
 import type { ContainerShape } from './ContainerShape.js';
 import type { GeometryChangeSet } from './GeometryChangeSet.js';
 import { ShapeAttributeChange } from './ShapeAttributeChange.js';
-import { ShapeAttributeChangeSet } from './ShapeAttributeChangeSet.js';
+import { CompositeChangeSet } from '../CompositeChangeSet.js';
 import { ShapeAttributeSlot } from './ShapeAttributeSlot.js';
 import type { ShapeAttributeUpdate } from './ShapeAttributeUpdate.js';
 import { ShapeAttributeValue } from './ShapeAttributeValue.js';
@@ -54,9 +54,9 @@ export abstract class Shape {
 
   public abstract readonly type: string;
 
-  public prepareSet(update: ShapeAttributeUpdate): ShapeAttributeChangeSet {
+  public prepareSet(update: ShapeAttributeUpdate): CompositeChangeSet<ShapeAttributeChange> {
     const slot = this.requireAttributeSlot(update.name);
-    return new ShapeAttributeChangeSet([
+    return new CompositeChangeSet([
       new ShapeAttributeChange(
         slot,
         slot.capture(),

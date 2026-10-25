@@ -1,18 +1,18 @@
-import type { ShapeView } from './ShapeView.js';
+import type { ShapeSnapshot } from './ShapeSnapshot.js';
 
 export class DocumentView {
   readonly #width: number;
   readonly #height: number;
-  readonly #children: readonly ShapeView[];
+  readonly #children: readonly ShapeSnapshot[];
 
   public constructor(
     width: number,
     height: number,
-    children: readonly ShapeView[]
+    children: readonly ShapeSnapshot[]
   ) {
     this.#width = width;
     this.#height = height;
-    this.#children = [...children];
+    this.#children = Object.freeze([...children]);
   }
 
   public get width(): number {
@@ -23,7 +23,7 @@ export class DocumentView {
     return this.#height;
   }
 
-  public get children(): readonly ShapeView[] {
+  public get children(): readonly ShapeSnapshot[] {
     return this.#children;
   }
 }

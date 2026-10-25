@@ -41,5 +41,9 @@ describe('nested composite output', () => {
         '  </g>'
       ].join('\n')
     );
+
+    const details = new DocumentViewVisitor().inspect(outer);
+    expect(details.type).toBe('g');
+    expect(details.children).toEqual([]);
   });
 });

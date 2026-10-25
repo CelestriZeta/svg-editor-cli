@@ -28,6 +28,6 @@ export class MissingIdAllocator {
   }
 
   public get assignments(): readonly ImportedShapeId[] {
-    return this.#assignments;
+    return [...this.#assignments];
   }
 }

@@ -7,6 +7,10 @@ import type { OutputFormatter } from './OutputFormatter.js';
 
 export type ReplWriter = (text: string) => void;
 
+export interface ReplRunOptions {
+  readonly showPrompt?: boolean;
+}
+
 export class Repl {
   public constructor(
     private readonly parser: CommandLineParser,
@@ -37,12 +41,26 @@ export class Repl {
 
   public async run(
     lines: AsyncIterable<string>,
-    write: ReplWriter
+    write: ReplWriter,
+    options: ReplRunOptions = {}
   ): Promise<void> {
     write("svg-editor 0.1 - type 'help' for commands\n");
+    const showPrompt = options.showPrompt ?? false;
+    const iterator = lines[Symbol.asyncIterator]();
 
-    for await (const line of lines) {
-      const output = await this.executeLine(line);
+    while (true) {
+      if (showPrompt) {
+        write('svg> ');
+      }
+      const next = await iterator.next();
+      if (next.done) {
+        if (showPrompt) {
+          write('\n');
+        }
+        break;
+      }
+
+      const output = await this.executeLine(next.value);
       if (output !== null) {
         write(`${output}\n`);
       }

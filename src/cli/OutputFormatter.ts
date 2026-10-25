@@ -1,5 +1,6 @@
 import type { CommandResult } from '../application/commands/contracts/CommandResult.js';
 import type { CommandResultVisitor } from '../application/commands/contracts/CommandResultVisitor.js';
+import { ReorderDirection } from '../application/commands/contracts/ReorderDirection.js';
 import type { CanvasCreatedResult } from '../application/commands/results/CanvasCreatedResult.js';
 import type { CanvasResizedResult } from '../application/commands/results/CanvasResizedResult.js';
 import type { CanvasResult } from '../application/commands/results/CanvasResult.js';
@@ -9,22 +10,27 @@ import type { ErrorResult } from '../application/commands/results/ErrorResult.js
 import type { GroupCreatedResult } from '../application/commands/results/GroupCreatedResult.js';
 import type { HelpResult } from '../application/commands/results/HelpResult.js';
 import { EditDirection } from '../application/commands/results/EditDirection.js';
-import { ReorderDirection } from '../application/commands/results/ReorderDirection.js';
 import type { ShapeAnchor } from '../application/queries/ShapeAnchor.js';
 import type { ShapeAttributeSetResult } from '../application/commands/results/ShapeAttributeSetResult.js';
 import { ShapeAttributeSnapshotKind } from '../application/commands/results/ShapeAttributeSnapshot.js';
 import type { ShapeCreatedResult } from '../application/commands/results/ShapeCreatedResult.js';
 import type { ShapeDeletedResult } from '../application/commands/results/ShapeDeletedResult.js';
+import type { ShapeDetailsResult } from '../application/commands/results/ShapeDetailsResult.js';
 import type { ShapeMovedResult } from '../application/commands/results/ShapeMovedResult.js';
 import type { ShapeMovedIntoContainerResult } from '../application/commands/results/ShapeMovedIntoContainerResult.js';
 import type { ShapeReorderedResult } from '../application/commands/results/ShapeReorderedResult.js';
 import type { ShapeScaledResult } from '../application/commands/results/ShapeScaledResult.js';
 import type { TreeResult } from '../application/commands/results/TreeResult.js';
+import type { TreeSubtreeResult } from '../application/commands/results/TreeSubtreeResult.js';
 import type { UngroupedResult } from '../application/commands/results/UngroupedResult.js';
+import type { ShowFormatter } from './ShowFormatter.js';
 import type { TreeFormatter } from './TreeFormatter.js';
 
 export class OutputFormatter implements CommandResultVisitor<string> {
-  public constructor(private readonly treeFormatter: TreeFormatter) {}
+  public constructor(
+    private readonly treeFormatter: TreeFormatter,
+    private readonly showFormatter: ShowFormatter
+  ) {}
 
   public format(result: CommandResult): string {
     return result.accept(this);
@@ -128,6 +134,10 @@ export class OutputFormatter implements CommandResultVisitor<string> {
     return `${shape} restored${parent}`;
   }
 
+  public visitShapeDetails(result: ShapeDetailsResult): string {
+    return this.showFormatter.format(result.details);
+  }
+
   public visitShapeMoved(result: ShapeMovedResult): string {
     const shape = `${result.shapeType}#${result.shapeId}`;
     const undone = result.editDirection === EditDirection.Undone;
@@ -155,6 +165,10 @@ export class OutputFormatter implements CommandResultVisitor<string> {
 
   public visitTree(result: TreeResult): string {
     return this.treeFormatter.format(result.view);
+  }
+
+  public visitTreeSubtree(result: TreeSubtreeResult): string {
+    return this.treeFormatter.formatSubtree(result.root);
   }
 
   private childCount(count: number): string {
