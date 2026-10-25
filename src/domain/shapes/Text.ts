@@ -1,18 +1,21 @@
 import { DomainError } from '../DomainError.js';
+import type { ShapeTree } from '../document/ShapeTree.js';
 import type { TextSpec } from '../specs/TextSpec.js';
 import type { ShapeVisitor } from '../visitor/ShapeVisitor.js';
 import { GeometryChangeSet } from './GeometryChangeSet.js';
 import { GeometryValueChange } from './GeometryValueChange.js';
 import { Shape } from './Shape.js';
-import type { ShapeAttributeUpdate } from './ShapeAttributeUpdate.js';
+import { ShapeAttributeSlot } from './ShapeAttributeSlot.js';
+import { ShapeAttributeValue } from './ShapeAttributeValue.js';
 
 export class Text extends Shape {
   #x: number;
   #y: number;
   #content: string;
+  readonly #attributeSlots: ReadonlyMap<string, ShapeAttributeSlot>;
 
-  public constructor(spec: TextSpec) {
-    super(spec.id, spec.style);
+  public constructor(spec: TextSpec, tree: ShapeTree) {
+    super(spec.id, tree, spec.style);
 
     if (spec.type !== 'text') {
       throw new DomainError('invalid text specification');
@@ -21,6 +24,43 @@ export class Text extends Shape {
     this.#x = spec.x;
     this.#y = spec.y;
     this.#content = spec.content;
+    this.#attributeSlots = new Map<string, ShapeAttributeSlot>([
+      [
+        'x',
+        ShapeAttributeSlot.number(
+          'x',
+          () => ShapeAttributeValue.number(this.#x),
+          (value) => {
+            this.#x = value.numericValue;
+          }
+        )
+      ],
+      [
+        'y',
+        ShapeAttributeSlot.number(
+          'y',
+          () => ShapeAttributeValue.number(this.#y),
+          (value) => {
+            this.#y = value.numericValue;
+          }
+        )
+      ],
+      [
+        'text',
+        ShapeAttributeSlot.text(
+          'text',
+          () => ShapeAttributeValue.text(this.#content),
+          (value) => {
+            this.#content = value.textValue;
+          },
+          (value) => {
+            if (value.length === 0) {
+              throw new DomainError('text must not be empty');
+            }
+          }
+        )
+      ]
+    ]);
   }
 
   public override readonly type = 'text';
@@ -72,24 +112,9 @@ export class Text extends Shape {
     return visitor.visitText(this);
   }
 
-  protected override setOwnAttribute(update: ShapeAttributeUpdate): void {
-    switch (update.name) {
-      case 'x':
-        this.#x = update.numericValue;
-        return;
-      case 'y':
-        this.#y = update.numericValue;
-        return;
-      case 'text': {
-        const text = update.textValue;
-        if (text.length === 0) {
-          throw new DomainError('text must not be empty');
-        }
-        this.#content = text;
-        return;
-      }
-      default:
-        throw new DomainError(`unknown attribute: ${update.name}`);
-    }
+  protected override ownAttributeSlot(
+    name: string
+  ): ShapeAttributeSlot | undefined {
+    return this.#attributeSlots.get(name);
   }
 }

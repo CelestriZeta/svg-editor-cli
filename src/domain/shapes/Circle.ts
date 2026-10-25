@@ -1,18 +1,21 @@
 import { DomainError } from '../DomainError.js';
+import type { ShapeTree } from '../document/ShapeTree.js';
 import type { CircleSpec } from '../specs/CircleSpec.js';
 import type { ShapeVisitor } from '../visitor/ShapeVisitor.js';
 import { GeometryChangeSet } from './GeometryChangeSet.js';
 import { GeometryValueChange } from './GeometryValueChange.js';
 import { Shape } from './Shape.js';
-import type { ShapeAttributeUpdate } from './ShapeAttributeUpdate.js';
+import { ShapeAttributeSlot } from './ShapeAttributeSlot.js';
+import { ShapeAttributeValue } from './ShapeAttributeValue.js';
 
 export class Circle extends Shape {
   #cx: number;
   #cy: number;
   #r: number;
+  readonly #attributeSlots: ReadonlyMap<string, ShapeAttributeSlot>;
 
-  public constructor(spec: CircleSpec) {
-    super(spec.id, spec.style);
+  public constructor(spec: CircleSpec, tree: ShapeTree) {
+    super(spec.id, tree, spec.style);
 
     if (spec.type !== 'circle') {
       throw new DomainError('invalid circle specification');
@@ -21,6 +24,39 @@ export class Circle extends Shape {
     this.#cx = spec.cx;
     this.#cy = spec.cy;
     this.#r = spec.r;
+    this.#attributeSlots = new Map<string, ShapeAttributeSlot>([
+      [
+        'cx',
+        ShapeAttributeSlot.number(
+          'cx',
+          () => ShapeAttributeValue.number(this.#cx),
+          (value) => {
+            this.#cx = value.numericValue;
+          }
+        )
+      ],
+      [
+        'cy',
+        ShapeAttributeSlot.number(
+          'cy',
+          () => ShapeAttributeValue.number(this.#cy),
+          (value) => {
+            this.#cy = value.numericValue;
+          }
+        )
+      ],
+      [
+        'r',
+        ShapeAttributeSlot.number(
+          'r',
+          () => ShapeAttributeValue.number(this.#r),
+          (value) => {
+            this.#r = value.numericValue;
+          },
+          (value) => this.requirePositive('r', value)
+        )
+      ]
+    ]);
   }
 
   public override readonly type = 'circle';
@@ -75,27 +111,15 @@ export class Circle extends Shape {
     return visitor.visitCircle(this);
   }
 
-  protected override setOwnAttribute(update: ShapeAttributeUpdate): void {
-    switch (update.name) {
-      case 'cx':
-        this.#cx = update.numericValue;
-        return;
-      case 'cy':
-        this.#cy = update.numericValue;
-        return;
-      case 'r':
-        this.#r = this.requirePositive(update);
-        return;
-      default:
-        throw new DomainError(`unknown attribute: ${update.name}`);
-    }
+  protected override ownAttributeSlot(
+    name: string
+  ): ShapeAttributeSlot | undefined {
+    return this.#attributeSlots.get(name);
   }
 
-  private requirePositive(update: ShapeAttributeUpdate): number {
-    const number = update.numericValue;
-    if (number <= 0) {
-      throw new DomainError(`${update.name} must be positive`);
+  private requirePositive(name: string, value: number): void {
+    if (value <= 0) {
+      throw new DomainError(`${name} must be positive`);
     }
-    return number;
   }
 }

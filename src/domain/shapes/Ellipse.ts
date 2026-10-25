@@ -1,19 +1,22 @@
 import { DomainError } from '../DomainError.js';
+import type { ShapeTree } from '../document/ShapeTree.js';
 import type { EllipseSpec } from '../specs/EllipseSpec.js';
 import type { ShapeVisitor } from '../visitor/ShapeVisitor.js';
 import { GeometryChangeSet } from './GeometryChangeSet.js';
 import { GeometryValueChange } from './GeometryValueChange.js';
 import { Shape } from './Shape.js';
-import type { ShapeAttributeUpdate } from './ShapeAttributeUpdate.js';
+import { ShapeAttributeSlot } from './ShapeAttributeSlot.js';
+import { ShapeAttributeValue } from './ShapeAttributeValue.js';
 
 export class Ellipse extends Shape {
   #cx: number;
   #cy: number;
   #rx: number;
   #ry: number;
+  readonly #attributeSlots: ReadonlyMap<string, ShapeAttributeSlot>;
 
-  public constructor(spec: EllipseSpec) {
-    super(spec.id, spec.style);
+  public constructor(spec: EllipseSpec, tree: ShapeTree) {
+    super(spec.id, tree, spec.style);
 
     if (spec.type !== 'ellipse') {
       throw new DomainError('invalid ellipse specification');
@@ -23,6 +26,50 @@ export class Ellipse extends Shape {
     this.#cy = spec.cy;
     this.#rx = spec.rx;
     this.#ry = spec.ry;
+    this.#attributeSlots = new Map<string, ShapeAttributeSlot>([
+      [
+        'cx',
+        ShapeAttributeSlot.number(
+          'cx',
+          () => ShapeAttributeValue.number(this.#cx),
+          (value) => {
+            this.#cx = value.numericValue;
+          }
+        )
+      ],
+      [
+        'cy',
+        ShapeAttributeSlot.number(
+          'cy',
+          () => ShapeAttributeValue.number(this.#cy),
+          (value) => {
+            this.#cy = value.numericValue;
+          }
+        )
+      ],
+      [
+        'rx',
+        ShapeAttributeSlot.number(
+          'rx',
+          () => ShapeAttributeValue.number(this.#rx),
+          (value) => {
+            this.#rx = value.numericValue;
+          },
+          (value) => this.requirePositive('rx', value)
+        )
+      ],
+      [
+        'ry',
+        ShapeAttributeSlot.number(
+          'ry',
+          () => ShapeAttributeValue.number(this.#ry),
+          (value) => {
+            this.#ry = value.numericValue;
+          },
+          (value) => this.requirePositive('ry', value)
+        )
+      ]
+    ]);
   }
 
   public override readonly type = 'ellipse';
@@ -86,30 +133,15 @@ export class Ellipse extends Shape {
     return visitor.visitEllipse(this);
   }
 
-  protected override setOwnAttribute(update: ShapeAttributeUpdate): void {
-    switch (update.name) {
-      case 'cx':
-        this.#cx = update.numericValue;
-        return;
-      case 'cy':
-        this.#cy = update.numericValue;
-        return;
-      case 'rx':
-        this.#rx = this.requirePositive(update);
-        return;
-      case 'ry':
-        this.#ry = this.requirePositive(update);
-        return;
-      default:
-        throw new DomainError(`unknown attribute: ${update.name}`);
-    }
+  protected override ownAttributeSlot(
+    name: string
+  ): ShapeAttributeSlot | undefined {
+    return this.#attributeSlots.get(name);
   }
 
-  private requirePositive(update: ShapeAttributeUpdate): number {
-    const number = update.numericValue;
-    if (number <= 0) {
-      throw new DomainError(`${update.name} must be positive`);
+  private requirePositive(name: string, value: number): void {
+    if (value <= 0) {
+      throw new DomainError(`${name} must be positive`);
     }
-    return number;
   }
 }

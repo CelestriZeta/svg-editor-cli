@@ -18,6 +18,8 @@ describe('shape mutation architecture', () => {
 
     expect('appendChild' in group).toBe(false);
     expect('removeChild' in group).toBe(false);
+    expect('tree' in group).toBe(false);
+    expect(Object.getOwnPropertySymbols(group)).toEqual([]);
 
     document.deleteShape('r1');
 

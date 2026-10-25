@@ -1,7 +1,8 @@
+import type { ChangeSet } from '../ChangeSet.js';
 import type { Shape } from './Shape.js';
 import type { GeometryValueChange } from './GeometryValueChange.js';
 
-export class ShapeGeometryChange {
+export class ShapeGeometryChange implements ChangeSet {
   readonly #shape: Shape;
   readonly #values: readonly GeometryValueChange[];
 
@@ -19,6 +20,10 @@ export class ShapeGeometryChange {
 
   public get values(): readonly GeometryValueChange[] {
     return this.#values;
+  }
+
+  public get hasChanges(): boolean {
+    return this.#values.some((value) => value.before !== value.after);
   }
 
   public apply(): void {

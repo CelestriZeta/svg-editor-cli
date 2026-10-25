@@ -182,6 +182,96 @@ describe('shape model', () => {
     expect(text).toMatchObject({ x: 26, y: 30 });
   });
 
+  it('[SET-01/02/07] updates every supported geometry and style attribute', () => {
+    const document = new SvgDocument(400, 300);
+    const rect = document.createShape(
+      new RectSpec('r1', 1, 2, 3, 4)
+    ) as Rect;
+    const circle = document.createShape(
+      new CircleSpec('c1', 5, 6, 7)
+    ) as Circle;
+    const ellipse = document.createShape(
+      new EllipseSpec('e1', 8, 9, 10, 11)
+    ) as Ellipse;
+    const line = document.createShape(
+      new LineSpec('l1', 12, 13, 14, 15)
+    ) as Line;
+    const text = document.createShape(
+      new TextSpec('t1', 16, 17, 'old')
+    ) as Text;
+
+    for (const update of [
+      ShapeAttributeUpdate.number('x', 21),
+      ShapeAttributeUpdate.number('y', 22),
+      ShapeAttributeUpdate.number('width', 23),
+      ShapeAttributeUpdate.number('height', 24),
+      ShapeAttributeUpdate.text('fill', 'red'),
+      ShapeAttributeUpdate.text('stroke', 'blue'),
+      ShapeAttributeUpdate.number('stroke-width', 2.5)
+    ]) {
+      rect.set(update);
+    }
+    for (const update of [
+      ShapeAttributeUpdate.number('cx', 31),
+      ShapeAttributeUpdate.number('cy', 32),
+      ShapeAttributeUpdate.number('r', 33)
+    ]) {
+      circle.set(update);
+    }
+    for (const update of [
+      ShapeAttributeUpdate.number('cx', 41),
+      ShapeAttributeUpdate.number('cy', 42),
+      ShapeAttributeUpdate.number('rx', 43),
+      ShapeAttributeUpdate.number('ry', 44)
+    ]) {
+      ellipse.set(update);
+    }
+    for (const update of [
+      ShapeAttributeUpdate.number('x1', 51),
+      ShapeAttributeUpdate.number('y1', 52),
+      ShapeAttributeUpdate.number('x2', 53),
+      ShapeAttributeUpdate.number('y2', 54)
+    ]) {
+      line.set(update);
+    }
+    for (const update of [
+      ShapeAttributeUpdate.number('x', 61),
+      ShapeAttributeUpdate.number('y', 62),
+      ShapeAttributeUpdate.text('text', 'new')
+    ]) {
+      text.set(update);
+    }
+
+    expect(rect).toMatchObject({
+      x: 21,
+      y: 22,
+      width: 23,
+      height: 24,
+      fill: 'red',
+      stroke: 'blue',
+      strokeWidth: 2.5
+    });
+    expect(circle).toMatchObject({ cx: 31, cy: 32, r: 33 });
+    expect(ellipse).toMatchObject({ cx: 41, cy: 42, rx: 43, ry: 44 });
+    expect(line).toMatchObject({ x1: 51, y1: 52, x2: 53, y2: 54 });
+    expect(text).toMatchObject({ x: 61, y: 62, content: 'new' });
+
+    expect(() =>
+      rect.set(ShapeAttributeUpdate.text('fill', ''))
+    ).toThrow('fill must not be empty');
+    expect(() =>
+      rect.set(ShapeAttributeUpdate.text('stroke', ''))
+    ).toThrow('stroke must not be empty');
+    expect(() =>
+      rect.set(ShapeAttributeUpdate.number('stroke-width', -1))
+    ).toThrow('stroke-width must be a non-negative finite number');
+    expect(rect).toMatchObject({
+      fill: 'red',
+      stroke: 'blue',
+      strokeWidth: 2.5
+    });
+  });
+
   it('[GEO-01/02/03/04/05/07] moves and scales leaves and nested groups atomically', () => {
     const document = new SvgDocument(800, 600);
     const outer = document.createShape(new GroupSpec('outer')) as Group;

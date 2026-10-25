@@ -11,7 +11,12 @@ describe('help', () => {
       [
         'commands:',
         '  init [w] [h]',
-        '  create <rect|circle|ellipse|line|text|g> <id> [params...]',
+        '  create <rect|circle|ellipse|line|text|g> <id> [params...] [in <container-id>]',
+        '  group <new-gid> <id1> <id2>...',
+        '  ungroup <gid>',
+        '  addto <gid> <id>',
+        '  front <id>',
+        '  back <id>',
         '  tree',
         '  save [file.svg]',
         '  help'

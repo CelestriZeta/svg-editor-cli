@@ -1,20 +1,17 @@
 import { DomainError } from '../DomainError.js';
 import { ShapeFactory } from '../ShapeFactory.js';
-import type { ContainerShape } from '../shapes/ContainerShape.js';
+import { ContainerShape } from '../shapes/ContainerShape.js';
 import type { Shape } from '../shapes/Shape.js';
-import {
-  CONTAINER_APPEND,
-  CONTAINER_REMOVE
-} from '../shapes/ShapeTreeMutation.js';
+import { ShapeTreeChangeSet } from '../shapes/ShapeTreeChangeSet.js';
 import type { ShapeSpec } from '../specs/ShapeSpec.js';
-import { ShapeCollector } from '../visitor/ShapeCollector.js';
+import { ShapeStructurePlanner as Planner } from './ShapeStructurePlanner.js';
+import { ShapeTree } from './ShapeTree.js';
 
 export class SvgDocument {
   readonly #width: number;
   readonly #height: number;
-  readonly #shapeFactory: ShapeFactory;
-  readonly #children: Shape[] = [];
-  readonly #shapesById = new Map<string, Shape>();
+  readonly #tree = new ShapeTree();
+  readonly #planner: Planner;
 
   public constructor(
     width: number,
@@ -32,7 +29,7 @@ export class SvgDocument {
 
     this.#width = width;
     this.#height = height;
-    this.#shapeFactory = shapeFactory;
+    this.#planner = new Planner(this.#tree, shapeFactory);
   }
 
   public get width(): number {
@@ -44,48 +41,27 @@ export class SvgDocument {
   }
 
   public get elementCount(): number {
-    return this.#shapesById.size;
+    return this.#tree.elementCount;
   }
 
   public get children(): Iterable<Shape> {
-    return this.#children.values();
+    return this.#tree.rootChildren;
   }
 
   public createShape(spec: ShapeSpec, parent?: ContainerShape): Shape {
-    if (this.#shapesById.has(spec.id)) {
-      throw new DomainError(`id already exists: ${spec.id}`);
-    }
+    this.prepareCreateShape(spec, parent).apply();
+    return this.requireShape(spec.id);
+  }
 
-    if (parent !== undefined && this.#shapesById.get(parent.id) !== parent) {
-      throw new DomainError(`no such container: ${parent.id}`);
-    }
-
-    const shape = this.#shapeFactory.create(spec);
-    const subtree = this.collectSubtree(shape);
-    const subtreeIds = new Set<string>();
-
-    for (const node of subtree) {
-      if (this.#shapesById.has(node.id) || subtreeIds.has(node.id)) {
-        throw new DomainError(`id already exists: ${node.id}`);
-      }
-      subtreeIds.add(node.id);
-    }
-
-    if (parent === undefined) {
-      this.#children.push(shape);
-    } else {
-      parent[CONTAINER_APPEND](shape);
-    }
-
-    for (const node of subtree) {
-      this.#shapesById.set(node.id, node);
-    }
-
-    return shape;
+  public prepareCreateShape(
+    spec: ShapeSpec,
+    parent?: ContainerShape
+  ): ShapeTreeChangeSet {
+    return this.#planner.prepareCreate(spec, parent);
   }
 
   public findShape(id: string): Shape | undefined {
-    return this.#shapesById.get(id);
+    return this.#tree.findShape(id);
   }
 
   public requireShape(id: string): Shape {
@@ -96,36 +72,58 @@ export class SvgDocument {
     return shape;
   }
 
+  public requireContainer(id: string): ContainerShape {
+    const shape = this.findShape(id);
+    if (shape === undefined) {
+      throw new DomainError(`no such container: ${id}`);
+    }
+    if (!(shape instanceof ContainerShape)) {
+      throw new DomainError(`not a container: ${id}`);
+    }
+    return shape;
+  }
+
   public parentOf(id: string): ContainerShape | undefined {
     return this.requireShape(id).parent;
   }
 
   public deleteShape(id: string): Shape {
     const shape = this.requireShape(id);
-    const subtree = this.collectSubtree(shape);
-
-    if (shape.parent === undefined) {
-      const index = this.#children.indexOf(shape);
-      if (index === -1) {
-        throw new DomainError(`no such shape: ${id}`);
-      }
-      this.#children.splice(index, 1);
-    } else {
-      shape.parent[CONTAINER_REMOVE](shape);
-    }
-
-    for (const node of subtree) {
-      this.#shapesById.delete(node.id);
-    }
-
+    this.prepareDeleteShape(id).apply();
     return shape;
+  }
+
+  public prepareDeleteShape(id: string): ShapeTreeChangeSet {
+    return this.#planner.prepareDelete(id);
+  }
+
+  public prepareGroup(
+    newGroupId: string,
+    targetIds: readonly string[]
+  ): ShapeTreeChangeSet {
+    return this.#planner.prepareGroup(newGroupId, targetIds);
+  }
+
+  public prepareUngroup(groupId: string): ShapeTreeChangeSet {
+    return this.#planner.prepareUngroup(groupId);
+  }
+
+  public prepareAddTo(
+    containerId: string,
+    shapeId: string
+  ): ShapeTreeChangeSet {
+    return this.#planner.prepareAddTo(containerId, shapeId);
+  }
+
+  public prepareFront(shapeId: string): ShapeTreeChangeSet {
+    return this.#planner.prepareFront(shapeId);
+  }
+
+  public prepareBack(shapeId: string): ShapeTreeChangeSet {
+    return this.#planner.prepareBack(shapeId);
   }
 
   public removeShape(id: string): void {
     this.deleteShape(id);
-  }
-
-  private collectSubtree(shape: Shape): Shape[] {
-    return [...new ShapeCollector().collect(shape)];
   }
 }

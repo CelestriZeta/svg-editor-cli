@@ -1,17 +1,20 @@
 import type { SvgDocument } from '../../domain/document/SvgDocument.js';
+import type { ContainerShape } from '../../domain/shapes/ContainerShape.js';
 import type { Shape } from '../../domain/shapes/Shape.js';
 import type { ShapeSpec } from '../../domain/specs/ShapeSpec.js';
+import type { ShapeTreeChangeSet } from '../../domain/shapes/ShapeTreeChangeSet.js';
 import type { CommandResult } from './contracts/CommandResult.js';
 import { UndoableCommand } from './contracts/UndoableCommand.js';
 import { ShapeCreatedResult } from './results/ShapeCreatedResult.js';
 import { CommandExecutionGuard } from './support/CommandExecutionGuard.js';
 
 export class CreateShapeCommand extends UndoableCommand {
-  #shape: Shape | undefined;
+  #changeSet: ShapeTreeChangeSet | undefined;
 
   public constructor(
     private readonly document: SvgDocument,
-    private readonly spec: ShapeSpec
+    private readonly spec: ShapeSpec,
+    private readonly parent: ContainerShape | undefined = undefined
   ) {
     super();
   }
@@ -19,26 +22,32 @@ export class CreateShapeCommand extends UndoableCommand {
   public async execute(): Promise<CommandResult> {
     return CommandExecutionGuard.run(async () => {
       const shape = this.createShape();
-      return new ShapeCreatedResult(shape.type, shape.id);
+      try {
+        return new ShapeCreatedResult(shape.type, shape.id, this.parent?.id);
+      } catch (error) {
+        this.#changeSet?.revert();
+        this.#changeSet = undefined;
+        throw error;
+      }
     });
   }
 
   public async undo(): Promise<void> {
-    if (this.#shape === undefined) {
+    if (this.#changeSet === undefined) {
       return;
     }
 
-    this.document.removeShape(this.#shape.id);
-    this.#shape = undefined;
+    this.#changeSet.revert();
   }
 
   public async redo(): Promise<void> {
-    this.createShape();
+    this.#changeSet?.apply();
   }
 
   private createShape(): Shape {
-    const shape = this.document.createShape(this.spec);
-    this.#shape = shape;
-    return shape;
+    const changeSet = this.document.prepareCreateShape(this.spec, this.parent);
+    changeSet.apply();
+    this.#changeSet = changeSet;
+    return this.document.requireShape(this.spec.id);
   }
 }

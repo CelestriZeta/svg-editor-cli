@@ -3,7 +3,6 @@ import { describe, expect, it } from 'vitest';
 import { SvgDocument } from '../../src/domain/document/SvgDocument.js';
 import { Group } from '../../src/domain/shapes/Group.js';
 import { Rect } from '../../src/domain/shapes/Rect.js';
-import { CONTAINER_APPEND } from '../../src/domain/shapes/ShapeTreeMutation.js';
 import { GroupSpec } from '../../src/domain/specs/GroupSpec.js';
 import { RectSpec } from '../../src/domain/specs/RectSpec.js';
 import { ShapeVisitor } from '../../src/domain/visitor/ShapeVisitor.js';
@@ -73,8 +72,8 @@ describe('Group composite', () => {
     const outer = document.createShape(new GroupSpec('outer')) as Group;
     const inner = document.createShape(new GroupSpec('inner'), outer) as Group;
 
-    expect(() => inner[CONTAINER_APPEND](outer)).toThrow(
-      'cannot append a container to its own descendant: outer'
+    expect(() => document.prepareAddTo('inner', 'outer')).toThrow(
+      'cannot move a container into its own descendant: outer'
     );
     for (const factor of [0, -1, Number.NaN, Number.POSITIVE_INFINITY]) {
       expect(() => outer.scale(factor)).toThrow(

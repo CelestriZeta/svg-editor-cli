@@ -1,19 +1,26 @@
 import { DomainError } from '../domain/DomainError.js';
 import type { SvgDocument } from '../domain/document/SvgDocument.js';
-import { CircleSpec } from '../domain/specs/CircleSpec.js';
-import { EllipseSpec } from '../domain/specs/EllipseSpec.js';
-import { GroupSpec } from '../domain/specs/GroupSpec.js';
-import { LineSpec } from '../domain/specs/LineSpec.js';
-import { RectSpec } from '../domain/specs/RectSpec.js';
 import type { ShapeSpec } from '../domain/specs/ShapeSpec.js';
-import { TextSpec } from '../domain/specs/TextSpec.js';
+import { AddToCommand } from './commands/AddToCommand.js';
+import { BackShapeCommand } from './commands/BackShapeCommand.js';
 import { CreateShapeCommand } from './commands/CreateShapeCommand.js';
+import { FrontShapeCommand } from './commands/FrontShapeCommand.js';
+import { GroupShapesCommand } from './commands/GroupShapesCommand.js';
 import type { Command } from './commands/contracts/Command.js';
+import type { ShapeSpecBuilder } from './commands/contracts/ShapeSpecBuilder.js';
 import { HelpCommand } from './commands/HelpCommand.js';
 import { InitCommand } from './commands/InitCommand.js';
 import { InvalidCommand } from './commands/InvalidCommand.js';
 import { SaveCommand } from './commands/SaveCommand.js';
 import { TreeCommand } from './commands/TreeCommand.js';
+import { UngroupShapeCommand } from './commands/UngroupShapeCommand.js';
+import { CircleSpecBuilder } from './commands/specs/CircleSpecBuilder.js';
+import { EllipseSpecBuilder } from './commands/specs/EllipseSpecBuilder.js';
+import { GroupSpecBuilder } from './commands/specs/GroupSpecBuilder.js';
+import { LineSpecBuilder } from './commands/specs/LineSpecBuilder.js';
+import { RectSpecBuilder } from './commands/specs/RectSpecBuilder.js';
+import { TextSpecBuilder } from './commands/specs/TextSpecBuilder.js';
+import { CommandNumberParser } from './commands/support/CommandNumberParser.js';
 import type { DocumentService } from './DocumentService.js';
 import type { EditorSession } from './EditorSession.js';
 import type { DocumentViewVisitor } from './queries/DocumentViewVisitor.js';
@@ -24,16 +31,10 @@ interface CommandDefinition {
   create(args: readonly string[]): Command;
 }
 
-type ShapeSpecBuilder = (
-  id: string,
-  parameters: readonly string[]
-) => ShapeSpec;
-
-const DECIMAL_NUMBER = /^[+-]?(?:\d+(?:\.\d*)?|\.\d+)(?:[eE][+-]?\d+)?$/;
-
 export class CommandDispatcher {
   readonly #definitions: ReadonlyMap<string, CommandDefinition>;
   readonly #shapeSpecBuilders: ReadonlyMap<string, ShapeSpecBuilder>;
+  readonly #numbers = new CommandNumberParser();
 
   public constructor(
     private readonly session: EditorSession,
@@ -41,12 +42,12 @@ export class CommandDispatcher {
     private readonly viewVisitor: DocumentViewVisitor
   ) {
     this.#shapeSpecBuilders = new Map<string, ShapeSpecBuilder>([
-      ['rect', (id, parameters) => this.createRectSpec(id, parameters)],
-      ['circle', (id, parameters) => this.createCircleSpec(id, parameters)],
-      ['ellipse', (id, parameters) => this.createEllipseSpec(id, parameters)],
-      ['line', (id, parameters) => this.createLineSpec(id, parameters)],
-      ['text', (id, parameters) => this.createTextSpec(id, parameters)],
-      ['g', (id, parameters) => this.createGroupSpec(id, parameters)]
+      ['rect', new RectSpecBuilder(this.#numbers)],
+      ['circle', new CircleSpecBuilder(this.#numbers)],
+      ['ellipse', new EllipseSpecBuilder(this.#numbers)],
+      ['line', new LineSpecBuilder(this.#numbers)],
+      ['text', new TextSpecBuilder(this.#numbers)],
+      ['g', new GroupSpecBuilder()]
     ]);
 
     const definitions: CommandDefinition[] = [
@@ -57,8 +58,34 @@ export class CommandDispatcher {
       },
       {
         name: 'create',
-        syntax: 'create <rect|circle|ellipse|line|text|g> <id> [params...]',
+        syntax:
+          'create <rect|circle|ellipse|line|text|g> <id> [params...] [in <container-id>]',
         create: (args) => this.createShape(args)
+      },
+      {
+        name: 'group',
+        syntax: 'group <new-gid> <id1> <id2>...',
+        create: (args) => this.createGroup(args)
+      },
+      {
+        name: 'ungroup',
+        syntax: 'ungroup <gid>',
+        create: (args) => this.createUngroup(args)
+      },
+      {
+        name: 'addto',
+        syntax: 'addto <gid> <id>',
+        create: (args) => this.createAddTo(args)
+      },
+      {
+        name: 'front',
+        syntax: 'front <id>',
+        create: (args) => this.createReorder(args, 'front')
+      },
+      {
+        name: 'back',
+        syntax: 'back <id>',
+        create: (args) => this.createReorder(args, 'back')
       },
       {
         name: 'tree',
@@ -106,8 +133,8 @@ export class CommandDispatcher {
 
     return new InitCommand(
       this.documents,
-      this.parseCanvasNumber(args[0]),
-      this.parseCanvasNumber(args[1])
+      this.#numbers.parseCanvas(args[0]),
+      this.#numbers.parseCanvas(args[1])
     );
   }
 
@@ -118,9 +145,73 @@ export class CommandDispatcher {
     }
 
     return this.withDocument((document) => {
-      const spec = this.createShapeSpec(type, id, parameters);
-      return new CreateShapeCommand(document, spec);
+      const parentMarker = parameters.length - 2;
+      const hasParent =
+        parentMarker >= 0 && parameters[parentMarker] === 'in';
+      if (!hasParent && parameters.at(-1) === 'in') {
+        throw new DomainError(`create ${type} requires a container after 'in'`);
+      }
+      const shapeParameters = hasParent
+        ? parameters.slice(0, parentMarker)
+        : parameters;
+      const spec = this.createShapeSpec(type, id, shapeParameters);
+      const parentId = hasParent ? parameters[parentMarker + 1] : undefined;
+      if (hasParent && parentId === undefined) {
+        throw new DomainError(`create ${type} requires a container after 'in'`);
+      }
+      const parent =
+        parentId === undefined ? undefined : document.requireContainer(parentId);
+      return new CreateShapeCommand(document, spec, parent);
     });
+  }
+
+  private createGroup(args: readonly string[]): Command {
+    const [groupId, ...targetIds] = args;
+    if (groupId === undefined) {
+      return new InvalidCommand('group requires a new group id and target ids');
+    }
+
+    return this.withDocument(
+      (document) => new GroupShapesCommand(document, groupId, targetIds)
+    );
+  }
+
+  private createUngroup(args: readonly string[]): Command {
+    const [groupId] = args;
+    if (groupId === undefined || args.length !== 1) {
+      return new InvalidCommand('ungroup requires one container id');
+    }
+
+    return this.withDocument(
+      (document) => new UngroupShapeCommand(document, groupId)
+    );
+  }
+
+  private createAddTo(args: readonly string[]): Command {
+    const [containerId, shapeId] = args;
+    if (containerId === undefined || shapeId === undefined || args.length !== 2) {
+      return new InvalidCommand('addto requires a container id and a shape id');
+    }
+
+    return this.withDocument(
+      (document) => new AddToCommand(document, containerId, shapeId)
+    );
+  }
+
+  private createReorder(
+    args: readonly string[],
+    direction: 'front' | 'back'
+  ): Command {
+    const [shapeId] = args;
+    if (shapeId === undefined || args.length !== 1) {
+      return new InvalidCommand(`${direction} requires one shape id`);
+    }
+
+    return this.withDocument((document) =>
+      direction === 'front'
+        ? new FrontShapeCommand(document, shapeId)
+        : new BackShapeCommand(document, shapeId)
+    );
   }
 
   private createTree(args: readonly string[]): Command {
@@ -163,125 +254,7 @@ export class CommandDispatcher {
       );
     }
 
-    return builder(id, parameters);
-  }
-
-  private createRectSpec(
-    id: string,
-    parameters: readonly string[]
-  ): RectSpec {
-    if (parameters.length !== 4 && parameters.length !== 5) {
-      throw new DomainError('rect requires x, y, width and height');
-    }
-
-    const [xText, yText, widthText, heightText, fill] = parameters;
-    const x = this.parseShapeNumber('rect', xText, 'x');
-    const y = this.parseShapeNumber('rect', yText, 'y');
-    const width = this.parseShapeNumber('rect', widthText, 'width');
-    const height = this.parseShapeNumber('rect', heightText, 'height');
-    return new RectSpec(id, x, y, width, height, fill);
-  }
-
-  private createCircleSpec(
-    id: string,
-    parameters: readonly string[]
-  ): CircleSpec {
-    if (parameters.length !== 3 && parameters.length !== 4) {
-      throw new DomainError('circle requires cx, cy and r');
-    }
-
-    const [cxText, cyText, rText, fill] = parameters;
-    return new CircleSpec(
-      id,
-      this.parseShapeNumber('circle', cxText, 'cx'),
-      this.parseShapeNumber('circle', cyText, 'cy'),
-      this.parseShapeNumber('circle', rText, 'r'),
-      fill
-    );
-  }
-
-  private createEllipseSpec(
-    id: string,
-    parameters: readonly string[]
-  ): EllipseSpec {
-    if (parameters.length !== 4 && parameters.length !== 5) {
-      throw new DomainError('ellipse requires cx, cy, rx and ry');
-    }
-
-    const [cxText, cyText, rxText, ryText, fill] = parameters;
-    return new EllipseSpec(
-      id,
-      this.parseShapeNumber('ellipse', cxText, 'cx'),
-      this.parseShapeNumber('ellipse', cyText, 'cy'),
-      this.parseShapeNumber('ellipse', rxText, 'rx'),
-      this.parseShapeNumber('ellipse', ryText, 'ry'),
-      fill
-    );
-  }
-
-  private createLineSpec(
-    id: string,
-    parameters: readonly string[]
-  ): LineSpec {
-    if (parameters.length !== 4 && parameters.length !== 5) {
-      throw new DomainError('line requires x1, y1, x2 and y2');
-    }
-
-    const [x1Text, y1Text, x2Text, y2Text, stroke] = parameters;
-    return new LineSpec(
-      id,
-      this.parseShapeNumber('line', x1Text, 'x1'),
-      this.parseShapeNumber('line', y1Text, 'y1'),
-      this.parseShapeNumber('line', x2Text, 'x2'),
-      this.parseShapeNumber('line', y2Text, 'y2'),
-      stroke
-    );
-  }
-
-  private createTextSpec(
-    id: string,
-    parameters: readonly string[]
-  ): TextSpec {
-    if (parameters.length !== 3) {
-      throw new DomainError('text requires x, y and content');
-    }
-
-    const [xText, yText, content] = parameters;
-    return new TextSpec(
-      id,
-      this.parseShapeNumber('text', xText, 'x'),
-      this.parseShapeNumber('text', yText, 'y'),
-      content ?? ''
-    );
-  }
-
-  private createGroupSpec(
-    id: string,
-    parameters: readonly string[]
-  ): GroupSpec {
-    if (parameters.length !== 0) {
-      throw new DomainError('g does not accept parameters');
-    }
-
-    return new GroupSpec(id);
-  }
-
-  private parseShapeNumber(
-    type: string,
-    value: string | undefined,
-    field: string
-  ): number {
-    if (value === undefined || !DECIMAL_NUMBER.test(value)) {
-      throw new DomainError(`${type} ${field} must be a number`);
-    }
-
-    return Number(value);
-  }
-
-  private parseCanvasNumber(value: string | undefined): number {
-    return value !== undefined && DECIMAL_NUMBER.test(value)
-      ? Number(value)
-      : Number.NaN;
+    return builder.create(id, parameters);
   }
 
   private withDocument(factory: (document: SvgDocument) => Command): Command {

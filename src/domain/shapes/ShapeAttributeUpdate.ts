@@ -4,11 +4,13 @@ export class ShapeAttributeUpdate {
   readonly #name: string;
   readonly #numberValue: number | undefined;
   readonly #textValue: string | undefined;
+  readonly #valueKind: 'number' | 'text';
 
   private constructor(
     name: string,
     numberValue: number | undefined,
-    textValue: string | undefined
+    textValue: string | undefined,
+    valueKind: 'number' | 'text'
   ) {
     if (name.trim().length === 0) {
       throw new DomainError('attribute name must not be empty');
@@ -17,6 +19,7 @@ export class ShapeAttributeUpdate {
     this.#name = name;
     this.#numberValue = numberValue;
     this.#textValue = textValue;
+    this.#valueKind = valueKind;
   }
 
   public static number(name: string, value: number): ShapeAttributeUpdate {
@@ -24,15 +27,19 @@ export class ShapeAttributeUpdate {
       throw new DomainError(`${name} must be a finite number`);
     }
 
-    return new ShapeAttributeUpdate(name, value, undefined);
+    return new ShapeAttributeUpdate(name, value, undefined, 'number');
   }
 
   public static text(name: string, value: string): ShapeAttributeUpdate {
-    return new ShapeAttributeUpdate(name, undefined, value);
+    return new ShapeAttributeUpdate(name, undefined, value, 'text');
   }
 
   public get name(): string {
     return this.#name;
+  }
+
+  public get valueKind(): 'number' | 'text' {
+    return this.#valueKind;
   }
 
   public get numericValue(): number {

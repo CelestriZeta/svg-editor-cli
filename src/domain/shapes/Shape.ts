@@ -1,24 +1,34 @@
 import { DomainError } from '../DomainError.js';
+import type { ShapeTree } from '../document/ShapeTree.js';
 import type { ShapeVisitor } from '../visitor/ShapeVisitor.js';
 import type { ContainerShape } from './ContainerShape.js';
 import type { GeometryChangeSet } from './GeometryChangeSet.js';
+import { ShapeAttributeChange } from './ShapeAttributeChange.js';
+import { ShapeAttributeChangeSet } from './ShapeAttributeChangeSet.js';
+import { ShapeAttributeSlot } from './ShapeAttributeSlot.js';
 import type { ShapeAttributeUpdate } from './ShapeAttributeUpdate.js';
-import { SHAPE_SET_PARENT } from './ShapeTreeMutation.js';
+import { ShapeAttributeValue } from './ShapeAttributeValue.js';
 import { ShapeStyle } from './ShapeStyle.js';
 
 export abstract class Shape {
   readonly #id: string;
+  readonly #tree: ShapeTree;
+  readonly #styleAttributeSlots: ReadonlyMap<string, ShapeAttributeSlot>;
   #style: ShapeStyle;
-  #parent: ContainerShape | undefined;
 
-  protected constructor(id: string, style = new ShapeStyle()) {
+  protected constructor(
+    id: string,
+    tree: ShapeTree,
+    style = new ShapeStyle()
+  ) {
     if (id.trim().length === 0) {
       throw new DomainError('shape id must not be empty');
     }
 
     this.#id = id;
+    this.#tree = tree;
     this.#style = style;
-    this.#parent = undefined;
+    this.#styleAttributeSlots = this.createStyleAttributeSlots();
   }
 
   public get id(): string {
@@ -38,19 +48,25 @@ export abstract class Shape {
   }
 
   public get parent(): ContainerShape | undefined {
-    return this.#parent;
+    return this.#tree.parentOf(this);
   }
 
   public abstract readonly type: string;
 
-  public set(update: ShapeAttributeUpdate): void {
-    const updatedStyle = this.#style.withAttribute(update);
-    if (updatedStyle !== undefined) {
-      this.#style = updatedStyle;
-      return;
-    }
+  public prepareSet(update: ShapeAttributeUpdate): ShapeAttributeChangeSet {
+    const slot = this.requireAttributeSlot(update.name);
+    return new ShapeAttributeChangeSet([
+      new ShapeAttributeChange(
+        slot,
+        slot.capture(),
+        slot.prepare(update)
+      )
+    ]);
+  }
 
-    this.setOwnAttribute(update);
+  public set(update: ShapeAttributeUpdate): void {
+    const slot = this.requireAttributeSlot(update.name);
+    slot.write(slot.prepare(update));
   }
 
   public move(dx: number, dy: number): void {
@@ -63,23 +79,97 @@ export abstract class Shape {
 
   public abstract accept<T>(visitor: ShapeVisitor<T>): T;
 
-  public [SHAPE_SET_PARENT](parent: ContainerShape | undefined): void {
-    if (
-      this.#parent !== undefined &&
-      parent !== undefined &&
-      this.#parent !== parent
-    ) {
-      throw new DomainError(`shape already has a parent: ${this.#id}`);
-    }
-
-    this.#parent = parent;
-  }
-
   public abstract prepareMove(dx: number, dy: number): GeometryChangeSet;
 
   public abstract prepareScale(factor: number): GeometryChangeSet;
 
-  protected abstract setOwnAttribute(update: ShapeAttributeUpdate): void;
+  protected abstract ownAttributeSlot(
+    name: string
+  ): ShapeAttributeSlot | undefined;
+
+  protected childrenOf(container: ContainerShape): Iterable<Shape> {
+    return this.#tree.childrenOf(container);
+  }
+
+  private createStyleAttributeSlots(): ReadonlyMap<string, ShapeAttributeSlot> {
+    return new Map<string, ShapeAttributeSlot>([
+      [
+        'fill',
+        ShapeAttributeSlot.text(
+          'fill',
+          () =>
+            this.#style.fill === undefined
+              ? ShapeAttributeValue.absent()
+              : ShapeAttributeValue.text(this.#style.fill),
+          (value) => {
+            this.#style = this.requireStyleValue('fill', value);
+          },
+          (value) => {
+            if (value.length === 0) {
+              throw new DomainError('fill must not be empty');
+            }
+          }
+        )
+      ],
+      [
+        'stroke',
+        ShapeAttributeSlot.text(
+          'stroke',
+          () =>
+            this.#style.stroke === undefined
+              ? ShapeAttributeValue.absent()
+              : ShapeAttributeValue.text(this.#style.stroke),
+          (value) => {
+            this.#style = this.requireStyleValue('stroke', value);
+          },
+          (value) => {
+            if (value.length === 0) {
+              throw new DomainError('stroke must not be empty');
+            }
+          }
+        )
+      ],
+      [
+        'stroke-width',
+        ShapeAttributeSlot.number(
+          'stroke-width',
+          () =>
+            this.#style.strokeWidth === undefined
+              ? ShapeAttributeValue.absent()
+              : ShapeAttributeValue.number(this.#style.strokeWidth),
+          (value) => {
+            this.#style = this.requireStyleValue('stroke-width', value);
+          },
+          (value) => {
+            if (value < 0) {
+              throw new DomainError(
+                'stroke-width must be a non-negative finite number'
+              );
+            }
+          }
+        )
+      ]
+    ]);
+  }
+
+  private requireAttributeSlot(name: string): ShapeAttributeSlot {
+    const slot = this.#styleAttributeSlots.get(name) ?? this.ownAttributeSlot(name);
+    if (slot === undefined) {
+      throw new DomainError(`unknown attribute: ${name}`);
+    }
+    return slot;
+  }
+
+  private requireStyleValue(
+    name: string,
+    value: ShapeAttributeValue
+  ): ShapeStyle {
+    const style = this.#style.withValue(name, value);
+    if (style === undefined) {
+      throw new DomainError(`unknown attribute: ${name}`);
+    }
+    return style;
+  }
 
   protected static requireMoveDelta(dx: number, dy: number): void {
     if (!Number.isFinite(dx) || !Number.isFinite(dy)) {

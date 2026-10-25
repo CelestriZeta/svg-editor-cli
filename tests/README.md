@@ -2,6 +2,12 @@
 
 本文件定义计划测试，不代表业务测试已经实现。只有实际运行并留下证据的测试项才能标记为通过。
 
+## 最近审计
+
+2026-10-25 按当前实现范围复核全部测试条目：共 140 条，其中 92 条通过、15 条部分通过、30 条待实现、3 条明确 N/A。部分通过和待实现条目保留给尚未进入的 read/canvas、编辑命令入口、undo/redo、show/tree `<id>`、插件与最终浏览器验收，不把计划能力记为完成。当前自动化套件为 23 个测试文件、58 个测试。
+
+本次补全重点是已实现但缺少直接证据的边界：`create box`/未知类型、CLI 空字符串与引号内 `#`、小数和负数、无文档会话、默认路径清理、命令分发与参数数量、执行器串行化、结构命令 undo/redo、同容器 `addto`、目标失败原子性、保存替换失败清理、XML 转义、元素计数，以及架构/跳过测试守卫。
+
 ## 测试约定
 
 测试层级：
@@ -42,13 +48,14 @@
 | ARCH-01 | A | 执行 `pnpm run typecheck` | TypeScript 严格类型检查通过 | 通过 |
 | ARCH-02 | A | 执行 `pnpm run test` | 测试运行器可执行 TypeScript 测试 | 通过 |
 | ARCH-03 | A | 执行 `pnpm run build` | 生产代码成功输出到 `dist/` | 通过 |
-| ARCH-04 | A | 检查 `src/domain` 的 import | 不导入 CLI、文件系统、XML 库或基础设施 | 通过（阶段 2 静态检查） |
-| ARCH-05 | A | 检查生产类文件 | 一类一文件，文件名与类名一致，字段不公开为可变数据袋；容器children不暴露普通写方法 | 通过（阶段 3 架构复审） |
-| ARCH-06 | A | 搜索标签或类型名字分派 | 只出现在 `CommandDispatcher` 和 `ShapeFactory` | 通过（阶段 2 静态检查） |
-| ARCH-07 | A | 检查生产模块依赖 | 无循环依赖，且依赖方向符合 README 1.7；树变更只经文档与内部协议 | 通过（阶段 3 架构复审） |
-| ARCH-08 | A | 检查命令实现 | 命令只校验和转发，不直接改树、id 索引或文件 | 通过（阶段 2 静态检查） |
-| ARCH-09 | A | 检查启动装配 | `bootstrap` 注入具体实现，生产模块不反向依赖它 | 通过（阶段 2 静态检查） |
-| ARCH-10 | A | 搜索本阶段范围外能力 | 没有 `EditorApi`、插件加载、GUI 或 `box` 实现 | 通过（阶段 2 静态检查） |
+| ARCH-04 | A | 检查 `src/domain` 的 import | 不导入 CLI、文件系统、XML 库或基础设施 | 通过（阶段 4 自动化源码守卫） |
+| ARCH-05 | A | 检查生产类文件 | 一类一文件，文件名与类名一致，字段不公开为可变数据袋；图形不暴露树对象、symbol 或普通容器写方法 | 通过（阶段 4 自动化源码守卫） |
+| ARCH-06 | A | 搜索标签或类型名字分派 | 只出现在 `CommandDispatcher` 和 `ShapeFactory` | 通过（阶段 4 自动化源码守卫） |
+| ARCH-07 | A | 检查生产模块依赖 | 无循环依赖，且依赖方向符合 README 1.7；树变更只经文档与内部协议 | 通过（阶段 4 运行期导入图与命令依赖守卫） |
+| ARCH-08 | A | 检查命令实现 | 命令只校验和转发，不直接改树、id 索引或文件 | 通过（阶段 4 自动化源码守卫） |
+| ARCH-09 | A | 检查启动装配 | `bootstrap` 注入具体实现，生产模块不反向依赖它 | 通过（阶段 4 自动化源码守卫） |
+| ARCH-10 | A | 搜索本阶段范围外能力 | 没有 `EditorApi`、插件加载、GUI 或 `box` 实现 | 通过（阶段 4 自动化源码守卫） |
+| ARCH-11 | A | 搜索测试文件 | 不存在 `describe.skip`、`it.skip`、`it.todo` 或占位标记 | 通过（阶段 4） |
 
 ## 图形创建与属性
 
@@ -63,11 +70,11 @@
 | CREATE-07 | C | 使用已存在 id 创建 | 返回 `error: id already exists: <id>` 且满足 `FAIL-STATE` | 通过（阶段 2） |
 | CREATE-08 | U | 分别创建 `r1` 和 `R1` | 两个 id 均合法，证明大小写敏感 | 通过（阶段 3） |
 | CREATE-09 | C | 创建六种受支持类型之外的 `hexagon` | 返回 `error: unknown shape type: hexagon (is the plugin loaded?)` 且满足 `FAIL-STATE` | 通过（阶段 2） |
-| CREATE-10 | E | 执行 `create box ...` | 按未知类型拒绝，不能创建容器或子节点 | 待实现 |
-| CREATE-11 | U | 六种类型分别使用 `in <gid>` 创建 | 节点成为指定容器的最后一个子节点 | 待实现 |
-| CREATE-12 | C | `in` 指向不存在的 id | 返回 `error: no such container: <id>` 且满足 `FAIL-STATE` | 待实现 |
-| CREATE-13 | C | `in` 指向叶子图形 | 返回 `error: not a container: <id>` 且满足 `FAIL-STATE` | 待实现 |
-| CREATE-14 | C | 缺少必需参数、参数过多、数字非法或 id 为空 | 返回单行 `error:`，不得部分创建，且满足 `FAIL-STATE` | 部分通过（阶段 2 覆盖缺参、空字符串和十六进制；id 为空待补） |
+| CREATE-10 | E | 执行 `create box ...` | 按未知类型拒绝，不能创建容器或子节点 | 通过（阶段 4） |
+| CREATE-11 | U | 六种类型分别使用 `in <gid>` 创建 | 节点成为指定容器的最后一个子节点 | 通过（阶段 4） |
+| CREATE-12 | C | `in` 指向不存在的 id | 返回 `error: no such container: <id>` 且满足 `FAIL-STATE` | 通过（阶段 4） |
+| CREATE-13 | C | `in` 指向叶子图形 | 返回 `error: not a container: <id>` 且满足 `FAIL-STATE` | 通过（阶段 4） |
+| CREATE-14 | C | 缺少必需参数、参数过多、数字非法或 id 为空 | 返回单行 `error:`，不得部分创建，且满足 `FAIL-STATE` | 通过（阶段 2 覆盖缺参、空数字和十六进制；阶段 4 补空 id） |
 | SET-01 | U | 对每种图形设置自身白名单中的几何属性 | 只有目标属性变化，类型和父子关系不变 | 通过（阶段 3 类型化 Update API） |
 | SET-02 | U | 设置 `fill`、`stroke`、`stroke-width` | 普通叶子正确保存对应样式 | 通过（阶段 3） |
 | SET-03 | U | 对 `text` 设置 `text` | 只替换文本内容，不改 x/y | 通过（阶段 3） |
@@ -90,65 +97,67 @@
 | GEO-08 | U | Visitor 遍历嵌套容器 | 顺序为 enterGroup -> 子树 -> leaveGroup | 通过（阶段 3） |
 | GEO-09 | U | Visitor 在 enterGroup 跳过子树 | 不访问该容器的任何子孙，但后续兄弟仍正常访问 | 通过（阶段 3） |
 | DELETE-01 | U | 删除叶子 | 节点、id 索引和父级引用同时移除 | 通过（阶段 3） |
-| DELETE-02 | U | 删除容器 | 整个子树删除，操作记录为一个 undo 单元 | 部分通过（阶段 3 覆盖整树删除和 id 清理；undo 单元待阶段 4/5） |
+| DELETE-02 | U | 删除容器 | 整个子树删除，操作记录为一个 undo 单元 | 部分通过（阶段 4 覆盖局部 ChangeSet apply/revert/reapply；DeleteCommand 与 CLI undo 待阶段 5） |
 
 ## 树结构与顺序
 
 | ID | 层级 | Given / When | Then | 状态 |
 |---|---|---|---|---|
-| TREE-01 | U | 同一父级选择多个图形执行 `group` | 新组成为最近公共祖先的最后一个子节点，组内按参数顺序排列 | 待实现 |
-| TREE-02 | U | 从不同父级选择图形执行 `group` | 新组挂到最近公共祖先最后，所有目标从原父级摘除且组内顺序稳定 | 待实现 |
-| TREE-03 | C | `group` 使用已存在的新 id、目标过少、未知目标或重复目标 | 返回单行 `error:` 且满足 `FAIL-STATE` | 待实现 |
-| TREE-04 | C | 同时选择容器及其祖先或子孙 | 返回 `error: cannot group a container into its own descendant: <gid>` 且满足 `FAIL-STATE` | 待实现 |
-| TREE-05 | U | `ungroup` 非根级容器 | 子节点按原顺序替换容器在原父级中的位置 | 待实现 |
-| TREE-06 | C | `ungroup` 根级容器 | 返回 `error: cannot ungroup top-level container: <gid>` 且满足 `FAIL-STATE` | 待实现 |
-| TREE-07 | U | `addto` 已有图形到容器 | 从原父级移除，作为目标容器最后一个子节点 | 待实现 |
-| TREE-08 | C | `addto` 把容器移入自身或子孙 | 返回单行 `error:`，不形成环且满足 `FAIL-STATE` | 待实现 |
-| TREE-09 | C | `addto` 目标不存在或不是容器 | 返回对应单行 `error:` 且满足 `FAIL-STATE` | 待实现 |
-| TREE-10 | U | 对中间位置节点执行 `front` 和 `back` | 节点移动到同级最后或最前，其他节点相对顺序不变 | 待实现 |
-| TREE-11 | U | 对已在最前或最后的节点执行对应操作 | 不改变任何节点顺序；是否入栈按已记录决策验证 | 待实现 |
-| TREE-12 | U | 完成 group、ungroup、addto、front、back | 父引用、同级顺序、后代顺序和 id 索引均一致 | 待实现 |
-| TREE-13 | C | 对叶子图形执行 `ungroup` | 返回单行容器类型错误且满足 `FAIL-STATE` | 待实现 |
+| TREE-01 | U | 同一父级选择多个图形执行 `group` | 新组成为最近公共祖先的最后一个子节点，组内按参数顺序排列 | 通过（阶段 4） |
+| TREE-02 | U | 从不同父级选择图形执行 `group` | 新组挂到最近公共祖先最后，所有目标从原父级摘除且组内顺序稳定 | 通过（阶段 4） |
+| TREE-03 | C | `group` 使用已存在的新 id、目标过少、未知目标或重复目标 | 返回单行 `error:` 且满足 `FAIL-STATE` | 通过（阶段 4） |
+| TREE-04 | C | 同时选择容器及其祖先或子孙 | 返回 `error: cannot group a container into its own descendant: <gid>` 且满足 `FAIL-STATE` | 通过（阶段 4） |
+| TREE-05 | U | `ungroup` 非根级容器 | 子节点按原顺序替换容器在原父级中的位置 | 通过（阶段 4） |
+| TREE-06 | C | `ungroup` 根级容器 | 返回 `error: cannot ungroup top-level container: <gid>` 且满足 `FAIL-STATE` | 通过（阶段 4） |
+| TREE-07 | U | `addto` 已有图形到容器 | 从原父级移除，作为目标容器最后一个子节点 | 通过（阶段 4） |
+| TREE-08 | C | `addto` 把容器移入自身或子孙 | 返回单行 `error:`，不形成环且满足 `FAIL-STATE` | 通过（阶段 4） |
+| TREE-09 | C | `addto` 目标不存在或不是容器 | 返回对应单行 `error:` 且满足 `FAIL-STATE` | 通过（阶段 4） |
+| TREE-10 | U | 对中间位置节点执行 `front` 和 `back` | 节点移动到同级最后或最前，其他节点相对顺序不变 | 通过（阶段 4） |
+| TREE-11 | U | 对已在最前或最后的节点执行对应操作 | 不改变任何节点顺序，且不产生历史单元 | 通过（阶段 4） |
+| TREE-12 | U | 完成 group、ungroup、addto、front、back | 父引用、同级顺序、后代顺序和 id 索引均一致 | 通过（阶段 4） |
+| TREE-13 | C | 对叶子图形执行 `ungroup` | 返回单行容器类型错误且满足 `FAIL-STATE` | 通过（阶段 4） |
+| TREE-14 | U | 对已经在容器内但非末尾的图形执行 `addto` | 移到目标容器末尾；已在末尾时不改变状态且为空变更 | 通过（阶段 4） |
 
 ## 局部变更记录与撤销重做
 
 | ID | 层级 | Given / When | Then | 状态 |
 |---|---|---|---|---|
-| CHANGE-01 | C | create 后 undo/redo | undo 恢复原父级和位置；redo 恢复同一节点和 id | 通过（阶段 2 根节点范围） |
-| CHANGE-02 | C | delete 子树后 undo/redo | undo 恢复完整子树、父级、顺序和 id 索引；redo 再次完整删除 | 待实现 |
-| CHANGE-03 | C | move 后 undo/redo | 恢复全部受影响节点的精确旧值/新值 | 待实现 |
-| CHANGE-04 | C | scale 后 undo/redo | 使用记录的旧值/新值恢复，不通过反向计算 | 待实现 |
-| CHANGE-05 | C | set 后 undo/redo | 正确恢复旧值、新值及属性原先是否存在 | 待实现 |
-| CHANGE-06 | C | group 后 undo/redo | 恢复各节点原父级、原顺序和新组 | 待实现 |
-| CHANGE-07 | C | ungroup 后 undo/redo | 恢复容器、子树和原父级位置 | 待实现 |
-| CHANGE-08 | C | addto 后 undo/redo | 恢复源父级、目标父级及双方顺序 | 待实现 |
-| CHANGE-09 | C | front/back 后 undo/redo | 恢复前后位置和完整同级顺序 | 待实现 |
-| CHANGE-10 | C | 一次 group 操作包含多个图形后 undo | 一次 undo 恢复全部变化，仍为一个历史单元 | 待实现 |
-| CHANGE-11 | C | 合法编辑后 undo，再 redo | redo 复用首次记录，不重新分配 id | 待实现 |
-| CHANGE-12 | C | 编辑校验失败 | 不产生 ChangeSet，不压入 undo | 待实现 |
+| CHANGE-01 | C | create 后 undo/redo | undo 恢复原父级和位置；redo 恢复同一节点和 id | 通过（阶段 4，含嵌套父级和对象身份） |
+| CHANGE-02 | C | delete 子树后 undo/redo | undo 恢复完整子树、父级、顺序和 id 索引；redo 再次完整删除 | 部分通过（阶段 4 局部 ChangeSet；命令入口待阶段 5） |
+| CHANGE-03 | C | move 后 undo/redo | 恢复全部受影响节点的精确旧值/新值 | 通过（阶段 3 局部 ChangeSet） |
+| CHANGE-04 | C | scale 后 undo/redo | 使用记录的旧值/新值恢复，不通过反向计算 | 通过（阶段 3 局部 ChangeSet） |
+| CHANGE-05 | C | set 后 undo/redo | 正确恢复旧值、新值及属性原先是否存在 | 通过（阶段 4 局部 ChangeSet） |
+| CHANGE-06 | C | group 后 undo/redo | 恢复各节点原父级、原顺序和新组 | 通过（阶段 4） |
+| CHANGE-07 | C | ungroup 后 undo/redo | 恢复容器、子树和原父级位置 | 通过（阶段 4 命令 undo/redo） |
+| CHANGE-08 | C | addto 后 undo/redo | 恢复源父级、目标父级及双方顺序 | 通过（阶段 4 命令 undo/redo） |
+| CHANGE-09 | C | front/back 后 undo/redo | 恢复前后位置和完整同级顺序 | 通过（阶段 4 命令 undo/redo） |
+| CHANGE-10 | C | 一次 group 操作包含多个图形后 undo | 一次 undo 恢复全部变化，仍为一个历史单元 | 通过（阶段 4 命令契约） |
+| CHANGE-11 | C | 合法编辑后 undo，再 redo | redo 复用首次记录，不重新分配 id | 部分通过（阶段 4 create/group 复用同一 ChangeSet 和对象；CLI undo/redo 待阶段 5） |
+| CHANGE-12 | C | 编辑校验失败 | 不产生 ChangeSet，不压入 undo | 通过（阶段 4） |
 | CHANGE-13 | C | undo 或 redo 恢复失败 | 文档和两个历史栈均保持操作前状态 | 待实现 |
+| CHANGE-14 | U | 组合 ChangeSet 在提交和回滚中都抛错 | 尝试全部补偿动作，并通过 `AggregateError` 保留原始错误与全部回滚错误 | 通过（阶段 4） |
 
 ## 命令、执行器与历史
 
 | ID | 层级 | Given / When | Then | 状态 |
 |---|---|---|---|---|
-| TARGET-01 | C | 任一依赖图形 id 的命令使用不存在 id | 返回 `error: no such shape: <id>` 且满足 `FAIL-STATE` | 待实现 |
-| CMD-01 | C | Dispatcher 接收已知命令 | 通过对应描述符创建正确命令，参数传递完整 | 待实现 |
-| CMD-02 | C | Dispatcher 接收未知命令 | 返回单行 `error:`，不修改任何状态 | 待实现 |
-| CMD-03 | C | Dispatcher 接收缺参数、多参数或错误类型 | 返回单行 `error:` 且满足 `FAIL-STATE` | 待实现 |
-| CMD-04 | C | 从描述符生成 help | help 与描述符同源，覆盖全部命令和语法 | 通过（阶段 2 已实现命令范围） |
-| EXEC-01 | C | 提交依赖异步 IO 的多条请求 | 按顺序串行执行，前一项完成后才执行下一项 | 待实现 |
+| TARGET-01 | C | 任一依赖图形 id 的命令使用不存在 id | 返回 `error: no such shape: <id>` 且满足 `FAIL-STATE` | 部分通过（阶段 4 覆盖当前结构命令；编辑/显示命令随阶段 5–7 启用） |
+| CMD-01 | C | Dispatcher 接收已知命令 | 通过对应描述符创建正确命令，参数传递完整 | 通过（阶段 4 当前命令集） |
+| CMD-02 | C | Dispatcher 接收未知命令 | 返回单行 `error:`，不修改任何状态 | 通过（阶段 4） |
+| CMD-03 | C | Dispatcher 接收缺参数、多参数或错误类型 | 返回单行 `error:` 且满足 `FAIL-STATE` | 通过（阶段 4） |
+| CMD-04 | C | 从描述符生成 help | help 与描述符同源，覆盖全部命令和语法 | 部分通过（阶段 4 当前命令集；最终完整命令集待阶段 7） |
+| EXEC-01 | C | 提交依赖异步 IO 的多条请求 | 按顺序串行执行，前一项完成后才执行下一项 | 通过（阶段 4） |
 | EXEC-02 | C | IO 失败 | 不更新历史或屏障，后续请求仍能按规则执行 | 通过（阶段 2） |
-| HIST-01 | C | 执行一条编辑命令 | undo 恰好增加一个单元，redo 栈清空 | 待实现 |
+| HIST-01 | C | 执行一条编辑命令 | undo 恰好增加一个单元，redo 栈清空 | 部分通过（阶段 4 验证一个命令一个单元；redo 栈待阶段 5） |
 | HIST-02 | C | undo 后执行新编辑 | redo 栈清空，新编辑进入 undo 栈 | 待实现 |
-| HIST-03 | C | 执行 tree、show、help、无参 canvas | undo/redo 栈不变 | 待实现 |
+| HIST-03 | C | 执行 tree、show、help、无参 canvas | undo/redo 栈不变 | 部分通过（阶段 4 覆盖 tree/help；show/canvas 待阶段 7） |
 | HIST-04 | C | init、read、save 或修改尺寸的 canvas 成功 | 旧历史清除，undo/redo 返回 `error: undo not allowed after io command` | 待实现 |
 | HIST-05 | C | 历史屏障后执行一条成功编辑 | 屏障解除，可以撤销这条新编辑 | 通过（阶段 2；撤销命令待阶段 5） |
 | HIST-06 | C | init/read 替换文档 | 旧文档历史和路径按规则清理，旧命令不能作用于新文档 | 通过（阶段 2 的 init 部分） |
 | HIST-07 | C | save 成功 | 即使模型未变也建立历史屏障，并按路径规则更新默认路径 | 通过（阶段 2） |
 | HIST-08 | C | init/read/save 的 IO 或校验失败 | 文档、路径、两个历史栈和屏障均满足 `FAIL-STATE` | 部分通过（阶段 2 init/save；read 待阶段 6） |
 | HIST-09 | C | 空栈执行 undo 或 redo | 按已固定行为返回单行错误或无操作；状态不变 | 待实现 |
-| HIST-10 | C | 无文档执行 help 和其他命令 | help 成功；其他命令返回 `error: no document. use 'init' or 'read' first` | 待实现 |
+| HIST-10 | C | 无文档执行 help 和其他命令 | help 成功；其他命令返回 `error: no document. use 'init' or 'read' first` | 部分通过（阶段 4 当前命令集；后续命令继续沿用该边界） |
 
 ## 文档命令与 SVG IO
 
@@ -156,7 +165,7 @@
 |---|---|---|---|---|
 | DOC-01 | I | 无参数执行 init | 创建 800x600 空画布 | 通过（阶段 2） |
 | DOC-02 | I | init 指定合法宽高 | 创建对应尺寸的空画布 | 通过（阶段 2） |
-| DOC-03 | I | init 使用 0、负数、非数字或 Infinity | 返回单行 `error:` 且当前会话满足 `FAIL-STATE` | 部分通过（阶段 2 覆盖 0、Infinity、十六进制；负数与非数字待补） |
+| DOC-03 | I | init 使用 0、负数、非数字或 Infinity | 返回单行 `error:` 且当前会话满足 `FAIL-STATE` | 通过（阶段 4） |
 | DOC-04 | I | init 成功 | 清除旧文档历史、默认路径和 redo 栈 | 部分通过（阶段 2 覆盖历史清理；redo/路径断言待补） |
 | CANVAS-01 | I | 无参数执行 canvas | 直接显示当前宽高，不进入历史 | 待实现 |
 | CANVAS-02 | I | canvas 指定合法宽高 | 更新画布尺寸，建立历史屏障 | 待实现 |
@@ -179,28 +188,28 @@
 | SAVE-04 | I | 保存支持范围内的文档 | 输出标准 SVG 声明、命名空间、尺寸、viewBox 和正确层级 | 通过（阶段 2 的 rect 范围） |
 | SAVE-05 | I | 保存省略 fill/stroke 的图形 | 输出中不主动补写可选属性 | 通过（阶段 3 六种图形） |
 | SAVE-06 | I | 成功保存 | 先写同目录临时文件，再替换目标；临时文件清理 | 通过（阶段 2 真实临时目录） |
-| SAVE-07 | I | 临时文件创建或写入失败 | 原文件、当前文档、路径、历史与屏障不变，临时文件清理 | 待实现 |
-| SAVE-08 | I | 最终替换失败 | 旧文件仍可读；当前文档、路径、历史和屏障不变，临时文件清理 | 待实现 |
+| SAVE-07 | I | 临时文件创建或写入失败 | 原文件、当前文档、路径、历史与屏障不变，临时文件清理 | 部分通过（阶段 4 覆盖目标目录不存在；其余注入场景待 IO 阶段完善） |
+| SAVE-08 | I | 最终替换失败 | 旧文件仍可读；当前文档、路径、历史和屏障不变，临时文件清理 | 部分通过（阶段 4 用目录目标触发替换失败并验证旧文件、默认路径和临时文件；同目标文件替换失败待故障注入） |
 | ROUND-01 | I | 构建包含六种图形、嵌套和样式的文档并保存再读取 | 模型语义等价，不要求 XML 字节相同 | 待实现 |
-| ROUND-02 | I | 保存后统计元素 | 不计根 svg，统计全部图形和 g 容器，包含嵌套节点 | 待实现 |
+| ROUND-02 | I | 保存后统计元素 | 不计根 svg，统计全部图形和 g 容器，包含嵌套节点 | 通过（阶段 4） |
 
 ## CLI 与显示
 
 | ID | 层级 | Given / When | Then | 状态 |
 |---|---|---|---|---|
-| CLI-01 | I | 启动 REPL | 显示版本提示和 `svg>`，命令逐行处理 | 待实现 |
-| CLI-02 | I | 从脚本输入多行命令 | 按行回放，空行被忽略，结果顺序稳定 | 通过（阶段 2 构建产物管道回放） |
+| CLI-01 | I | 启动 REPL | 显示版本提示和 `svg>`，命令逐行处理 | 部分通过（阶段 4 自动化验证版本提示和逐行处理；`svg>` 提示符待 CLI 阶段） |
+| CLI-02 | I | 从脚本输入多行命令 | 按行回放，空行被忽略，结果顺序稳定 | 通过（阶段 4 自动化流输入） |
 | CLI-03 | I | 行首为 `#` | 整行作为注释，不执行也不改变状态 | 通过（阶段 2 分词测试） |
 | CLI-04 | I | 行首有空格后出现 `#`，或颜色参数含 `#` | 不把非行首或非整行 `#` 当成注释 | 通过（阶段 2 分词测试） |
-| CLI-05 | I | 参数使用双引号且包含空格、空字符串或 `#` | 作为一个参数保留，不改写文本内容 | 部分通过（阶段 2 覆盖带空格路径；空字符串与引号内 `#` 待补） |
-| CLI-06 | I | 数字参数使用合法小数和负数 | 解析为有限浮点数并传给命令 | 待实现 |
-| CLI-07 | I | 引号未闭合、参数缺失或多余、非法数字 | 返回单行 `error:` 且满足 `FAIL-STATE` | 部分通过（阶段 2 覆盖未闭合引号、缺参、空字符串和十六进制） |
+| CLI-05 | I | 参数使用双引号且包含空格、空字符串或 `#` | 作为一个参数保留，不改写文本内容 | 通过（阶段 4） |
+| CLI-06 | I | 数字参数使用合法小数和负数 | 解析为有限浮点数并传给命令 | 通过（阶段 4） |
+| CLI-07 | I | 引号未闭合、参数缺失或多余、非法数字 | 返回单行 `error:` 且满足 `FAIL-STATE` | 通过（阶段 4 当前命令集） |
 | CLI-08 | I | 任一命令失败 | 只输出一行 `error:`，不输出堆栈、warning 或部分成功摘要 | 通过（阶段 2 已实现命令） |
-| CLI-09 | E | 每类编辑命令成功 | 输出对应单行成功摘要，名称、id 和关键值符合需求 | 待实现 |
+| CLI-09 | E | 每类编辑命令成功 | 输出对应单行成功摘要，名称、id 和关键值符合需求 | 部分通过（阶段 4 当前 create/group/ungroup/addto/front/back；编辑命令待阶段 5） |
 | CLI-10 | I | 执行 `tree` 和 `tree <id>` | 根、缩进、连接线、顺序和关键几何属性正确 | 待实现 |
 | CLI-11 | I | 执行 `show <id>` | 显示类型、id、父级和属性明细，格式符合需求 | 待实现 |
 | CLI-12 | I | `tree` 或 `show` 使用未知 id | 返回对应单行错误，且不进入历史 | 待实现 |
-| CLI-13 | I | 执行 `help` | 覆盖 init、read、save、canvas、全部编辑、显示和 undo/redo | 待实现 |
+| CLI-13 | I | 执行 `help` | 覆盖 init、read、save、canvas、全部编辑、显示和 undo/redo | 部分通过（阶段 4 覆盖当前命令集；最终完整命令集待阶段 7） |
 
 ## 端到端验收
 
@@ -210,7 +219,7 @@
 | E2E-02 | E | 回放需求第 6.1 节流程图版本 A | 使用 in 建立层级、容器移动与 undo、文本修改和保存结果正确 | 待实现 |
 | E2E-03 | E | 读取外部示例 `other.svg` 后保存再读 | 缺 id 警告、节点数、层级和模型语义正确 | 待实现 |
 | E2E-04 | E | 在真实 CLI 中触发失败命令后再查看状态 | 输出、文档、路径、历史和屏障均符合 `FAIL-STATE` | 待实现 |
-| E2E-05 | E | 执行 `create box` 和插件未知类型 | 均按未知类型拒绝，不创建部分结构 | 待实现 |
+| E2E-05 | E | 执行 `create box` 和插件未知类型 | 均按未知类型拒绝，不创建部分结构 | 通过（阶段 4） |
 | E2E-06 | M | 保存 demo 和流程图 SVG 后用浏览器打开 | 几何、颜色、层级和文字显示正确，无缺失内容 | 待实现 |
 | E2E-07 | E | 最终执行全部测试、类型检查和构建 | 全部通过，实际输出记录到 `doc/README.md` | 待实现 |
 

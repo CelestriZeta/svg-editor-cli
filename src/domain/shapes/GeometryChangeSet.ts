@@ -1,8 +1,10 @@
 import { ShapeGeometryChange } from './ShapeGeometryChange.js';
+import type { ChangeSet } from '../ChangeSet.js';
+import { ChangeSetExecutor } from '../ChangeSetExecutor.js';
 import type { GeometryValueChange } from './GeometryValueChange.js';
 import type { Shape } from './Shape.js';
 
-export class GeometryChangeSet {
+export class GeometryChangeSet implements ChangeSet {
   readonly #changes: readonly ShapeGeometryChange[];
 
   public constructor(changes: readonly ShapeGeometryChange[]) {
@@ -22,15 +24,15 @@ export class GeometryChangeSet {
     return this.#changes;
   }
 
+  public get hasChanges(): boolean {
+    return this.#changes.some((change) => change.hasChanges);
+  }
+
   public apply(): void {
-    for (const change of this.#changes) {
-      change.apply();
-    }
+    ChangeSetExecutor.apply(this.#changes);
   }
 
   public revert(): void {
-    for (const change of this.#changes) {
-      change.revert();
-    }
+    ChangeSetExecutor.revert(this.#changes);
   }
 }

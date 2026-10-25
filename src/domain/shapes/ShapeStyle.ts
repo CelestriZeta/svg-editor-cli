@@ -1,5 +1,5 @@
 import { DomainError } from '../DomainError.js';
-import type { ShapeAttributeUpdate } from './ShapeAttributeUpdate.js';
+import { ShapeAttributeValue } from './ShapeAttributeValue.js';
 
 export class ShapeStyle {
   readonly #fill: string | undefined;
@@ -43,37 +43,32 @@ export class ShapeStyle {
     return this.#strokeWidth;
   }
 
-  public withAttribute(
-    update: ShapeAttributeUpdate
+  public withValue(
+    name: string,
+    value: ShapeAttributeValue
   ): ShapeStyle | undefined {
-    switch (update.name) {
+    switch (name) {
       case 'fill':
         return new ShapeStyle(
-          update.textValue,
+          value.isAbsent ? undefined : value.textValue,
           this.#stroke,
           this.#strokeWidth
         );
       case 'stroke':
         return new ShapeStyle(
           this.#fill,
-          update.textValue,
+          value.isAbsent ? undefined : value.textValue,
           this.#strokeWidth
         );
-      case 'stroke-width': {
-        const strokeWidth = update.numericValue;
-        if (strokeWidth < 0) {
-          throw new DomainError(
-            'stroke-width must be a non-negative finite number'
-          );
-        }
+      case 'stroke-width':
         return new ShapeStyle(
           this.#fill,
           this.#stroke,
-          strokeWidth
+          value.isAbsent ? undefined : value.numericValue
         );
-      }
       default:
         return undefined;
     }
   }
+
 }

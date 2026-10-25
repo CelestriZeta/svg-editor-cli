@@ -1,4 +1,4 @@
-import { readdir, readFile } from 'node:fs/promises';
+import { mkdir, readdir, readFile } from 'node:fs/promises';
 
 import { afterEach, beforeEach, describe, expect, it } from 'vitest';
 
@@ -82,5 +82,37 @@ describe('init -> create rect -> tree -> save', () => {
         '└── rect#r1        x=0 y=0 w=10 h=10'
       ].join('\n')
     );
+  });
+
+  it('[SAVE-06/08] preserves the old file and cleans temporary data on replacement failure', async () => {
+    const validFile = directory.file('valid.svg');
+    const targetDirectory = directory.file('target');
+    await mkdir(targetDirectory);
+    const harness = new ApplicationHarness(
+      new SvgDocumentStore(new SvgWriteVisitor())
+    );
+    const { history, repl } = harness;
+    await repl.executeLine('init 100 100');
+    await repl.executeLine('create rect r1 0 0 10 10');
+    expect(await repl.executeLine(`save \"${validFile}\"`)).toBe(
+      `saved to ${validFile} (1 element)`
+    );
+    const oldContent = await readFile(validFile, 'utf8');
+    await repl.executeLine('create rect r2 1 1 2 2');
+    const before = await repl.executeLine('tree');
+
+    expect(await repl.executeLine(`save \"${targetDirectory}\"`)).toBe(
+      `error: cannot write file: ${targetDirectory}`
+    );
+    expect(await readFile(validFile, 'utf8')).toBe(oldContent);
+    expect(await repl.executeLine('save')).toBe(
+      `saved to ${validFile} (2 elements)`
+    );
+    expect(await repl.executeLine('tree')).toBe(before);
+    expect((await readdir(directory.path)).sort()).toEqual([
+      'target',
+      'valid.svg'
+    ]);
+    expect(history.isBlocked()).toBe(true);
   });
 });

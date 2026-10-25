@@ -6,7 +6,7 @@ export abstract class UndoableCommand extends Command {
     super(CommandCategory.Edit);
   }
 
-  public override get undoHandler(): UndoableCommand {
+  public override get undoHandler(): UndoableCommand | undefined {
     return this;
   }
 

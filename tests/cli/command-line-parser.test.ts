@@ -22,6 +22,31 @@ describe('CommandLineParser', () => {
       'save',
       'dir with spaces/demo.svg'
     ]);
+    expect(parser.parse('create text t1 0 0 ""')).toEqual([
+      'create',
+      'text',
+      't1',
+      '0',
+      '0',
+      ''
+    ]);
+    expect(parser.parse('create text t2 0 0 "value # not a comment"')).toEqual([
+      'create',
+      'text',
+      't2',
+      '0',
+      '0',
+      'value # not a comment'
+    ]);
+    expect(parser.parse('create rect r2 -1.5 +2.25 3.5e1 .5')).toEqual([
+      'create',
+      'rect',
+      'r2',
+      '-1.5',
+      '+2.25',
+      '3.5e1',
+      '.5'
+    ]);
     expect(parser.parse('   # not a comment')).toEqual([
       '#',
       'not',

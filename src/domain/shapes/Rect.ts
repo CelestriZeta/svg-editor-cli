@@ -1,9 +1,11 @@
 import { DomainError } from '../DomainError.js';
+import type { ShapeTree } from '../document/ShapeTree.js';
 import type { RectSpec } from '../specs/RectSpec.js';
 import { GeometryChangeSet } from './GeometryChangeSet.js';
 import { GeometryValueChange } from './GeometryValueChange.js';
 import { Shape } from './Shape.js';
-import type { ShapeAttributeUpdate } from './ShapeAttributeUpdate.js';
+import { ShapeAttributeSlot } from './ShapeAttributeSlot.js';
+import { ShapeAttributeValue } from './ShapeAttributeValue.js';
 import type { ShapeVisitor } from '../visitor/ShapeVisitor.js';
 
 export class Rect extends Shape {
@@ -11,9 +13,10 @@ export class Rect extends Shape {
   #y: number;
   #width: number;
   #height: number;
+  readonly #attributeSlots: ReadonlyMap<string, ShapeAttributeSlot>;
 
-  public constructor(spec: RectSpec) {
-    super(spec.id, spec.style);
+  public constructor(spec: RectSpec, tree: ShapeTree) {
+    super(spec.id, tree, spec.style);
 
     if (spec.type !== 'rect') {
       throw new DomainError('invalid rect specification');
@@ -23,6 +26,50 @@ export class Rect extends Shape {
     this.#y = spec.y;
     this.#width = spec.width;
     this.#height = spec.height;
+    this.#attributeSlots = new Map<string, ShapeAttributeSlot>([
+      [
+        'x',
+        ShapeAttributeSlot.number(
+          'x',
+          () => ShapeAttributeValue.number(this.#x),
+          (value) => {
+            this.#x = value.numericValue;
+          }
+        )
+      ],
+      [
+        'y',
+        ShapeAttributeSlot.number(
+          'y',
+          () => ShapeAttributeValue.number(this.#y),
+          (value) => {
+            this.#y = value.numericValue;
+          }
+        )
+      ],
+      [
+        'width',
+        ShapeAttributeSlot.number(
+          'width',
+          () => ShapeAttributeValue.number(this.#width),
+          (value) => {
+            this.#width = value.numericValue;
+          },
+          (value) => this.requirePositive('width', value)
+        )
+      ],
+      [
+        'height',
+        ShapeAttributeSlot.number(
+          'height',
+          () => ShapeAttributeValue.number(this.#height),
+          (value) => {
+            this.#height = value.numericValue;
+          },
+          (value) => this.requirePositive('height', value)
+        )
+      ]
+    ]);
   }
 
   public override readonly type = 'rect';
@@ -86,30 +133,15 @@ export class Rect extends Shape {
     return visitor.visitRect(this);
   }
 
-  protected override setOwnAttribute(update: ShapeAttributeUpdate): void {
-    switch (update.name) {
-      case 'x':
-        this.#x = update.numericValue;
-        return;
-      case 'y':
-        this.#y = update.numericValue;
-        return;
-      case 'width':
-        this.#width = this.requirePositive(update);
-        return;
-      case 'height':
-        this.#height = this.requirePositive(update);
-        return;
-      default:
-        throw new DomainError(`unknown attribute: ${update.name}`);
-    }
+  protected override ownAttributeSlot(
+    name: string
+  ): ShapeAttributeSlot | undefined {
+    return this.#attributeSlots.get(name);
   }
 
-  private requirePositive(update: ShapeAttributeUpdate): number {
-    const number = update.numericValue;
-    if (number <= 0) {
-      throw new DomainError(`${update.name} must be positive`);
+  private requirePositive(name: string, value: number): void {
+    if (value <= 0) {
+      throw new DomainError(`${name} must be positive`);
     }
-    return number;
   }
 }

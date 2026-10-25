@@ -6,7 +6,8 @@ export class ShapeCreatedResult extends CommandResult {
 
   public constructor(
     private readonly createdType: string,
-    private readonly createdId: string
+    private readonly createdId: string,
+    private readonly parentContainerId: string | undefined
   ) {
     super();
   }
@@ -17,6 +18,10 @@ export class ShapeCreatedResult extends CommandResult {
 
   public get shapeId(): string {
     return this.createdId;
+  }
+
+  public get parentId(): string | undefined {
+    return this.parentContainerId;
   }
 
   public override accept<T>(visitor: CommandResultVisitor<T>): T {

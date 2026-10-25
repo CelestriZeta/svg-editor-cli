@@ -1,19 +1,22 @@
 import { DomainError } from '../DomainError.js';
+import type { ShapeTree } from '../document/ShapeTree.js';
 import type { LineSpec } from '../specs/LineSpec.js';
 import type { ShapeVisitor } from '../visitor/ShapeVisitor.js';
 import { GeometryChangeSet } from './GeometryChangeSet.js';
 import { GeometryValueChange } from './GeometryValueChange.js';
 import { Shape } from './Shape.js';
-import type { ShapeAttributeUpdate } from './ShapeAttributeUpdate.js';
+import { ShapeAttributeSlot } from './ShapeAttributeSlot.js';
+import { ShapeAttributeValue } from './ShapeAttributeValue.js';
 
 export class Line extends Shape {
   #x1: number;
   #y1: number;
   #x2: number;
   #y2: number;
+  readonly #attributeSlots: ReadonlyMap<string, ShapeAttributeSlot>;
 
-  public constructor(spec: LineSpec) {
-    super(spec.id, spec.style);
+  public constructor(spec: LineSpec, tree: ShapeTree) {
+    super(spec.id, tree, spec.style);
 
     if (spec.type !== 'line') {
       throw new DomainError('invalid line specification');
@@ -23,6 +26,48 @@ export class Line extends Shape {
     this.#y1 = spec.y1;
     this.#x2 = spec.x2;
     this.#y2 = spec.y2;
+    this.#attributeSlots = new Map<string, ShapeAttributeSlot>([
+      [
+        'x1',
+        ShapeAttributeSlot.number(
+          'x1',
+          () => ShapeAttributeValue.number(this.#x1),
+          (value) => {
+            this.#x1 = value.numericValue;
+          }
+        )
+      ],
+      [
+        'y1',
+        ShapeAttributeSlot.number(
+          'y1',
+          () => ShapeAttributeValue.number(this.#y1),
+          (value) => {
+            this.#y1 = value.numericValue;
+          }
+        )
+      ],
+      [
+        'x2',
+        ShapeAttributeSlot.number(
+          'x2',
+          () => ShapeAttributeValue.number(this.#x2),
+          (value) => {
+            this.#x2 = value.numericValue;
+          }
+        )
+      ],
+      [
+        'y2',
+        ShapeAttributeSlot.number(
+          'y2',
+          () => ShapeAttributeValue.number(this.#y2),
+          (value) => {
+            this.#y2 = value.numericValue;
+          }
+        )
+      ]
+    ]);
   }
 
   public override readonly type = 'line';
@@ -90,22 +135,9 @@ export class Line extends Shape {
     return visitor.visitLine(this);
   }
 
-  protected override setOwnAttribute(update: ShapeAttributeUpdate): void {
-    switch (update.name) {
-      case 'x1':
-        this.#x1 = update.numericValue;
-        return;
-      case 'y1':
-        this.#y1 = update.numericValue;
-        return;
-      case 'x2':
-        this.#x2 = update.numericValue;
-        return;
-      case 'y2':
-        this.#y2 = update.numericValue;
-        return;
-      default:
-        throw new DomainError(`unknown attribute: ${update.name}`);
-    }
+  protected override ownAttributeSlot(
+    name: string
+  ): ShapeAttributeSlot | undefined {
+    return this.#attributeSlots.get(name);
   }
 }
