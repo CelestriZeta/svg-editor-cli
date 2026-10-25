@@ -23,7 +23,7 @@ import type { DocumentViewVisitor } from './queries/DocumentViewVisitor.js';
 
 interface CommandDefinition {
   readonly name: string;
-  readonly syntax: string;
+  readonly syntax: string | readonly string[];
   create(args: readonly string[]): Command;
 }
 
@@ -56,8 +56,14 @@ export class CommandDispatcher {
       },
       {
         name: 'create',
-        syntax:
-          'create <rect|circle|ellipse|line|text|g> <id> [params...] [in <container-id>]',
+        syntax: [
+          'create rect <id> <x> <y> <w> <h> [fill] [in <container-id>]',
+          'create circle <id> <cx> <cy> <r> [fill] [in <container-id>]',
+          'create ellipse <id> <cx> <cy> <rx> <ry> [fill] [in <container-id>]',
+          'create line <id> <x1> <y1> <x2> <y2> [stroke] [in <container-id>]',
+          'create text <id> <x> <y> "content" [in <container-id>]',
+          'create g <id> [in <container-id>]'
+        ],
         create: (args) => createShape.create(args)
       },
       {
@@ -187,7 +193,7 @@ export class CommandDispatcher {
     }
 
     return new HelpCommand(
-      [...this.#definitions.values()].map((definition) => definition.syntax)
+      [...this.#definitions.values()].flatMap((definition) => definition.syntax)
     );
   }
 }

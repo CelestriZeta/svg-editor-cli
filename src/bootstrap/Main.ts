@@ -44,6 +44,7 @@ export class Main {
     const input = createInterface({
       input: process.stdin,
       output: process.stdout,
+      prompt: 'svg> ',
       terminal: process.stdin.isTTY === true
     });
 
@@ -51,7 +52,7 @@ export class Main {
       await repl.run(
         input,
         (text) => process.stdout.write(text),
-        { showPrompt: process.stdin.isTTY === true }
+        process.stdin.isTTY === true ? { prompt: () => input.prompt() } : {}
       );
     } finally {
       input.close();

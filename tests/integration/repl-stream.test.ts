@@ -1,4 +1,7 @@
-import { describe, expect, it } from 'vitest';
+import { createInterface } from 'node:readline';
+import { PassThrough } from 'node:stream';
+
+import { describe, expect, it, vi } from 'vitest';
 
 import { ApplicationHarness } from '../support/ApplicationHarness.js';
 import { RecordingDocumentStore } from '../support/RecordingDocumentStore.js';
@@ -40,7 +43,7 @@ describe('REPL stream', () => {
     await harness.repl.run(
       lines(),
       (text) => output.push(text),
-      { showPrompt: true }
+      { prompt: () => output.push('svg> ') }
     );
 
     expect(output.join('')).toBe(
@@ -52,5 +55,54 @@ describe('REPL stream', () => {
         ''
       ].join('\n')
     );
+  });
+
+  it('keeps the readline prompt when backspacing at the start and within input', async () => {
+    vi.stubEnv('TERM', 'xterm');
+    const harness = new ApplicationHarness(new RecordingDocumentStore());
+    const input = new PassThrough();
+    const output = new PassThrough();
+    const terminalOutput: string[] = [];
+    output.on('data', (chunk: Buffer) => terminalOutput.push(chunk.toString()));
+    const lines = createInterface({ input, output, terminal: true, prompt: 'svg> ' });
+    const results: string[] = [];
+    const emptyInputStates: { line: string; rows: number; cols: number }[] = [];
+    let prompts = 0;
+
+    try {
+      await harness.repl.run(lines, (text) => results.push(text), {
+        prompt: () => {
+          lines.prompt();
+          prompts += 1;
+          queueMicrotask(() => {
+            if (prompts === 1) {
+              input.write('\x7f');
+              input.write('\b');
+              emptyInputStates.push({ line: lines.line, ...lines.getCursorPos() });
+              for (const key of 'init 10 21\x7f0\r') input.write(key);
+            } else if (prompts === 2) {
+              for (const key of 'x\x7f\x7f') input.write(key);
+              emptyInputStates.push({ line: lines.line, ...lines.getCursorPos() });
+              for (const key of 'canvas\r') input.write(key);
+            } else {
+              lines.close();
+            }
+          });
+        }
+      });
+
+      expect(results.join('')).toContain('canvas 10x20 created\ncanvas 10x20\n');
+      expect(terminalOutput.join('')).toContain('\x1b[1G\x1b[0Jsvg> ');
+      expect(prompts).toBe(3);
+      expect(emptyInputStates).toEqual([
+        { line: '', rows: 0, cols: 5 },
+        { line: '', rows: 0, cols: 5 }
+      ]);
+    } finally {
+      lines.close();
+      input.destroy();
+      output.destroy();
+      vi.unstubAllEnvs();
+    }
   });
 });

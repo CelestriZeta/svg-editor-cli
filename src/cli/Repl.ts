@@ -8,7 +8,7 @@ import type { OutputFormatter } from './OutputFormatter.js';
 export type ReplWriter = (text: string) => void;
 
 export interface ReplRunOptions {
-  readonly showPrompt?: boolean;
+  readonly prompt?: () => void;
 }
 
 export class Repl {
@@ -45,16 +45,13 @@ export class Repl {
     options: ReplRunOptions = {}
   ): Promise<void> {
     write("svg-editor 0.1 - type 'help' for commands\n");
-    const showPrompt = options.showPrompt ?? false;
     const iterator = lines[Symbol.asyncIterator]();
 
     while (true) {
-      if (showPrompt) {
-        write('svg> ');
-      }
+      options.prompt?.();
       const next = await iterator.next();
       if (next.done) {
-        if (showPrompt) {
+        if (options.prompt !== undefined) {
           write('\n');
         }
         break;
