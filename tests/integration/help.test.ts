@@ -12,12 +12,18 @@ describe('help', () => {
         'commands:',
         '  init [w] [h]',
         '  create <rect|circle|ellipse|line|text|g> <id> [params...] [in <container-id>]',
+        '  delete <id>',
+        '  move <id> <dx> <dy>',
+        '  scale <id> <factor>',
+        '  set <id> <attribute> <value>',
         '  group <new-gid> <id1> <id2>...',
         '  ungroup <gid>',
         '  addto <gid> <id>',
         '  front <id>',
         '  back <id>',
         '  tree',
+        '  undo',
+        '  redo',
         '  save [file.svg]',
         '  help'
       ].join('\n')

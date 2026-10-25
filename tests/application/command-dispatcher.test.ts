@@ -4,15 +4,22 @@ import { CommandDispatcher } from '../../src/application/CommandDispatcher.js';
 import { AddToCommand } from '../../src/application/commands/AddToCommand.js';
 import { BackShapeCommand } from '../../src/application/commands/BackShapeCommand.js';
 import { CreateShapeCommand } from '../../src/application/commands/CreateShapeCommand.js';
+import { DeleteShapeCommand } from '../../src/application/commands/DeleteShapeCommand.js';
 import { FrontShapeCommand } from '../../src/application/commands/FrontShapeCommand.js';
 import { GroupShapesCommand } from '../../src/application/commands/GroupShapesCommand.js';
 import { HelpCommand } from '../../src/application/commands/HelpCommand.js';
 import { InitCommand } from '../../src/application/commands/InitCommand.js';
 import { InvalidCommand } from '../../src/application/commands/InvalidCommand.js';
+import { MoveShapeCommand } from '../../src/application/commands/MoveShapeCommand.js';
+import { RedoCommand } from '../../src/application/commands/RedoCommand.js';
 import { SaveCommand } from '../../src/application/commands/SaveCommand.js';
+import { ScaleShapeCommand } from '../../src/application/commands/ScaleShapeCommand.js';
+import { SetShapeAttributeCommand } from '../../src/application/commands/SetShapeAttributeCommand.js';
 import { TreeCommand } from '../../src/application/commands/TreeCommand.js';
 import { UngroupShapeCommand } from '../../src/application/commands/UngroupShapeCommand.js';
+import { UndoCommand } from '../../src/application/commands/UndoCommand.js';
 import { ErrorResult } from '../../src/application/commands/results/ErrorResult.js';
+import { CommandHistory } from '../../src/application/CommandHistory.js';
 import { DocumentService } from '../../src/application/DocumentService.js';
 import { EditorSession } from '../../src/application/EditorSession.js';
 import { DocumentViewVisitor } from '../../src/application/queries/DocumentViewVisitor.js';
@@ -24,10 +31,12 @@ function createDispatcher(): {
 } {
   const session = new EditorSession();
   const documents = new DocumentService(session, new RecordingDocumentStore());
+  const history = new CommandHistory();
   return {
     dispatcher: new CommandDispatcher(
       session,
       documents,
+      history,
       new DocumentViewVisitor()
     ),
     session
@@ -46,6 +55,18 @@ describe('CommandDispatcher', () => {
     await dispatcher.create(['create', 'g', 'g1']).execute();
     await dispatcher.create(['create', 'rect', 'r1', '0', '0', '1', '1']).execute();
     await dispatcher.create(['create', 'circle', 'c1', '2', '2', '1']).execute();
+    expect(dispatcher.create(['delete', 'r1'])).toBeInstanceOf(
+      DeleteShapeCommand
+    );
+    expect(dispatcher.create(['move', 'r1', '1', '2'])).toBeInstanceOf(
+      MoveShapeCommand
+    );
+    expect(dispatcher.create(['scale', 'r1', '2'])).toBeInstanceOf(
+      ScaleShapeCommand
+    );
+    expect(dispatcher.create(['set', 'r1', 'fill', 'red'])).toBeInstanceOf(
+      SetShapeAttributeCommand
+    );
     expect(dispatcher.create(['group', 'cluster', 'r1', 'c1'])).toBeInstanceOf(
       GroupShapesCommand
     );
@@ -56,6 +77,8 @@ describe('CommandDispatcher', () => {
     expect(dispatcher.create(['front', 'r1'])).toBeInstanceOf(FrontShapeCommand);
     expect(dispatcher.create(['back', 'r1'])).toBeInstanceOf(BackShapeCommand);
     expect(dispatcher.create(['tree'])).toBeInstanceOf(TreeCommand);
+    expect(dispatcher.create(['undo'])).toBeInstanceOf(UndoCommand);
+    expect(dispatcher.create(['redo'])).toBeInstanceOf(RedoCommand);
     expect(dispatcher.create(['save'])).toBeInstanceOf(SaveCommand);
     expect(dispatcher.create(['help'])).toBeInstanceOf(HelpCommand);
   });
@@ -69,6 +92,17 @@ describe('CommandDispatcher', () => {
       [['init', '1'], 'init requires zero or two arguments'],
       [['create', 'rect'], 'create requires a type and id'],
       [['create', 'g', 'g1', 'in'], "create g requires a container after 'in'"],
+      [['delete'], 'delete requires one shape id'],
+      [['delete', 'r1', 'extra'], 'delete requires one shape id'],
+      [['move', 'r1', '1'], 'move requires a shape id, dx and dy'],
+      [['move', 'r1', '1', '2', 'extra'], 'move requires a shape id, dx and dy'],
+      [['scale', 'r1'], 'scale requires a shape id and factor'],
+      [['scale', 'r1', '2', 'extra'], 'scale requires a shape id and factor'],
+      [['set', 'r1', 'fill'], 'set requires a shape id, attribute and value'],
+      [
+        ['set', 'r1', 'fill', 'red', 'extra'],
+        'set requires a shape id, attribute and value'
+      ],
       [['group'], 'group requires a new group id and target ids'],
       [['ungroup'], 'ungroup requires one container id'],
       [['ungroup', 'g1', 'extra'], 'ungroup requires one container id'],
@@ -76,6 +110,8 @@ describe('CommandDispatcher', () => {
       [['front'], 'front requires one shape id'],
       [['back', 'r1', 'extra'], 'back requires one shape id'],
       [['tree', 'extra'], 'tree takes no arguments'],
+      [['undo', 'extra'], 'undo takes no arguments'],
+      [['redo', 'extra'], 'redo takes no arguments'],
       [['save', 'a.svg', 'b.svg'], 'save accepts at most one file path'],
       [['help', 'extra'], 'help takes no arguments']
     ];

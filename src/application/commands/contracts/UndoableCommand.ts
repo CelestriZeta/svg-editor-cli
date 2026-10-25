@@ -1,5 +1,6 @@
 import { CommandCategory } from './CommandCategory.js';
 import { Command } from './Command.js';
+import type { CommandResult } from './CommandResult.js';
 
 export abstract class UndoableCommand extends Command {
   protected constructor() {
@@ -10,7 +11,7 @@ export abstract class UndoableCommand extends Command {
     return this;
   }
 
-  public abstract undo(): Promise<void>;
+  public abstract undo(): Promise<CommandResult>;
 
-  public abstract redo(): Promise<void>;
+  public abstract redo(): Promise<CommandResult>;
 }

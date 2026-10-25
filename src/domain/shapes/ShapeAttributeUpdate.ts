@@ -1,16 +1,17 @@
 import { DomainError } from '../DomainError.js';
+import { ShapeAttributeValueKind } from './ShapeAttributeValueKind.js';
 
 export class ShapeAttributeUpdate {
   readonly #name: string;
   readonly #numberValue: number | undefined;
   readonly #textValue: string | undefined;
-  readonly #valueKind: 'number' | 'text';
+  readonly #valueKind: ShapeAttributeValueKind;
 
   private constructor(
     name: string,
     numberValue: number | undefined,
     textValue: string | undefined,
-    valueKind: 'number' | 'text'
+    valueKind: ShapeAttributeValueKind
   ) {
     if (name.trim().length === 0) {
       throw new DomainError('attribute name must not be empty');
@@ -27,18 +28,28 @@ export class ShapeAttributeUpdate {
       throw new DomainError(`${name} must be a finite number`);
     }
 
-    return new ShapeAttributeUpdate(name, value, undefined, 'number');
+    return new ShapeAttributeUpdate(
+      name,
+      value,
+      undefined,
+      ShapeAttributeValueKind.Number
+    );
   }
 
   public static text(name: string, value: string): ShapeAttributeUpdate {
-    return new ShapeAttributeUpdate(name, undefined, value, 'text');
+    return new ShapeAttributeUpdate(
+      name,
+      undefined,
+      value,
+      ShapeAttributeValueKind.Text
+    );
   }
 
   public get name(): string {
     return this.#name;
   }
 
-  public get valueKind(): 'number' | 'text' {
+  public get valueKind(): ShapeAttributeValueKind {
     return this.#valueKind;
   }
 

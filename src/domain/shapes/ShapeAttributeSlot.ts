@@ -1,6 +1,7 @@
 import { DomainError } from '../DomainError.js';
 import type { ShapeAttributeUpdate } from './ShapeAttributeUpdate.js';
 import { ShapeAttributeValue } from './ShapeAttributeValue.js';
+import { ShapeAttributeValueKind } from './ShapeAttributeValueKind.js';
 
 type AttributeCapture = () => ShapeAttributeValue;
 type AttributeValidator = (value: number | string) => void;
@@ -9,7 +10,7 @@ type AttributeWriter = (value: ShapeAttributeValue) => void;
 export class ShapeAttributeSlot {
   private constructor(
     private readonly attributeName: string,
-    private readonly valueKind: 'number' | 'text',
+    private readonly attributeValueKind: ShapeAttributeValueKind,
     private readonly captureValue: AttributeCapture,
     private readonly validateValue: AttributeValidator,
     private readonly writeValue: AttributeWriter
@@ -23,7 +24,7 @@ export class ShapeAttributeSlot {
   ): ShapeAttributeSlot {
     return new ShapeAttributeSlot(
       name,
-      'number',
+      ShapeAttributeValueKind.Number,
       capture,
       (value) => {
         if (typeof value !== 'number') {
@@ -43,7 +44,7 @@ export class ShapeAttributeSlot {
   ): ShapeAttributeSlot {
     return new ShapeAttributeSlot(
       name,
-      'text',
+      ShapeAttributeValueKind.Text,
       capture,
       (value) => {
         if (typeof value !== 'string') {
@@ -59,6 +60,10 @@ export class ShapeAttributeSlot {
     return this.attributeName;
   }
 
+  public get kind(): ShapeAttributeValueKind {
+    return this.attributeValueKind;
+  }
+
   public capture(): ShapeAttributeValue {
     return this.captureValue();
   }
@@ -69,14 +74,14 @@ export class ShapeAttributeSlot {
         `attribute slot ${this.attributeName} cannot accept ${update.name}`
       );
     }
-    if (update.valueKind !== this.valueKind) {
+    if (update.valueKind !== this.attributeValueKind) {
       throw new DomainError(
-        `${this.attributeName} requires a ${this.valueKind === 'number' ? 'numeric' : 'text'} value`
+        `${this.attributeName} requires a ${this.attributeValueKind === ShapeAttributeValueKind.Number ? 'numeric' : 'text'} value`
       );
     }
 
     const value =
-      update.valueKind === 'number'
+      update.valueKind === ShapeAttributeValueKind.Number
         ? update.numericValue
         : update.textValue;
     this.validateValue(value);

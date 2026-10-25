@@ -8,6 +8,7 @@ import { ShapeAttributeChangeSet } from './ShapeAttributeChangeSet.js';
 import { ShapeAttributeSlot } from './ShapeAttributeSlot.js';
 import type { ShapeAttributeUpdate } from './ShapeAttributeUpdate.js';
 import { ShapeAttributeValue } from './ShapeAttributeValue.js';
+import { ShapeAttributeValueKind } from './ShapeAttributeValueKind.js';
 import { ShapeStyle } from './ShapeStyle.js';
 
 export abstract class Shape {
@@ -69,6 +70,14 @@ export abstract class Shape {
     slot.write(slot.prepare(update));
   }
 
+  public attributeKind(name: string): ShapeAttributeValueKind {
+    return this.requireAttributeSlot(name).kind;
+  }
+
+  public attributeValue(name: string): ShapeAttributeValue {
+    return this.requireAttributeSlot(name).capture();
+  }
+
   public move(dx: number, dy: number): void {
     this.prepareMove(dx, dy).apply();
   }
@@ -102,7 +111,9 @@ export abstract class Shape {
               ? ShapeAttributeValue.absent()
               : ShapeAttributeValue.text(this.#style.fill),
           (value) => {
-            this.#style = this.requireStyleValue('fill', value);
+            this.#style = this.#style.withFill(
+              value.isAbsent ? undefined : value.textValue
+            );
           },
           (value) => {
             if (value.length === 0) {
@@ -120,7 +131,9 @@ export abstract class Shape {
               ? ShapeAttributeValue.absent()
               : ShapeAttributeValue.text(this.#style.stroke),
           (value) => {
-            this.#style = this.requireStyleValue('stroke', value);
+            this.#style = this.#style.withStroke(
+              value.isAbsent ? undefined : value.textValue
+            );
           },
           (value) => {
             if (value.length === 0) {
@@ -138,7 +151,9 @@ export abstract class Shape {
               ? ShapeAttributeValue.absent()
               : ShapeAttributeValue.number(this.#style.strokeWidth),
           (value) => {
-            this.#style = this.requireStyleValue('stroke-width', value);
+            this.#style = this.#style.withStrokeWidth(
+              value.isAbsent ? undefined : value.numericValue
+            );
           },
           (value) => {
             if (value < 0) {
@@ -158,17 +173,6 @@ export abstract class Shape {
       throw new DomainError(`unknown attribute: ${name}`);
     }
     return slot;
-  }
-
-  private requireStyleValue(
-    name: string,
-    value: ShapeAttributeValue
-  ): ShapeStyle {
-    const style = this.#style.withValue(name, value);
-    if (style === undefined) {
-      throw new DomainError(`unknown attribute: ${name}`);
-    }
-    return style;
   }
 
   protected static requireMoveDelta(dx: number, dy: number): void {

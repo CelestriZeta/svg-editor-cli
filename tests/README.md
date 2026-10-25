@@ -4,9 +4,9 @@
 
 ## 最近审计
 
-2026-10-25 按当前实现范围复核全部测试条目：共 140 条，其中 92 条通过、15 条部分通过、30 条待实现、3 条明确 N/A。部分通过和待实现条目保留给尚未进入的 read/canvas、编辑命令入口、undo/redo、show/tree `<id>`、插件与最终浏览器验收，不把计划能力记为完成。当前自动化套件为 23 个测试文件、58 个测试。
+2026-10-25 阶段 5 完成后按当前实现范围复核全部测试条目：共 140 条，其中 100 条通过、11 条部分通过、26 条待实现、3 条明确 N/A。部分通过和待实现条目保留给尚未进入的 read/canvas、完整历史屏障、show/tree `<id>`、插件与最终浏览器验收，不把计划能力记为完成。当前自动化套件为 24 个测试文件、64 个测试。
 
-本次补全重点是已实现但缺少直接证据的边界：`create box`/未知类型、CLI 空字符串与引号内 `#`、小数和负数、无文档会话、默认路径清理、命令分发与参数数量、执行器串行化、结构命令 undo/redo、同容器 `addto`、目标失败原子性、保存替换失败清理、XML 转义、元素计数，以及架构/跳过测试守卫。
+阶段 5 重点补齐 delete/move/scale/set、CLI undo/redo、redo 清空、空栈与 IO 屏障、恢复失败不迁移历史、无状态变化不入栈，以及全部结构命令经共享历史的撤销重做。二次架构复查另加入强制共享历史、Dispatcher 不直接构造具体编辑命令、创建命令统一事务基类和属性值枚举一致性守卫。
 
 ## 测试约定
 
@@ -81,7 +81,7 @@
 | SET-04 | U | 对普通 `g` 设置样式 | 只修改 g 自身样式，不覆盖或传播给子孙 | 通过（阶段 3） |
 | SET-05 | C | 对某类型设置其他类型的几何属性 | 返回 `error: unknown attribute: <attr>` 且满足 `FAIL-STATE` | 通过（阶段 3 领域错误） |
 | SET-06 | C | 设置需求白名单外的属性，包括 `font-size`、`text-anchor` | 返回 `error: unknown attribute: <attr>` 且满足 `FAIL-STATE` | 通过（阶段 3 领域错误） |
-| SET-07 | C | 设置非法数字或空文本 | 返回单行 `error:`，保留原值且满足 `FAIL-STATE` | 通过（阶段 3 领域错误；CLI 待阶段 5） |
+| SET-07 | C | 设置非法数字或空文本 | 返回单行 `error:`，保留原值且满足 `FAIL-STATE` | 通过（阶段 5 CLI 参数和目标失败回归） |
 
 ## 几何与 Composite
 
@@ -97,7 +97,7 @@
 | GEO-08 | U | Visitor 遍历嵌套容器 | 顺序为 enterGroup -> 子树 -> leaveGroup | 通过（阶段 3） |
 | GEO-09 | U | Visitor 在 enterGroup 跳过子树 | 不访问该容器的任何子孙，但后续兄弟仍正常访问 | 通过（阶段 3） |
 | DELETE-01 | U | 删除叶子 | 节点、id 索引和父级引用同时移除 | 通过（阶段 3） |
-| DELETE-02 | U | 删除容器 | 整个子树删除，操作记录为一个 undo 单元 | 部分通过（阶段 4 覆盖局部 ChangeSet apply/revert/reapply；DeleteCommand 与 CLI undo 待阶段 5） |
+| DELETE-02 | U | 删除容器 | 整个子树删除，操作记录为一个 undo 单元 | 通过（阶段 5 delete、Composite 子树及 CLI undo/redo） |
 
 ## 树结构与顺序
 
@@ -123,7 +123,7 @@
 | ID | 层级 | Given / When | Then | 状态 |
 |---|---|---|---|---|
 | CHANGE-01 | C | create 后 undo/redo | undo 恢复原父级和位置；redo 恢复同一节点和 id | 通过（阶段 4，含嵌套父级和对象身份） |
-| CHANGE-02 | C | delete 子树后 undo/redo | undo 恢复完整子树、父级、顺序和 id 索引；redo 再次完整删除 | 部分通过（阶段 4 局部 ChangeSet；命令入口待阶段 5） |
+| CHANGE-02 | C | delete 子树后 undo/redo | undo 恢复完整子树、父级、顺序和 id 索引；redo 再次完整删除 | 通过（阶段 5 命令入口、嵌套恢复和 CLI undo/redo） |
 | CHANGE-03 | C | move 后 undo/redo | 恢复全部受影响节点的精确旧值/新值 | 通过（阶段 3 局部 ChangeSet） |
 | CHANGE-04 | C | scale 后 undo/redo | 使用记录的旧值/新值恢复，不通过反向计算 | 通过（阶段 3 局部 ChangeSet） |
 | CHANGE-05 | C | set 后 undo/redo | 正确恢复旧值、新值及属性原先是否存在 | 通过（阶段 4 局部 ChangeSet） |
@@ -132,31 +132,31 @@
 | CHANGE-08 | C | addto 后 undo/redo | 恢复源父级、目标父级及双方顺序 | 通过（阶段 4 命令 undo/redo） |
 | CHANGE-09 | C | front/back 后 undo/redo | 恢复前后位置和完整同级顺序 | 通过（阶段 4 命令 undo/redo） |
 | CHANGE-10 | C | 一次 group 操作包含多个图形后 undo | 一次 undo 恢复全部变化，仍为一个历史单元 | 通过（阶段 4 命令契约） |
-| CHANGE-11 | C | 合法编辑后 undo，再 redo | redo 复用首次记录，不重新分配 id | 部分通过（阶段 4 create/group 复用同一 ChangeSet 和对象；CLI undo/redo 待阶段 5） |
+| CHANGE-11 | C | 合法编辑后 undo，再 redo | redo 复用首次记录，不重新分配 id | 通过（阶段 5 create/group 及 CLI 编辑命令 undo/redo） |
 | CHANGE-12 | C | 编辑校验失败 | 不产生 ChangeSet，不压入 undo | 通过（阶段 4） |
-| CHANGE-13 | C | undo 或 redo 恢复失败 | 文档和两个历史栈均保持操作前状态 | 待实现 |
+| CHANGE-13 | C | undo 或 redo 恢复失败 | 文档和两个历史栈均保持操作前状态 | 通过（阶段 5 注入撤销异常，文档、栈和屏障不变） |
 | CHANGE-14 | U | 组合 ChangeSet 在提交和回滚中都抛错 | 尝试全部补偿动作，并通过 `AggregateError` 保留原始错误与全部回滚错误 | 通过（阶段 4） |
 
 ## 命令、执行器与历史
 
 | ID | 层级 | Given / When | Then | 状态 |
 |---|---|---|---|---|
-| TARGET-01 | C | 任一依赖图形 id 的命令使用不存在 id | 返回 `error: no such shape: <id>` 且满足 `FAIL-STATE` | 部分通过（阶段 4 覆盖当前结构命令；编辑/显示命令随阶段 5–7 启用） |
+| TARGET-01 | C | 任一依赖图形 id 的命令使用不存在 id | 返回 `error: no such shape: <id>` 且满足 `FAIL-STATE` | 部分通过（阶段 5 覆盖编辑与结构命令；显示命令待阶段 7） |
 | CMD-01 | C | Dispatcher 接收已知命令 | 通过对应描述符创建正确命令，参数传递完整 | 通过（阶段 4 当前命令集） |
 | CMD-02 | C | Dispatcher 接收未知命令 | 返回单行 `error:`，不修改任何状态 | 通过（阶段 4） |
 | CMD-03 | C | Dispatcher 接收缺参数、多参数或错误类型 | 返回单行 `error:` 且满足 `FAIL-STATE` | 通过（阶段 4） |
 | CMD-04 | C | 从描述符生成 help | help 与描述符同源，覆盖全部命令和语法 | 部分通过（阶段 4 当前命令集；最终完整命令集待阶段 7） |
 | EXEC-01 | C | 提交依赖异步 IO 的多条请求 | 按顺序串行执行，前一项完成后才执行下一项 | 通过（阶段 4） |
 | EXEC-02 | C | IO 失败 | 不更新历史或屏障，后续请求仍能按规则执行 | 通过（阶段 2） |
-| HIST-01 | C | 执行一条编辑命令 | undo 恰好增加一个单元，redo 栈清空 | 部分通过（阶段 4 验证一个命令一个单元；redo 栈待阶段 5） |
-| HIST-02 | C | undo 后执行新编辑 | redo 栈清空，新编辑进入 undo 栈 | 待实现 |
+| HIST-01 | C | 执行一条编辑命令 | undo 恰好增加一个单元，redo 栈清空 | 通过（阶段 5 命令与 CLI 历史回归） |
+| HIST-02 | C | undo 后执行新编辑 | redo 栈清空，新编辑进入 undo 栈 | 通过（阶段 5 CLI 回归） |
 | HIST-03 | C | 执行 tree、show、help、无参 canvas | undo/redo 栈不变 | 部分通过（阶段 4 覆盖 tree/help；show/canvas 待阶段 7） |
-| HIST-04 | C | init、read、save 或修改尺寸的 canvas 成功 | 旧历史清除，undo/redo 返回 `error: undo not allowed after io command` | 待实现 |
-| HIST-05 | C | 历史屏障后执行一条成功编辑 | 屏障解除，可以撤销这条新编辑 | 通过（阶段 2；撤销命令待阶段 5） |
+| HIST-04 | C | init、read、save 或修改尺寸的 canvas 成功 | 旧历史清除，undo/redo 返回 `error: undo not allowed after io command` | 部分通过（阶段 5 init/save；read/canvas 待阶段 6–7） |
+| HIST-05 | C | 历史屏障后执行一条成功编辑 | 屏障解除，可以撤销这条新编辑 | 通过（阶段 2 屏障解除；阶段 5 CLI undo 验证） |
 | HIST-06 | C | init/read 替换文档 | 旧文档历史和路径按规则清理，旧命令不能作用于新文档 | 通过（阶段 2 的 init 部分） |
 | HIST-07 | C | save 成功 | 即使模型未变也建立历史屏障，并按路径规则更新默认路径 | 通过（阶段 2） |
 | HIST-08 | C | init/read/save 的 IO 或校验失败 | 文档、路径、两个历史栈和屏障均满足 `FAIL-STATE` | 部分通过（阶段 2 init/save；read 待阶段 6） |
-| HIST-09 | C | 空栈执行 undo 或 redo | 按已固定行为返回单行错误或无操作；状态不变 | 待实现 |
+| HIST-09 | C | 空栈执行 undo 或 redo | 按已固定行为返回单行错误或无操作；状态不变 | 通过（阶段 5 返回 nothing to undo/redo，状态不变） |
 | HIST-10 | C | 无文档执行 help 和其他命令 | help 成功；其他命令返回 `error: no document. use 'init' or 'read' first` | 部分通过（阶段 4 当前命令集；后续命令继续沿用该边界） |
 
 ## 文档命令与 SVG IO
@@ -205,7 +205,7 @@
 | CLI-06 | I | 数字参数使用合法小数和负数 | 解析为有限浮点数并传给命令 | 通过（阶段 4） |
 | CLI-07 | I | 引号未闭合、参数缺失或多余、非法数字 | 返回单行 `error:` 且满足 `FAIL-STATE` | 通过（阶段 4 当前命令集） |
 | CLI-08 | I | 任一命令失败 | 只输出一行 `error:`，不输出堆栈、warning 或部分成功摘要 | 通过（阶段 2 已实现命令） |
-| CLI-09 | E | 每类编辑命令成功 | 输出对应单行成功摘要，名称、id 和关键值符合需求 | 部分通过（阶段 4 当前 create/group/ungroup/addto/front/back；编辑命令待阶段 5） |
+| CLI-09 | E | 每类编辑命令成功 | 输出对应单行成功摘要，名称、id 和关键值符合需求 | 通过（阶段 5 create/delete/move/scale/set/group/ungroup/addto/front/back） |
 | CLI-10 | I | 执行 `tree` 和 `tree <id>` | 根、缩进、连接线、顺序和关键几何属性正确 | 待实现 |
 | CLI-11 | I | 执行 `show <id>` | 显示类型、id、父级和属性明细，格式符合需求 | 待实现 |
 | CLI-12 | I | `tree` 或 `show` 使用未知 id | 返回对应单行错误，且不进入历史 | 待实现 |

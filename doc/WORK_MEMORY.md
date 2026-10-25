@@ -13,7 +13,7 @@
 - 初始化前仓库仅有 `phase_cli_1.md`；尚无源代码、依赖清单、运行脚本或测试。
 - 已建立提交文档框架和拟定架构，以及 `.gitignore`、`.gitattributes`、`.editorconfig` 和根目录协作说明。
 - 已选择 Node.js 24、pnpm 11.25、TypeScript 7 严格模式和 Vitest 5；项目已安装依赖并生成锁文件。尚未选择 XML 库。
-- 仓库已有分步提交；当前阶段 4 改动尚未暂存、提交或推送，未创建 `final` tag。
+- 仓库已有分步提交；当前阶段 5 改动尚未暂存、提交或推送，未创建 `final` tag。
 - README 已记录阶段 2 的实际实现证据和验证结果；最终一致性自查结论仍留待完整验收。
 - 按用户最新要求和课程第 1.2 节要求，完整项目文档已从根目录移至 `doc/README.md`，需求相对链接和协作约定已同步更新。
 - 2026-10-25 已将工作区同步到 `origin/main` 的 `fe368ed`；同步后无差异，随后按该版本架构建立 `doc/DEVELOPMENT_PLAN.md`，记录 TDD 工作流程，并按顺序列出工程基线、最小链路、领域模型、结构编辑、命令历史、SVG IO、CLI 和验收阶段。该文件是计划，不代表业务功能已实现。
@@ -42,6 +42,13 @@
 - 新增 `ChangeSetExecutor`：组合变更提交或恢复失败时尝试全部补偿动作，并用 `AggregateError` 同时保留提交错误和回滚错误。结构结果改为 `GroupCreatedResult`、`UngroupedResult`、`ShapeMovedIntoContainerResult`、`ShapeReorderedResult` 多态结果，不再使用可产生非法组合的通用结果数据袋。
 - 命令参数规格拆为六个 Builder，类型名映射仍只存在于 `CommandDispatcher`；数字解析独立。构建脚本现在先清理 `dist`，防止已删除模块的旧产物残留。
 - 架构修复后 `pnpm run check` 通过：23 个测试文件、58 个测试；构建产物确认 create redo 保持同一对象，旧 `ShapeTreeMutation.js` 不再生成。
+- 2026-10-25 已完成阶段 5：新增 `delete`、`move`、`scale`、`set`、`undo`、`redo` 命令及多态结果，Dispatcher、Executor、Main 和测试装配共享同一 `CommandHistory`。每条成功且有状态变化的编辑命令作为一个撤销单元，新编辑清空 redo。
+- 历史迁移采用“命令恢复成功后才移动栈元素”：undo/redo 结果失败或抛出异常时，文档、undo/redo 栈和屏障均保持操作前状态；IO 屏障后统一返回 `error: undo not allowed after io command`，空栈分别返回 `error: nothing to undo` / `error: nothing to redo`。
+- 阶段 5 首轮目标测试先因 `move`/`undo` 未知和缺少 `redoCount` 失败；实现后目标测试通过。全量回归曾发现统一变更基类丢失 `hasChanges` 导致边界重排误报，已将实际变更标志重新传入多态结果并再次通过回归。
+- 阶段 5 代码复查发现并修复：结果类型上编辑方向命名与 z-order 方向冲突；样式更新仍按属性名 `switch`；撤销历史取栈顶使用类型断言；未执行命令与快照取值缺少显式约束。现在样式通过类型化 `withFill`/`withStroke`/`withStrokeWidth` 修改，剩余 `switch` 仅处理命令类别、图形工厂规格类型和结果值自身枚举。
+- 阶段 5 架构复审进一步修正了四项结构债务：`CommandHistory` 改为 Dispatcher 的强制依赖，消除 Dispatcher 与 Executor 静默持有不同历史的可能；`CreateShapeCommand` 改由 `EditChangeSetCommand` 提供统一事务流程；Dispatcher 不再承载参数解析和具体命令构造，拆出文档、创建、图形编辑、结构编辑、历史和查询六个命令工厂；`ShapeAttributeUpdate` 与属性槽统一使用 `ShapeAttributeValueKind`，不再保留并行字符串协议。
+- 架构拆分后 `CommandDispatcher` 为 151 行，只负责定义表、名称查找和 help；最大命令工厂 82 行。新增源码守卫禁止 Dispatcher 默认构造历史、直接实例化具体编辑命令，并固定创建命令与属性种类的统一契约。
+- 阶段 5 最终 `pnpm run check` 通过：24 个测试文件、64 个测试，严格类型检查和生产构建成功。构建产物回放通过 Composite 移动与 undo、文本 set、子树 delete 与 undo/redo，输出与树状态一致。
 - exFAT 不支持符号链接，pnpm 项目配置使用 hoisted 布局；`.npmrc` 与 `pnpm-workspace.yaml` 中保留了该平台设置。
 
 ## 实际实现架构
@@ -49,12 +56,14 @@
 本节是实际实现架构的唯一演进记录。后续目录、职责和依赖调整只更新本节，不改写 `doc/README.md` 的原架构设计。
 
 - `src/cli/`：命令分词、REPL、结果排版和 CLI 语法错误。
-- `src/application/`：命令分发、串行执行、历史、会话和文档协调。
-- `src/application/commands/contracts/`：Command、UndoableCommand、ShapeSpecBuilder、命令类别、结果及结果 Visitor 契约。
-- `src/application/commands/results/`：Canvas、Shape、多态 Structure、Saved、Error、Help 和 Tree 语义结果；每类结构结果只允许合法字段组合。
+- `src/application/`：命令分发、串行执行、历史、会话和文档协调；`CommandDispatcher` 只维护集中名称定义表与 help，具体参数解释和构造由命令工厂承担。
+- `src/application/commands/contracts/`：Command、UndoableCommand、ShapeSpecBuilder、命令类别（含独立 History 类别）、结果及结果 Visitor 契约。
+- `src/application/commands/results/`：Canvas、Shape、编辑方向、多态 Structure、Saved、Error、Help 和 Tree 语义结果；每类结构结果只允许合法字段组合。
 - `src/application/commands/support/`：预期命令错误转换。
-- `src/application/commands/`：内置具体命令保持平铺；`TreeEditCommand` 为结构编辑提供共享的准备、提交和 undo/redo 契约；`specs/` 用六个 Builder 隔离参数规格，命令名到 Builder 的映射仍集中在 `CommandDispatcher`。
+- `src/application/commands/factories/`：按文档、创建、图形编辑、结构编辑、历史和查询拆分命令参数解析与构造；Dispatcher 注入的同一 `CommandHistory` 被强制传给历史命令工厂。
+- `src/application/commands/`：内置具体命令保持平铺；`EditChangeSetCommand` 为局部变更命令提供准备、提交、撤销、重做和失败反向恢复，`TreeEditCommand` 在此之上约束结构变更；`specs/` 用六个 Builder 隔离参数规格，命令名到 Builder 的映射仍集中在 `CommandDispatcher`。
 - `src/application/queries/`：六种图形的只读投影、组投影和访问者。
+- `src/application/queries/` 同时提供统一 `ShapeAnchorProjector`，只读投影图形位置摘要；展示文案仍只由 `OutputFormatter` 生成。
 - `src/application/ports/`：文档存储及端口错误。
 - `src/domain/document/`：`SvgDocument` 聚合根；私有 `ShapeTree` 维护根顺序、父级、children 与 id 索引；`ShapeStructurePlanner` 负责结构候选校验和 ChangeSet 规划。
 - `src/domain/shapes/`：`Shape`、`ContainerShape`/`Group`、六种叶子图形、不可变 `ShapeStyle`、`ShapeAttributeSlot`、类型化属性/几何快照和局部树变更。图形不暴露父级、子级或树对象写入口。
@@ -128,11 +137,20 @@
 - 组合 ChangeSet 的提交、恢复和内部补偿都必须尝试全部动作；回滚或补偿失败与原始异常一起通过 `AggregateError` 报告。
 - create redo 必须复用首次 ChangeSet 和同一 Shape 对象；结构命令继续复用共享 `TreeEditCommand` 记录。
 
+阶段 5 已固定的补充边界：
+
+- 任一依赖图形的编辑命令先要求当前文档存在；无文档时 `undo`/`redo` 与其他命令一样返回 `error: no document. use 'init' or 'read' first`，只有 `help` 例外。
+- `undo` 和 `redo` 成功后移动栈元素，不进入编辑历史；新编辑成功记录时清空 redo。查询不改变历史，IO 屏障在成功文档命令之后建立，下一次成功编辑解除屏障。
+- 空栈 undo/redo 分别返回 `error: nothing to undo` / `error: nothing to redo`；屏障期间两者统一返回 `error: undo not allowed after io command`。
+- `move 0 0`、`scale 1` 和 `set` 到相同值属于成功但不改变状态的操作，不制造空历史单元，也不清除已有 redo。
+- 撤销或重做恢复成功但结果构造失败时，命令先反向恢复状态再返回失败；未知异常由执行器统一输出 `error: command failed`，不泄漏实现信息。
+- `delete` 记录被删节点的类型和原父级，undo 在可能时显示恢复到的容器；移动/缩放通过 Visitor 投影位置，不在命令层拼接输出文案。
+
 ## 下一步建议顺序
 
-1. 进入 `doc/DEVELOPMENT_PLAN.md` 阶段 5：实现 `delete`、`move`、`scale`、`set`、`undo`、`redo` 命令及对应结果。
-2. 扩展 `CommandHistory` 的 undo/redo 转移与空栈、屏障行为，使每条编辑命令恰好一个历史单元；保持空结构变更不入栈。
-3. 完成阶段 6 的 SVG 读取与其余文档命令，再补阶段 7 的 `tree <id>`、`show` 和完整 CLI。
+1. 进入 `doc/DEVELOPMENT_PLAN.md` 阶段 6：实现 SVG 读取、缺 id 警告、候选文档校验和原子替换。
+2. 补齐无参数 `save` 的读取路径、`canvas` 查询/修改及文档命令的完整历史屏障验证。
+3. 进入阶段 7，补 `tree <id>`、`show` 和最终完整 CLI。
 4. 按 `doc/README.md` 验收矩阵回放完整场景并做浏览器预览，最后填写一致性自查；只有用户确认后才提交和推送。
 
 ## 维护规则

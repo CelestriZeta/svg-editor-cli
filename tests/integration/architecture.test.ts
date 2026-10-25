@@ -100,6 +100,7 @@ describe('architecture guards', () => {
       if (source.includes('switch (spec.type)')) {
         expect(basename(file)).toBe('ShapeFactory.ts');
       }
+      expect(source).not.toMatch(/switch\s*\(\s*(?:tag|name|type)\s*\)/);
       expect(source).not.toMatch(/\b(?:EditorApi|ShapeProvider|class\s+Box)\b/);
     }
     for (const file of commandFiles) {
@@ -112,6 +113,33 @@ describe('architecture guards', () => {
       const source = await readFile(file, 'utf8');
       expect(source).not.toMatch(/from\s+['"][^'"]*bootstrap/);
     }
+
+    const dispatcherSource = await readFile(
+      join(sourceRoot, 'application/CommandDispatcher.ts'),
+      'utf8'
+    );
+    expect(dispatcherSource).not.toMatch(
+      /history\s*=\s*new CommandHistory/
+    );
+    expect(dispatcherSource).not.toMatch(
+      /new (?:CreateShape|DeleteShape|MoveShape|ScaleShape|SetShapeAttribute|GroupShapes|UngroupShape|AddTo|FrontShape|BackShape|Undo|Redo|Tree)Command\s*\(/
+    );
+
+    const createCommandSource = await readFile(
+      join(sourceRoot, 'application/commands/CreateShapeCommand.ts'),
+      'utf8'
+    );
+    expect(createCommandSource).toMatch(
+      /class CreateShapeCommand extends EditChangeSetCommand/
+    );
+
+    const attributeUpdateSource = await readFile(
+      join(sourceRoot, 'domain/shapes/ShapeAttributeUpdate.ts'),
+      'utf8'
+    );
+    expect(attributeUpdateSource).toMatch(
+      /valueKind: ShapeAttributeValueKind/
+    );
   });
 
   it('[ARCH-11] contains no skipped or placeholder tests', async () => {

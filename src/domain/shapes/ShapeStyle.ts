@@ -1,5 +1,4 @@
 import { DomainError } from '../DomainError.js';
-import { ShapeAttributeValue } from './ShapeAttributeValue.js';
 
 export class ShapeStyle {
   readonly #fill: string | undefined;
@@ -43,32 +42,15 @@ export class ShapeStyle {
     return this.#strokeWidth;
   }
 
-  public withValue(
-    name: string,
-    value: ShapeAttributeValue
-  ): ShapeStyle | undefined {
-    switch (name) {
-      case 'fill':
-        return new ShapeStyle(
-          value.isAbsent ? undefined : value.textValue,
-          this.#stroke,
-          this.#strokeWidth
-        );
-      case 'stroke':
-        return new ShapeStyle(
-          this.#fill,
-          value.isAbsent ? undefined : value.textValue,
-          this.#strokeWidth
-        );
-      case 'stroke-width':
-        return new ShapeStyle(
-          this.#fill,
-          this.#stroke,
-          value.isAbsent ? undefined : value.numericValue
-        );
-      default:
-        return undefined;
-    }
+  public withFill(fill: string | undefined): ShapeStyle {
+    return new ShapeStyle(fill, this.#stroke, this.#strokeWidth);
   }
 
+  public withStroke(stroke: string | undefined): ShapeStyle {
+    return new ShapeStyle(this.#fill, stroke, this.#strokeWidth);
+  }
+
+  public withStrokeWidth(strokeWidth: number | undefined): ShapeStyle {
+    return new ShapeStyle(this.#fill, this.#stroke, strokeWidth);
+  }
 }

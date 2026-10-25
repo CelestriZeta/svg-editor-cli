@@ -1,4 +1,5 @@
 import type { CommandResultVisitor } from '../contracts/CommandResultVisitor.js';
+import { EditDirection } from './EditDirection.js';
 import { StructureChangedResult } from './StructureChangedResult.js';
 
 export class ShapeMovedIntoContainerResult extends StructureChangedResult {
@@ -6,9 +7,10 @@ export class ShapeMovedIntoContainerResult extends StructureChangedResult {
     shapeType: string,
     shapeId: string,
     private readonly targetContainerId: string,
-    changed: boolean
+    changed: boolean,
+    direction: EditDirection = EditDirection.Applied
   ) {
-    super(shapeType, shapeId, changed);
+    super(shapeType, shapeId, changed, direction);
   }
 
   public get containerId(): string {

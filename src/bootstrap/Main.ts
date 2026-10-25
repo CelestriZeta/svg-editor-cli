@@ -20,12 +20,14 @@ export class Main {
       session,
       new SvgDocumentStore(new SvgWriteVisitor())
     );
+    const history = new CommandHistory();
     const dispatcher = new CommandDispatcher(
       session,
       documents,
+      history,
       new DocumentViewVisitor()
     );
-    const executor = new CommandExecutor(new CommandHistory());
+    const executor = new CommandExecutor(history);
     const repl = new Repl(
       new CommandLineParser(),
       dispatcher,

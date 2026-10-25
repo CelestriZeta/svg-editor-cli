@@ -19,12 +19,13 @@ export class ApplicationHarness {
   public constructor(store: DocumentStore) {
     const session = new EditorSession();
     const documents = new DocumentService(session, store);
+    this.#history = new CommandHistory();
     const dispatcher = new CommandDispatcher(
       session,
       documents,
+      this.#history,
       new DocumentViewVisitor()
     );
-    this.#history = new CommandHistory();
     this.#executor = new CommandExecutor(this.#history);
     this.#formatter = new OutputFormatter(new TreeFormatter());
     this.#repl = new Repl(

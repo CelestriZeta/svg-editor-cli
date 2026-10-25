@@ -1,4 +1,5 @@
 import type { CommandResultVisitor } from '../contracts/CommandResultVisitor.js';
+import { EditDirection } from './EditDirection.js';
 import type { ReorderDirection } from './ReorderDirection.js';
 import { StructureChangedResult } from './StructureChangedResult.js';
 
@@ -7,9 +8,10 @@ export class ShapeReorderedResult extends StructureChangedResult {
     shapeType: string,
     shapeId: string,
     private readonly reorderDirection: ReorderDirection,
-    changed: boolean
+    changed: boolean,
+    direction: EditDirection = EditDirection.Applied
   ) {
-    super(shapeType, shapeId, changed);
+    super(shapeType, shapeId, changed, direction);
   }
 
   public get direction(): ReorderDirection {

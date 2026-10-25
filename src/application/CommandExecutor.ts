@@ -41,6 +41,7 @@ export class CommandExecutor {
         this.history.establishIoBarrier();
         break;
       case CommandCategory.Edit:
+      case CommandCategory.History:
       case CommandCategory.Query:
         break;
     }
