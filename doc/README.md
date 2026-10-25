@@ -2,7 +2,7 @@
 
 需求依据：[`phase_cli_1.md`](../phase_cli_1.md)。本文件按作业要求位于 `doc/README.md`，作为完整项目文档。
 
-当前阶段：已完成工程基线、需求边界固化及测试清单；业务功能尚未实现。下文“拟定”“计划”均不代表已完成；后续实现结果、验收记录与自查结论待取得实际证据后填写。
+当前阶段：已完成工程基线、需求边界固化、测试清单及阶段 2 最小纵向链路，并在阶段 2 代码审查后完成输入、命令、历史、结果、查询视图和目录粒度的架构收紧。阶段 2 已打通 `init -> create rect -> tree -> save`，其余六种图形、完整编辑、undo/redo 命令和 SVG 读取仍待后续阶段实现；最终一致性自查结论保持待填写。
 
 ## 1. 架构方案
 
@@ -10,7 +10,7 @@
 
 本阶段用 TypeScript 实现 CLI SVG 编辑器，支持 `rect`、`circle`、`ellipse`、`line`、`text`、`g` 六种图形，以及文档读写、图形编辑、查询和撤销重做。
 
-采用面向对象设计：字段封装、类层次与多态，一类一文件，文件名与类名一致。GUI、宿主集成、动态插件和 `box` 留待后续阶段。以下内容是设计方案，尚未实现。
+采用面向对象设计：字段封装、类层次与多态，一类一文件，文件名与类名一致。GUI、宿主集成、动态插件和 `box` 留待后续阶段。以下内容仍以完整目标架构描述；实际实现范围见当前阶段说明和验证记录。
 
 ### 1.2 模块职责
 
@@ -19,16 +19,24 @@
 | 目录 | 职责 | 主要对象 |
 |---|---|---|
 | `src/cli/` | 输入分词、委托命令创建与执行、结果排版 | Repl、CommandLineParser、OutputFormatter |
-| `src/application/` | 命令调度、会话、历史、文档操作及只读查询 | CommandDispatcher、CommandExecutor、EditorSession、CommandHistory、DocumentService、DocumentViewVisitor |
-| `src/application/commands/` | 命令契约和具体命令，保存参数及撤销记录 | Command、UndoableCommand、MoveCommand、GroupCommand 等 |
+| `src/application/` | 命令调度、执行、会话、历史和文档协调 | CommandDispatcher、CommandExecutor、EditorSession、CommandHistory、DocumentService |
+| `src/application/commands/` | 内置具体命令，保存参数及撤销行为 | InitCommand、CreateShapeCommand、TreeCommand、SaveCommand、HelpCommand |
+| `src/application/commands/contracts/` | Command、撤销、结果及结果 Visitor 契约 | Command、UndoableCommand、CommandCategory、CommandResult |
+| `src/application/commands/results/` | 语义化命令结果 | CanvasCreatedResult、ShapeCreatedResult、DocumentSavedResult、TreeResult |
+| `src/application/commands/support/` | 命令执行公共支持 | CommandExecutionGuard |
+| `src/application/queries/` | 只读查询投影和查询访问者 | DocumentViewVisitor、DocumentView、ShapeView、RectView |
 | `src/application/ports/` | 应用需要的外部读写接口 | DocumentStore |
-| `src/domain/` | 几何、样式、文档树、唯一 id 和局部变更 | SvgDocument、Shape、六种图形、ShapeFactory、ShapeVisitor、ChangeSet |
+| `src/domain/` | 几何、文档树、图形工厂及领域错误 | SvgDocument、ShapeFactory、DomainError |
+| `src/domain/document/` | 文档 id、顺序和树结构不变量 | SvgDocument |
+| `src/domain/shapes/` | 图形层次和 Composite 叶子/容器 | Shape、Rect、后续 Group 与其它图形 |
+| `src/domain/specs/` | 类型化的图形创建规格 | ShapeSpec、RectSpec |
+| `src/domain/visitor/` | 领域遍历契约 | ShapeVisitor |
 | `src/infrastructure/` | SVG 编解码和文件读写 | SvgReader、SvgWriteVisitor、SvgDocumentStore |
 | `src/bootstrap/` | 创建对象、注入依赖、注册命令、启动 CLI | Main |
 | `tests/` | 单元测试、IO 集成、CLI 回放和 SVG 样本 | |
 | `doc/` | 项目说明、工作记忆和验收记录 | |
 
-会话、历史、文档协调和查询访问者直接放在 application 下。Command、UndoableCommand 和命令结果类型放在 commands 中；CommandDescriptor 与分发器同目录，查询模型与访问者同目录，各类仍独立成文件。
+命令调度、执行、会话、历史和文档协调直接放在 application 下。具体命令与契约、结果、公共支持分开；查询模型与访问者集中在 queries；领域按 document、shapes、specs 和 visitor 分组。各生产类仍独立成文件，不使用 barrel 导出隐藏依赖。
 
 编辑命令直接以 SvgDocument 为接收者，查询命令委托 DocumentViewVisitor。DocumentService 负责初始化、读取、保存及画布调整的会话协调，通过 DocumentStore 使用 IO，不管理历史。TreeFormatter、ShowFormatter 放在 cli 中，只排版查询模型。
 
@@ -118,12 +126,12 @@ session -[hidden]down-> domain
 
 | 模式或手段 | 如何使用 | 主要取舍 | 实现证据 |
 |---|---|---|---|
-| Command | 每条请求封装为命令；执行器统一调用，历史保存可撤销命令 | 命令只转发，业务规则留在接收者中 | |
-| Composite | Shape 统一叶子与容器操作，Group 递归处理子节点 | 树的防环、父级和 id 约束仍须显式校验 | |
-| Visitor | accept 负责遍历，访问者负责查询投影和 SVG 输出 | 适合当前固定的六种类型；新增图形需要复评访问协议 | |
-| Adapter | SvgDocumentStore 实现 DocumentStore，封装文件 API 和 SVG 编解码 | 应用和领域不接触外部库类型 | |
-| Iterator | 用标准 Iterable 顺序访问子节点 | 隐藏可变集合，不另建遍历框架 | |
-| 集中创建 | CommandDispatcher 注册内置命令；ShapeFactory 创建图形 | 静态装配，不实现动态加载；图形创建属于简单工厂 | |
+| Command | 每条请求封装为命令；执行器统一调用，历史保存可撤销命令 | 命令只转发，业务规则留在接收者中 | 阶段 2：`InitCommand`、`CreateShapeCommand`、`TreeCommand`、`SaveCommand`；`UndoableCommand` 独立于普通 Command |
+| Composite | Shape 统一叶子与容器操作，Group 递归处理子节点 | 树的防环、父级和 id 约束仍须显式校验 | 阶段 2 仅有 `Rect` 和文档根；`Group` 与统一操作待阶段 3 |
+| Visitor | accept 负责遍历，访问者负责查询投影和 SVG 输出 | 适合当前固定的六种类型；新增图形需要复评访问协议 | 阶段 2：`Rect.accept` 连接 `DocumentViewVisitor` 与 `SvgWriteVisitor`；查询模型另由 `ShapeViewVisitor` 多态排版 |
+| Adapter | SvgDocumentStore 实现 DocumentStore，封装文件 API 和 SVG 编解码 | 应用和领域不接触外部库类型 | 阶段 2：`SvgDocumentStore` 隔离 Node.js 文件 API 与临时文件替换 |
+| Iterator | 用标准 Iterable 顺序访问子节点 | 隐藏可变集合，不另建遍历框架 | 阶段 2：`SvgDocument.children` 返回只读迭代入口 |
+| 集中创建 | CommandDispatcher 注册内置命令；ShapeFactory 创建图形 | 静态装配，不实现动态加载；图形创建属于简单工厂 | 阶段 2：命令描述表同时驱动分发与 help；图形工厂接收 `ShapeSpec`，不解析命令行 token |
 
 #### 图形与文档
 
@@ -203,11 +211,13 @@ read 先构造和校验候选文档，成功后再替换。save 先写同目录�
 | 模块或对象 | 允许依赖 |
 |---|---|
 | domain | 标准能力和本模块 |
-| commands 中的命令契约 | 标准能力及必要的内部结果类型 |
-| 具体命令 | 命令契约、SvgDocument、领域变更记录、DocumentService、DocumentViewVisitor |
+| commands/contracts | 标准能力及必要的内部结果契约 |
+| commands/results | 命令契约及只读查询结果 |
+| commands/support | 命令契约、结果、领域错误和端口错误 |
+| 具体命令 | 命令契约、结果、公共支持、领域和 DocumentService |
 | EditorSession、ports | domain |
 | DocumentService | EditorSession、ports、domain |
-| DocumentViewVisitor | domain 及其只读查询模型 |
+| queries | domain 及其只读查询模型 |
 | CommandHistory | Command / UndoableCommand 契约 |
 | CommandExecutor | 命令契约、CommandHistory |
 | CommandDispatcher | 命令创建器、EditorSession、DocumentService |
@@ -249,10 +259,11 @@ read 先构造和校验候选文档，成功后再替换。save 先写同目录�
 - **保存路径**：`read` 和成功带路径的 `save` 更新当前默认路径，后续无参数 `save` 使用该路径；`init` 清除默认路径。失败命令不更新路径。
 - **无文档命令**：`help` 不依赖文档，可在 `init` 或 `read` 前使用；其余命令在无文档时报 `error: no document. use 'init' or 'read' first`。
 - **元素计数**：不计根 `svg`，统计树中全部图形和 `g` 容器，包括嵌套节点；该规则用于消除需求示例中的计数差异。
+- **阶段 2 的最小画布与路径错误**：`init` 的宽高必须是正有限数，否则返回 `error: canvas width and height must be positive finite numbers`；`init` 后无参数 `save` 返回 `error: no file path; use 'save <file.svg>'`，会话保持不变。
 
 ## 2. 与 AI 协作的过程记录
 
-保留影响架构和交付的关键讨论。目前仅完成设计，尚无业务代码和测试结果。
+保留影响架构和交付的关键讨论。实现状态以“当前状态”和各阶段实际验证记录为准。
 
 | 日期 | 讨论与问题 | 决策 |
 |---|---|---|
@@ -262,6 +273,10 @@ read 先构造和校验候选文档，成功后再替换。save 先写同目录�
 | 2026-10-25 | 考虑新命令、GUI 和宿主集成时，AI 提前预留了统一 EditorApi | 用户明确当前不需要；保留命令、领域和 IO 分层，待实际新增入口后再提取接口，并说明当前不留的原因 |
 | 2026-10-25 | 应用层目录过细，编辑和查询 Service 主要是转发 | 压平单类目录，命令直接委托领域或访问者；保留文档读写协调、独立执行器、历史及存储接口，并同步依赖图 |
 | 2026-10-25 | 阶段一需要建立可验证的工程基线并固定实现边界 | 采用 Node.js 24、pnpm、TypeScript 严格模式和 Vitest；建立模块目录、冒烟测试及分层测试清单，并把跨父级 group、SVG 支持范围、文本缩放、路径和历史相关边界写入 1.9 |
+| 2026-10-25 | 初版测试清单只有功能方向，缺少参数级、精确错误、失败原子性和边界决策验证 | 按领域、变更记录、命令与历史、SVG IO、CLI 和端到端扩展为带 ID 的测试矩阵；统一加入 `FAIL-STATE` 断言，并明确本阶段不适用的复合图形与插件测试 |
+| 2026-10-25 | 阶段 2 需要验证分层是否真正可调用，而不是只建立空目录 | 先写 CLI 纵向链路和失败边界测试并确认因缺失模块失败，再实现最小 Command、查询 Visitor、文档、会话、历史、SVG 写入与 REPL；构图和编辑能力未提前展开 |
+| 2026-10-25 | 阶段 2 审查发现领域解析 CLI token、历史记录普通 Command、展示文案位于应用层、help 与分发重复、异常被重复兜底及 Rect 排版硬编码 | 改为 `RectSpec` 类型输入；拆分 `Command`/`UndoableCommand`；引入语义 Result；命令描述表单源；预期错误统一 Guard、未知错误保留 cause；新增 `ShapeViewVisitor`；测试按边界拆分 |
+| 2026-10-25 | 目录审查发现 commands 混合契约、结果和支持类型，查询模型挤在 application 根，领域文件将随六种图形膨胀，测试仍含阶段命名和低价值基线 | 建立 commands/contracts、results、support 和 application/queries；领域按 document/shapes/specs/visitor 分组；集成测试按失败状态、文档生命周期和 help 拆分；删除基线测试与 `.gitkeep` |
 
 ## 3. 实现后的一致性自查
 
@@ -288,19 +303,21 @@ read 先构造和校验候选文档，成功后再替换。save 先写同目录�
 
 ### 4.1 功能验收矩阵（计划）
 
+逐项测试设计见 [`tests/README.md`](../tests/README.md)。每个测试项均有唯一 ID、测试层级、前置条件、操作和预期结果；失败项统一使用 `FAIL-STATE` 检查完整状态不变。
+
 | 需求范围 | 计划验证内容 | 实际用例与执行结果 |
 |---|---|---|
-| REPL 与输入 | `svg>`、逐行回放、整行注释、保留颜色参数中的 `#`、双引号与含空格文本、浮点数、统一错误前缀与成功摘要 | |
-| 文档命令 | `init` 默认/指定尺寸，`read`，`save` 指定/沿用路径，`canvas` 查询/修改，无文档错误，文件读写失败 | |
-| 六种图形 | 全部创建参数、默认样式属性省略、唯一且大小写敏感的 id、未知类型（包括 `box`）、`in` 成功及两种目标错误 | |
+| REPL 与输入 | `svg>`、逐行回放、整行注释、保留颜色参数中的 `#`、双引号与含空格文本、浮点数、统一错误前缀与成功摘要 | 阶段 2：分词、注释、颜色和带空格路径测试通过；构建产物回放通过；`svg>` 提示符待 CLI 阶段 |
+| 文档命令 | `init` 默认/指定尺寸，`read`，`save` 指定/沿用路径，`canvas` 查询/修改，无文档错误，文件读写失败 | 阶段 2：`init` 默认/指定/非法尺寸、`save` 显式/沿用/无路径及写入失败通过；`read`、`canvas` 未实现 |
+| 六种图形 | 全部创建参数、默认样式属性省略、唯一且大小写敏感的 id、未知类型（包括 `box`）、`in` 成功及两种目标错误 | 阶段 2：`rect` 创建、可选 `fill`、重复 id 和未知类型通过；其余五种图形与 `in` 待阶段 3、4 |
 | 编辑与属性 | `delete`、`move`、`scale`、`set` 的叶子与容器行为，白名单、文本、非正缩放及非法参数 | |
 | 树结构 | `group`、`ungroup`、`addto`、`front`、`back`；祖先冲突、防环、子树删除、同级顺序、根级解组拒绝 | |
 | 显示 | `tree` 全文档/子树、内联几何属性、`show` 的父级与属性、`help` 覆盖全部命令与语法 | |
-| 撤销重做 | 每条编辑一个单元、复杂树修改完整恢复、新编辑清 redo、显示不入栈、文档操作屏障、失败无副作用 | |
-| SVG 读写 | 缺 id 警告与碰撞规避、重复 id、XML 转义、命名空间、保存再读语义等价、失败不替换当前文档 | |
+| 撤销重做 | 每条编辑一个单元、复杂树修改完整恢复、新编辑清 redo、显示不入栈、文档操作屏障、失败无副作用 | 阶段 2：编辑入栈计数、文档操作屏障、失败不变及 `CreateShapeCommand` 的 undo/redo 契约通过；CLI undo/redo 命令待阶段 5 |
+| SVG 读写 | 缺 id 警告与碰撞规避、重复 id、XML 转义、命名空间、保存再读语义等价、失败不替换当前文档 | 阶段 2：矩形 SVG 写入、命名空间、可选样式省略路径和写入失败保持会话通过；读取与 round-trip 待阶段 6 |
 | 完整场景 | 需求第 6 节典型会话与 6.1 版本 A 流程图，保存后浏览器预览；版本 B 不在本阶段验收 | |
 
-功能完整性结论：
+功能完整性结论：阶段 2 最小纵向链路完整可用，可以通过构建产物执行 `init`、`create rect`、`tree` 和 `save`；完整 Phase 1 功能尚未完成，不据此作最终验收结论。
 
 ### 4.2 质量保证计划
 
@@ -326,5 +343,15 @@ read 先构造和校验候选文档，成功后再替换。save 先写同目录�
 | 2026-10-25 | `pnpm run test`（实现 `Main` 前） | 预期失败 | 测试报 `Cannot find module '../src/bootstrap/Main.js'`，确认冒烟测试先于实现失败 |
 | 2026-10-25 | `pnpm run check` | 通过 | 严格类型检查通过；1 个工程冒烟测试通过；TypeScript 构建成功。没有业务测试 |
 | 2026-10-25 | `pnpm run start` | 通过 | `node dist/bootstrap/Main.js` 退出码为 0；启动类当前不包含业务功能 |
+| 2026-10-25 | `pnpm exec vitest run tests/stage2.test.ts`（实现前） | 预期失败 | 报 `Cannot find module '../src/application/CommandDispatcher.js'`，确认阶段 2 测试先于生产实现 |
+| 2026-10-25 | `pnpm exec vitest run tests/stage2.test.ts` | 通过 | 4 个阶段 2 测试通过，覆盖最小链路、分词、失败不变和文档替换 |
+| 2026-10-25 | `pnpm run build`（首次） | 失败后修正 | 生产构建缺少显式 Node 类型；在 `tsconfig.json` 加入 `"types": ["node"]` 后通过 |
+| 2026-10-25 | `pnpm run check` | 通过 | 严格类型检查、2 个测试文件共 5 个测试、生产构建全部通过 |
+| 2026-10-25 | `pnpm run start`（管道回放） | 通过 | `entry.js` 依次输出启动提示、画布、矩形、树和帮助，进程正常退出 |
+| 2026-10-25 | `create rect empty "" 0 10 10`（架构审查复现） | 失败已确认 | 修复前输出 `rect#empty created`，证明空字符串被 `Number('')` 静默转换为 0；修复后由分发层拒绝 |
+| 2026-10-25 | `pnpm run typecheck`、`pnpm run test`（架构修复后） | 通过 | 严格类型检查通过；7 个测试文件、11 个测试通过，覆盖 undo/redo 契约、未知异常不泄漏、真实写入失败和描述表 help |
+| 2026-10-25 | `pnpm run check`、`pnpm run start`（架构修复后） | 通过 | 类型检查、7 个测试文件共 11 个测试和构建通过；CLI 回放拒绝空/十六进制数字，tree 与描述表 help 输出正确 |
+| 2026-10-25 | `pnpm run typecheck`、`pnpm run test`（目录重整后） | 通过 | 严格类型检查通过；8 个测试文件、10 个测试通过；旧路径、`.gitkeep`、阶段命名测试与基线测试均无残留 |
+| 2026-10-25 | `pnpm run check`、`pnpm run start`（目录重整后） | 通过 | 类型检查、8 个测试文件共 10 个测试和生产构建通过；构建产物正常回放 init/create/tree/help |
 
-代码质量结论：
+代码质量结论：阶段 2 已完成针对架构气味和目录粒度的实质重构。领域不再消费 CLI token，历史契约只接收可撤销命令，命令结果与终端排版分离，预期错误和未知故障的边界明确，查询模型通过 Visitor 扩展；目录按职责拆分后单目录最多 6 个文件。完整阶段 3 至 7 功能尚未实现，当前结论仍仅限阶段 2。
