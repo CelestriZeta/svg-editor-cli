@@ -19,6 +19,7 @@ describe('course acceptance through the production CLI', () => {
   beforeAll(() => {
     execFileSync(process.execPath, ['scripts/clean.mjs'], { cwd: root });
     execFileSync(process.execPath, ['node_modules/typescript/bin/tsc', '-p', 'tsconfig.build.json'], { cwd: root });
+    execFileSync(process.execPath, ['scripts/copy-plugin-manifests.mjs'], { cwd: root });
   });
 
   beforeEach(async () => {
@@ -29,8 +30,8 @@ describe('course acceptance through the production CLI', () => {
     await directory.dispose();
   });
 
-  function replay(input: string): string {
-    const result = spawnSync(process.execPath, [entry], {
+  function replay(input: string, args: readonly string[] = ['--config', fileURLToPath(new URL('no-plugins.json', fixtures))]): string {
+    const result = spawnSync(process.execPath, [entry, ...args], {
       cwd: directory.path, input, encoding: 'utf8', timeout: 10_000
     });
     expect(result.error).toBeUndefined();

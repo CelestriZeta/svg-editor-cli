@@ -631,3 +631,9 @@ metrics 脚本 scripts/metrics.mjs 从两个 Git ref 取源码，以 TypeScript 
 ### 16.1 box 配置接入（第 11 步 B）
 
 plugins.config.json 添加 ./dist/plugins/shape-box，已有运行源码不变，使用已安装的同一插件。代码装配与配置装配声明相同四类贡献并经同一事务。纯命令输入保存在 [box 会话](transcript/box.txt)及 [新增命令会话](transcript/plugins.txt)，期望 stdout 和 SVG 在最终双装配回放后单独存档。此提交只改配置及允许的文档/会话，故已有内核、加载器和插件源码差异为零。
+
+## 17. 标签完成（第 12 步）
+
+modified-star 独立包通过代码和配置装配接入，与 box-type-label 并存。按内容比较、祖先传播、保存/读入/新建、失败保存及标签顺序见 [ADR-010](adr/010-dirty-content-and-label-order.md)。本次只新增插件并改顶层装配/配置，不改内核、渲染器或旧插件。独立状态机和共存测试 3 项、架构 9 项与类型检查通过。自查将递归指纹改成先构建嵌套值再一次 JSON 编码，避免重复编码子字符串造成逃逸膨胀；未宣称极深树已优化。
+
+最终全量检查：CLI 44 文件/192 项、扩展 3 文件/21 项，两部分类型及构建通过。首轮完整回归发现旧 E2E 默认运行已装可选插件而改变 tree/box 预期；改为显式 --config 空清单，原基线预期内容不变，再次完整通过。
