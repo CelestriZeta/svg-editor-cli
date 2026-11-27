@@ -4,7 +4,7 @@
 
 ## 1. 当前范围与架构
 
-已实现第一部分 VSCode 插件实践。CLI 第 3 步已提交为 6a1e77c；当前完成第 4 步查询与 SVG 读写扩展，等待用户检查，详见第 9 节。命令、创建、查询与 SVG 编解码消费注册能力；复合创建与结构保护、属性处理和树标签留待后续节点。第 6—8 节保留各步当时的实现与验证状态。
+已实现第一部分 VSCode 插件实践。CLI 第 4 步已提交为 200803d；当前完成第 5 步完整候选子树与复合结构约束，等待用户检查，详见第 10 节。命令、创建、查询和 SVG 编解码已接入扩展；属性处理、树标签与装配加载仍按后续节点推进。第 6—9 节保留各步当时的实现与验证状态。
 
 | 目录或类 | 实际职责 |
 |---|---|
@@ -512,3 +512,76 @@ api --> domain
 证据：[完整检查](cli/evidence/step-04-check.txt)、[final 字节比较](cli/evidence/step-04-baseline.txt)。临时目录在核对真实路径及专用前缀后清理。未重新运行 GUI、VSIX、依赖审计、跨平台或极深树性能测试。
 
 停下供用户检查并提交后，再做第 5 步候选子树、整树 id 校验与复合结构约束；其余插件、配置装配、最终指标仍按后续节点推进。
+
+## 10. CLI 重构第 5 步：完整候选子树与复合结构约束
+
+本步从干净的 200803d 继续，只实现通用结构基础；guarded 是具有一个必要矩形部件的测试类型，不是 box。没有暂存、提交、推送或操作标签。
+
+### 10.1 当前模块与调用链
+
+| 对象 | 实际职责及调用位置 |
+|---|---|
+| [ShapeSpec](../src/domain/specs/ShapeSpec.ts) / [ShapeSpecWithChildren](../src/domain/specs/ShapeSpecWithChildren.ts) | 叶子默认空子规格；组合规格复制并冻结 children，委托原规格构造，不修改源规格 |
+| [ShapeFactory.createSubtree](../src/domain/ShapeFactory.ts) / [ShapeSubtree](../src/domain/document/ShapeSubtree.ts) | 私有候选内构造全部节点，检查内部重复 id、非法子规格和叶子拥有后代等错误 |
+| [ShapeRelationsBinding](../src/domain/document/ShapeRelationsBinding.ts) | 图形只持有只读门面，安装后转向活动树，释放对创建候选关系的绑定 |
+| [ShapeStructureCandidate](../src/domain/document/ShapeStructureCandidate.ts) | 复制结构关系、引用和顺序，预演插入/删除/重挂接，最终检查仍存在的全部容器策略 |
+| [ShapeStructureChangeSet](../src/domain/document/ShapeStructureChangeSet.ts) | 准备、apply、revert 分别预演完整操作；校验通过后调用原局部变更与逆序补偿 |
+| ShapeStructurePlanner / ShapeTree | 所有公开结构准备操作返回可预演的集合；adoptSubtree 预先收集并校验完整子树，再整体安装索引及父子关系 |
+| [ContainerShape](../src/domain/shapes/ContainerShape.ts) / Group | validateStructure 接收最终候选关系；默认 assertCanUngroup 拒绝复合解组，普通 Group 显式允许 |
+| [DecodedSvgElement](../src/infrastructure/DecodedSvgElement.ts) | 以实际 SVG 后代组合规格（包括空列表），完整装配后运行导入检查，不从 CLI 模板伪造缺失部件 |
+
+创建流程为：规格树 → 未发布的节点树 → 包含目标父级的完整结构预演 → 全局 id/容器约束检查 → 一次局部插入。一次 create 仍是一个 undo 单元；undo 删除整棵子树，redo 复用首次对象。首次安装后插入变更释放暂存子树，后续重接沿用已保留关系，避免以初始副本覆盖后代。
+
+### 10.2 结构策略、缺省与失败契约
+
+容器通过 validateStructure(ShapeRelations) 定义必要部件、类型、顺序或父级等约束。策略须同步、只读且确定性，并通过传入关系查询最终状态，不能以当前对象的 parent/children 代替未提交的候选状态。普通 Group 的结构策略为空，Phase 1 行为保留；其他容器默认拒绝解组，可显式重写能力。
+
+结构命令先预演完整最终结果，再统一校验：删除、addto、group、ungroup、front/back 均经过同一路径。必要部件被删除、移走或包进新组时可由策略拒绝；整体删除复合对象则不校验已移除容器。合法中间态不触发策略，分组暂时创建空容器、撤销的中间迁移及失败补偿均可完成。
+
+内部/外部任意层级 id 冲突在发布前拒绝；准备后新增冲突仍在 apply 前拒绝。构造、策略或预演失败不改变活动树与历史；局部写入过程中抛错仍按原机制逆序补偿。解组重新检查能力、父级、位置及子节点身份/顺序，过期计划报 container structure changed: id，避免漏掉新增部件。
+
+候选、绑定器和树写接口属于内部实现，插件公开的是领域规格、容器多态和只读 ShapeRelations；架构守卫已禁止插件导入新增内部类。候选验证只复制关系和对象引用，不复制图形/属性，也不保存整份快照到历史；当前关系复制为 O(n) 空间开销，未测量或预写最终 Git 指标。实际决策见 [ADR-006](adr/006-complete-subtrees-and-structure-validation.md)。
+
+### 10.3 SVG 与依赖变化
+
+原来的逐节点导入会让必要部件尚未接入时触发不完整容器校验，因此改为先解码整个规格树，再一次装配并检查。实际 SVG 子节点覆盖创建模板，即使为空也覆盖；已安装类型缺少必要部件时拒绝整份读回，不能用 CLI 默认部件补齐。原 DocumentService 仍只在候选文档完全成功后替换会话，错误读回保留原文档、路径与历史。
+
+```plantuml
+@startuml
+component "provider / 公开 ShapeSpec" as spec
+component "ShapeSubtree / 只读关系绑定" as subtree
+component "ShapeStructurePlanner" as planner
+component "ShapeStructureChangeSet / Candidate" as candidate
+component "ContainerShape.validateStructure" as policy
+component "ShapeTree / 局部变更" as tree
+component "SVG 解码适配器" as svg
+svg --> spec
+spec --> subtree
+planner --> subtree
+planner --> candidate
+candidate --> policy
+candidate --> tree : 预演成功后提交或恢复
+subtree --> tree : 完整安装
+@enduml
+```
+
+领域层仍不依赖终端、文件系统或 XML；应用命令、provider 接口、六种内置图形行为和格式器未增加复合类型名分支。属性传播与正式 box 部件语义尚未实现。
+
+### 10.4 实际过程、自查与验证
+
+先写候选子树测试，实际因 ShapeSpecWithChildren 缺失失败。初次迁移遗漏部分旧集合构造调用，类型和结构回归发现后补齐；3 文件/19 项通过，完整 SVG 装配后 5 文件/29 项通过。后续自查处理了：策略不应在未挂接根上提前检查父级；绑定器安装后不应继续持有创建候选；重做不应以旧子树副本覆盖保留后代。新增用例分别验证最终父级、身份保持、补偿及历史失败原子性。
+
+过期解组的回归实际先失败：准备后新增子节点时旧操作未拒绝。增加源结构重检后通过，并补父级/顺序变化及分组临时空容器用例。测试类各自封装，不将 guarded 追述为 box 实现。
+
+架构自查覆盖类与字段、职责、依赖、多态分派、Command/Composite、领域输入、展示、异常原子性、扩展与测试组织。未引入临时公共数据袋或按复合名字分支；历史仍使用局部变更，整个结构操作在校验后提交，内部写操作不执行插件策略。
+
+| 实际执行 | 结果 |
+|---|---|
+| pnpm run check | CLI 37 文件/168 测试，扩展 3 文件/21 测试通过，两部分类型检查与构建通过 |
+| 新增 composite-subtree / composite-import | 17 项领域测试、3 项导入测试，共 20 项；含真实读回失败、默认保存路径和 redo 保持 |
+| 当前构建产物对照 final | 7 个样本未变、两份 stdout 和两份 SVG 字节一致，共 11 项，不规范化换行 |
+| 文档链接、文本格式与 git diff --check | 9 份文档的 94 个本地路径及代码块、29 个本步文本的 UTF-8/LF/末尾换行检查通过；diff 检查通过，索引无差异 |
+
+证据：[完整检查](cli/evidence/step-05-check.txt)、[final 字节比较](cli/evidence/step-05-baseline.txt)。临时目录在核对真实路径及专用前缀后清理；没有重跑 GUI、VSIX、依赖审计或极深树性能检查。
+
+本步停下供用户检查并提交；下一步为 AttributeHandler 的选择、默认回退、冲突与事务接线。后续仍需标签、双装配、正式插件及最终指标，未创建 p2 标签。

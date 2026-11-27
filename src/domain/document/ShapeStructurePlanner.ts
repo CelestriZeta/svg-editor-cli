@@ -1,7 +1,6 @@
 import { DomainError } from '../DomainError.js';
 import { ShapeFactory } from '../ShapeFactory.js';
 import { ContainerShape } from '../shapes/ContainerShape.js';
-import { Group } from '../shapes/Group.js';
 import type { Shape } from '../shapes/Shape.js';
 import { ShapeDissolutionChange } from '../shapes/ShapeDissolutionChange.js';
 import { ShapeInsertionChange } from '../shapes/ShapeInsertionChange.js';
@@ -9,7 +8,8 @@ import { ShapeLocation } from '../shapes/ShapeLocation.js';
 import { ShapeRelocationChange } from '../shapes/ShapeRelocationChange.js';
 import { ShapeRemovalChange } from '../shapes/ShapeRemovalChange.js';
 import type { ShapeTreeChange } from '../shapes/ShapeTreeChange.js';
-import { CompositeChangeSet } from '../CompositeChangeSet.js';
+import type { CompositeChangeSet } from '../CompositeChangeSet.js';
+import { ShapeStructureChangeSet } from './ShapeStructureChangeSet.js';
 import type { ShapeSpec } from '../specs/ShapeSpec.js';
 import { GroupSpec } from '../specs/GroupSpec.js';
 import type { ShapeTree } from './ShapeTree.js';
@@ -25,13 +25,15 @@ export class ShapeStructurePlanner {
     spec: ShapeSpec,
     parent?: ContainerShape
   ): CompositeChangeSet<ShapeTreeChange> {
-    const shape = this.shapeFactory.create(spec, this.tree);
-    return this.prepareInsertion(shape, parent, this.childCount(parent));
+    const subtree = this.shapeFactory.createSubtree(spec, this.tree);
+    return new ShapeStructureChangeSet(this.tree, [
+      new ShapeInsertionChange(this.tree, subtree.root, new ShapeLocation(parent, this.childCount(parent)), subtree)
+    ]);
   }
 
   public prepareDelete(id: string): CompositeChangeSet<ShapeTreeChange> {
     const shape = this.requireShape(id);
-    return new CompositeChangeSet([
+    return new ShapeStructureChangeSet(this.tree, [
       new ShapeRemovalChange(this.tree, shape, this.locationOf(shape))
     ]);
   }
@@ -66,7 +68,8 @@ export class ShapeStructurePlanner {
       );
     }
 
-    const group = this.shapeFactory.create(groupSpec, this.tree) as Group;
+    const group = this.shapeFactory.create(groupSpec, this.tree);
+    if (!(group instanceof ContainerShape)) throw new DomainError(`not a container: ${group.id}`);
     // 跨父级分组挂到最近公共祖先末尾，组内顺序遵循命令给出的 id 顺序。
     const parent = this.commonAncestor(targets);
     const changes: ShapeTreeChange[] = [
@@ -86,7 +89,7 @@ export class ShapeStructurePlanner {
         )
       );
     });
-    return new CompositeChangeSet(changes);
+    return new ShapeStructureChangeSet(this.tree, changes);
   }
 
   public prepareUngroup(groupId: string): CompositeChangeSet<ShapeTreeChange> {
@@ -94,16 +97,17 @@ export class ShapeStructurePlanner {
     if (shape === undefined) {
       throw new DomainError(`no such shape: ${groupId}`);
     }
-    if (!(shape instanceof Group)) {
+    if (!(shape instanceof ContainerShape)) {
       throw new DomainError(`not a container: ${groupId}`);
     }
 
+    shape.assertCanUngroup();
     const parent = shape.parent;
     if (parent === undefined) {
       throw new DomainError(`cannot ungroup top-level container: ${groupId}`);
     }
 
-    return new CompositeChangeSet([
+    return new ShapeStructureChangeSet(this.tree, [
       new ShapeDissolutionChange(
         this.tree,
         shape,
@@ -137,12 +141,12 @@ export class ShapeStructurePlanner {
     const beforeIndex = before.index;
     const currentCount = this.childCount(container);
     if (beforeParent === container && beforeIndex === currentCount - 1) {
-      return new CompositeChangeSet();
+      return new ShapeStructureChangeSet(this.tree, );
     }
 
     const destinationIndex =
       beforeParent === container ? currentCount - 1 : currentCount;
-    return new CompositeChangeSet([
+    return new ShapeStructureChangeSet(this.tree, [
       new ShapeRelocationChange(
         this.tree,
         shape,
@@ -171,26 +175,16 @@ export class ShapeStructurePlanner {
     const count = this.childCount(parent);
     const destinationIndex = direction === 'front' ? count - 1 : 0;
     if (beforeIndex === destinationIndex) {
-      return new CompositeChangeSet();
+      return new ShapeStructureChangeSet(this.tree, );
     }
 
-    return new CompositeChangeSet([
+    return new ShapeStructureChangeSet(this.tree, [
       new ShapeRelocationChange(
         this.tree,
         shape,
         new ShapeLocation(parent, beforeIndex),
         new ShapeLocation(parent, destinationIndex)
       )
-    ]);
-  }
-
-  private prepareInsertion(
-    shape: Shape,
-    parent: ContainerShape | undefined,
-    index: number
-  ): CompositeChangeSet<ShapeTreeChange> {
-    return new CompositeChangeSet([
-      new ShapeInsertionChange(this.tree, shape, new ShapeLocation(parent, index))
     ]);
   }
 

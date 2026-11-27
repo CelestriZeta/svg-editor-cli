@@ -26,4 +26,8 @@ export abstract class ShapeSpec {
 
   public abstract readonly type: string;
   public abstract create(relations: ShapeRelations): Shape;
+
+  public get children(): readonly ShapeSpec[] {
+    return Object.freeze([]);
+  }
 }

@@ -1,7 +1,8 @@
 import { DomainError } from '../DomainError.js';
-import type { ContainerShape } from '../shapes/ContainerShape.js';
 import type { Shape } from '../shapes/Shape.js';
 import { ShapeCollector } from '../visitor/ShapeCollector.js';
+import { ContainerShape } from '../shapes/ContainerShape.js';
+import type { ShapeSubtree } from './ShapeSubtree.js';
 
 export class ShapeTree {
   readonly #rootChildren: Shape[] = [];
@@ -54,6 +55,29 @@ export class ShapeTree {
     for (const node of subtree) {
       this.#shapesById.set(node.id, node);
     }
+  }
+
+  public adoptSubtree(subtree: ShapeSubtree, parent: ContainerShape | undefined, index: number): void {
+    this.assertContainerBelongsToTree(parent);
+    const nodes = subtree.nodes;
+    this.validateAvailableIds(nodes);
+    if (this.#parents.has(subtree.root)) throw new DomainError(`shape already has a parent: ${subtree.root.id}`);
+    const count = parent === undefined ? this.#rootChildren.length : [...this.childrenOf(parent)].length;
+    this.requireValidIndex(index, count);
+    const children = new Map<ContainerShape, Shape[]>();
+    const parents = new Map<Shape, ContainerShape | undefined>();
+    for (const node of nodes) {
+      parents.set(node, subtree.parentOf(node));
+      if (node instanceof ContainerShape) children.set(node, [...subtree.childrenOf(node)]);
+    }
+    // 所有校验与关系收集先完成；随后整体发布，不调用 provider 或结构校验钩子。
+    this.insert(subtree.root, parent, index);
+    for (const node of nodes) {
+      this.#shapesById.set(node.id, node);
+      if (node !== subtree.root) this.#parents.set(node, parents.get(node));
+    }
+    for (const [container, members] of children) this.#childrenByContainer.set(container, members);
+    subtree.connect();
   }
 
   public disown(shape: Shape): void {

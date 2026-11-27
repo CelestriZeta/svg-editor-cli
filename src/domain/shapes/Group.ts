@@ -14,4 +14,6 @@ export class Group extends ContainerShape {
 
   public override readonly type = 'g';
 
+  public override assertCanUngroup(): void {}
+
 }

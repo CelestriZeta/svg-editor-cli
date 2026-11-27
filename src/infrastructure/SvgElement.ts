@@ -1,4 +1,4 @@
-import { ContainerShape } from '../domain/shapes/ContainerShape.js';
+import type { ContainerShape } from '../domain/shapes/ContainerShape.js';
 import type { SvgDocument } from '../domain/document/SvgDocument.js';
 import { DomainError } from '../domain/DomainError.js';
 import { ShapeSpec } from '../domain/specs/ShapeSpec.js';
@@ -7,6 +7,7 @@ import { SvgContentKind } from '../application/ports/SvgContentKind.js';
 import type { MissingIdAllocator } from './MissingIdAllocator.js';
 import type { SvgAttributes } from './SvgAttributes.js';
 import { SvgShapeInputValue } from './SvgShapeInputValue.js';
+import { DecodedSvgElement } from './DecodedSvgElement.js';
 
 export class SvgElement {
   readonly #children: SvgElement[] = [];
@@ -35,18 +36,15 @@ export class SvgElement {
     else if (text.trim().length > 0) throw new DomainError('text content is not supported outside text elements');
   }
   public appendTo(document: SvgDocument, parent: ContainerShape | undefined, ids: MissingIdAllocator): void {
+    this.decode(ids).appendTo(document, parent);
+  }
+
+  private decode(ids: MissingIdAllocator): DecodedSvgElement {
     const id = ids.resolve(this.#id, this.tag);
     const spec = this.provider.decode(new SvgShapeInputValue(id, this.#text, this.attributes));
     if (!(spec instanceof ShapeSpec) || spec.id !== id || spec.type !== this.provider.name) {
       throw new DomainError('invalid imported shape specification: ' + this.provider.name);
     }
-    const shape = document.createShape(spec, parent);
-    if ((this.provider.content === SvgContentKind.Children) !== (shape instanceof ContainerShape)) {
-      throw new DomainError('invalid imported shape structure: ' + this.provider.name);
-    }
-    if (shape instanceof ContainerShape) {
-      for (const child of this.#children) child.appendTo(document, shape, ids);
-    }
-    this.provider.validateImported(shape);
+    return new DecodedSvgElement(spec, this.provider, this.#children.map((child) => child.decode(ids)));
   }
 }

@@ -250,7 +250,7 @@ describe('architecture guards', () => {
           )).toBe(true);
         } else {
           expect(relative.startsWith('domain/')).toBe(true);
-          expect(relative).not.toMatch(/domain\/(?:document\/(?:ShapeTree|ShapeStructurePlanner)|ShapeFactory)\.ts/);
+          expect(relative).not.toMatch(/domain\/(?:document\/(?:ShapeTree|ShapeStructurePlanner|ShapeStructureCandidate|ShapeStructureChangeSet|ShapeSubtree|ShapeRelationsBinding)|ShapeFactory)\.ts/);
         }
       }
     }
@@ -268,7 +268,8 @@ describe('architecture guards', () => {
     const targets = [
       'domain/visitor/ShapeVisitor.ts', 'domain/visitor/ShapeCollector.ts',
       'application/queries/DocumentViewVisitor.ts', 'infrastructure/SvgWriteVisitor.ts',
-      'infrastructure/SvgReader.ts', 'infrastructure/SvgElementFactory.ts', 'infrastructure/SvgElement.ts'
+      'infrastructure/SvgReader.ts', 'infrastructure/SvgElementFactory.ts', 'infrastructure/SvgElement.ts',
+      'infrastructure/DecodedSvgElement.ts'
     ];
     for (const target of targets) {
       const source = await readFile(join(sourceRoot, target), 'utf8');

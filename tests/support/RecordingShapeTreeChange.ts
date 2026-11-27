@@ -17,4 +17,6 @@ export class RecordingShapeTreeChange extends ShapeTreeChange {
   public revert(): void {
     this.onRevert();
   }
+
+  public preview(): void {}
 }

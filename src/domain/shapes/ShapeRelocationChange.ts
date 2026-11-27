@@ -2,6 +2,7 @@ import type { ShapeTree } from '../document/ShapeTree.js';
 import type { Shape } from './Shape.js';
 import type { ShapeLocation } from './ShapeLocation.js';
 import { ShapeTreeChange } from './ShapeTreeChange.js';
+import type { ShapeStructureCandidate } from '../document/ShapeStructureCandidate.js';
 
 export class ShapeRelocationChange extends ShapeTreeChange {
   public override readonly hasChanges = true;
@@ -29,5 +30,10 @@ export class ShapeRelocationChange extends ShapeTreeChange {
       this.before.parent,
       this.before.index
     );
+  }
+
+  public preview(candidate: ShapeStructureCandidate, direction: 'apply' | 'revert'): void {
+    const target = direction === 'apply' ? this.after : this.before;
+    candidate.relocate(this.shape, target.parent, target.index);
   }
 }
