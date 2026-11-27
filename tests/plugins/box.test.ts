@@ -1,0 +1,23 @@
+import { expect,it } from 'vitest';
+import { BoxPlugin } from '../../src/plugins/shape-box/BoxPlugin.js';
+import type { ShapeProvider } from '../../src/application/extensions/ShapeProvider.js';
+import type { AttributeHandler } from '../../src/application/extensions/AttributeHandler.js';
+import type { TreeDecorator } from '../../src/application/extensions/TreeDecorator.js';
+import { SvgDocument } from '../../src/domain/document/SvgDocument.js';
+import { ShapeSnapshot } from '../../src/application/queries/ShapeSnapshot.js';
+import { ShapeReference } from '../../src/application/queries/ShapeReference.js';
+import { GeometrySnapshot } from '../../src/application/queries/GeometrySnapshot.js';
+import { DocumentView } from '../../src/application/queries/DocumentView.js';
+import { TreeLineContext } from '../../src/application/extensions/TreeLineContext.js';
+it('box registers all contributions and edits real parts without another plugin',()=>{
+  const shapes:ShapeProvider[]=[],attributes:AttributeHandler[]=[],decorators:TreeDecorator[]=[];
+  new BoxPlugin().activate({registerShape:p=>shapes.push(p),registerAttribute:h=>attributes.push(h),registerDecorator:d=>decorators.push(d),registerCommand:()=>{throw Error('unexpected');}});
+  const doc=new SvgDocument(10,10);doc.createShape(shapes[0]!.createSpec('n',['0','0','4','4','title']));
+  const target=new ShapeSnapshot(new ShapeReference('g','n'),GeometrySnapshot.empty(),undefined,undefined,undefined,undefined,[],'box',true);
+  const handler=attributes[0]!;expect(handler.handles(target,'label')).toBe(true);
+  const change=handler.prepare(target,'label','edited',{prepareSet:(id,update)=>doc.requireShape(id).prepareSet(update),readAttribute:(id,attr)=>doc.requireShape(id).attributeValue(attr)});
+  change.changeSet.apply();expect(change.readValue().textValue).toBe('edited');
+  change.changeSet.revert();expect(change.readValue().textValue).toBe('title');
+  expect(decorators[0]!.labels(new TreeLineContext(new DocumentView(10,10,[target]),target))).toEqual(['(box)']);
+  expect(()=>doc.prepareDeleteShape('n-rect')).toThrow('invalid box parts');
+});

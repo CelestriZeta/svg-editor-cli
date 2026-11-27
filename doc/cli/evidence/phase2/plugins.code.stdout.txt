@@ -1,0 +1,43 @@
+svg-editor 0.1 - type 'help' for commands
+[DIR]  docs
+[FILE]  .hidden
+[FILE]  demo.svg
+[FILE]  flowchart-box.svg
+[FILE]  flowchart.svg
+[FILE]  other.svg
+[FILE]  plugins.svg
+canvas 800x600 created
+box#n created
+circle#c created
+rect: 1  text: 1  circle: 1  (total 3, containers 1)
+box#n updated: fill=orange
+box#n updated: label=new title
+box#n updated: label=hello
+box#n updated: label=new title
+svg (800x600) *
+├── g#n (box) *
+│   ├── rect#n-rect    x=10 y=20 w=100 h=60 fill=orange *
+│   └── text#n-label   (30,55) "new title" *
+└── circle#c       cx=5 cy=5 r=2 fill=red *
+saved to plugins.svg (4 elements)
+box#n moved by (5,0)
+svg (800x600) *
+├── g#n (box) *
+│   ├── rect#n-rect    x=15 y=20 w=100 h=60 fill=orange *
+│   └── text#n-label   (35,55) "new title" *
+└── circle#c       cx=5 cy=5 r=2 fill=red
+box#n moved back by (-5,0)
+svg (800x600)
+├── g#n (box)
+│   ├── rect#n-rect    x=10 y=20 w=100 h=60 fill=orange
+│   └── text#n-label   (30,55) "new title"
+└── circle#c       cx=5 cy=5 r=2 fill=red
+read plugins.svg (4 elements)
+rect: 1  text: 1  circle: 1  (total 3, containers 1)
+[DIR]  docs
+[FILE]  .hidden
+[FILE]  demo.svg
+[FILE]  flowchart-box.svg
+[FILE]  flowchart.svg
+[FILE]  other.svg
+[FILE]  plugins.svg

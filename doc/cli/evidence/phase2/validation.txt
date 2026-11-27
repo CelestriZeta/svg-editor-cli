@@ -1,0 +1,30 @@
+PASS disabled optional commands and box use baseline fallbacks
+PASS unchanged final fixture typical.txt
+PASS unchanged final fixture flowchart.txt
+PASS unchanged final fixture other.svg
+PASS unchanged final fixture demo.svg
+PASS unchanged final fixture flowchart.svg
+PASS unchanged final fixture typical.expected.txt
+PASS unchanged final fixture flowchart.expected.txt
+PASS disabled plugins final stdout typical
+PASS disabled plugins final SVG typical
+PASS disabled plugins final stdout flowchart
+PASS disabled plugins final SVG flowchart
+PASS code/config stdout typical
+PASS code/config SVG typical
+PASS fixed working directory typical
+PASS code/config stdout flowchart
+PASS code/config SVG flowchart
+PASS fixed working directory flowchart
+PASS code/config stdout box
+PASS code/config SVG box
+PASS fixed working directory box
+PASS code/config stdout plugins
+PASS code/config SVG plugins
+PASS fixed working directory plugins
+PASS stats, dir, hidden files and simultaneous box/star labels
+PASS 统计 zero kernel/existing-plugin diff d7d2b91
+PASS 目录 zero kernel/existing-plugin diff 57a5319
+PASS box A zero kernel/existing-plugin diff f1188f6
+PASS box B zero kernel/existing-plugin diff d096758
+PASS 标签 zero kernel/existing-plugin diff c28c439

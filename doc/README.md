@@ -4,7 +4,7 @@
 
 ## 1. 当前范围与架构
 
-已实现第一部分 VSCode 插件实践。CLI 第 4 步已提交为 200803d；当前完成第 5 步完整候选子树与复合结构约束，等待用户检查，详见第 10 节。命令、创建、查询和 SVG 编解码已接入扩展；属性处理、树标签与装配加载仍按后续节点推进。第 6—9 节保留各步当时的实现与验证状态。
+第一部分 VSCode 插件实践与第二部分 CLI 四扩展点、双装配、stats/dir/box/标签现已实现并通过自动验收。最终使用说明、扩展点清单、架构对比及证据索引见第 18 节。第 6—17 节保留真实分步过程及各步当时的边界，不能将旧记录中的“尚未实现”当作最终状态。用户后来明确授权连续完成、由代理编写消息逐步提交；未授权推送。
 
 | 目录或类 | 实际职责 |
 |---|---|
@@ -46,7 +46,7 @@ note right of cli : 本部分无依赖或修改
 @enduml
 ```
 
-这是第一部分新增独立宿主插件后的实际依赖图，不是第二部分 CLI 的重构前后对比图。CLI 第 1 步的阶段记录见第 6 节，第 2 步当前扩展点清单与依赖对比见第 7 节；双装配、配置格式、dir 模式分析和 Git 历史指标随对应步骤实现后填写。
+这是第一部分的宿主插件依赖图。CLI 原始方案见 README_PHASE1.md，重构过程见第 6—17 节，最终扩展清单及依赖图见第 18 节。
 
 ## 2. VSCode 与扩展的协作
 
@@ -637,3 +637,126 @@ plugins.config.json 添加 ./dist/plugins/shape-box，已有运行源码不变�
 modified-star 独立包通过代码和配置装配接入，与 box-type-label 并存。按内容比较、祖先传播、保存/读入/新建、失败保存及标签顺序见 [ADR-010](adr/010-dirty-content-and-label-order.md)。本次只新增插件并改顶层装配/配置，不改内核、渲染器或旧插件。独立状态机和共存测试 3 项、架构 9 项与类型检查通过。自查将递归指纹改成先构建嵌套值再一次 JSON 编码，避免重复编码子字符串造成逃逸膨胀；未宣称极深树已优化。
 
 最终全量检查：CLI 44 文件/192 项、扩展 3 文件/21 项，两部分类型及构建通过。首轮完整回归发现旧 E2E 默认运行已装可选插件而改变 tree/box 预期；改为显式 --config 空清单，原基线预期内容不变，再次完整通过。
+
+## 18. 最终交付与复现
+
+### 18.1 启动与双装配
+
+在仓库根目录执行：
+
+```sh
+pnpm install --frozen-lockfile
+pnpm run build
+node dist/bootstrap/entry.js
+node dist/bootstrap/entry.js --config plugins.config.json
+```
+
+第一条启动走 CodePlugins.install，第二条走 PluginLoader.config，两者均按 box → stats → dir → modified-star 的顺序装入同一批插件。内置六类型与原有命令先激活且始终可用。使用 tests/fixtures/acceptance/no-plugins.json 可禁用全部可选插件，恢复 Phase 1 的行为和输出。
+
+配置示例（路径以配置所在目录为基准）：
+
+```json
+{
+  "plugins": [
+    { "module": "./dist/plugins/shape-box" },
+    { "module": "./dist/plugins/stats" },
+    { "module": "./dist/plugins/dir", "enabled": true },
+    { "module": "./dist/plugins/modified-star", "options": {} }
+  ]
+}
+```
+
+包名按 Node createRequire 解析；相对目录读取 package.json.main，缺省 index.js，也支持文件入口并向上寻找 package.json。默认导出可为 activate 实例或插件类，类构造参数是只读约定的 services 和原样 options。enabled:false 不解析、不执行。配置整体非法则报错并只启动默认能力；单个插件失败继续后续项。当前业务插件不消费 options，加载器的独立测试以配置命名的示例验证传递。插件是受信任的进程内代码，不承诺沙箱隔离。
+
+### 18.2 最终扩展点清单
+
+| 内核接口 | 职责与实际调用位置 | 实现 | 禁用可选插件时 | 契约违反与失败行为 |
+|---|---|---|---|---|
+| ShapeProvider / ShapeCatalog | CreateShapeCommandFactory.create 从目录选择 createSpec；DocumentViewVisitor 投影；SvgWriteVisitor.element 编码；SvgElementFactory 选择 decode；DecodedSvgElement 创建后 validateImported | builtin-shapes 的六个 provider，shape-box/BoxProvider | 六类型可用，box 报 unknown shape type；带未知 data-kind 的 g 按普通 g 降级 | 非法元数据在注册期拒绝；错规格/id/type、非法 SVG 输出或复合部件在候选阶段拒绝，失败读入保留旧会话 |
+| Command / CommandContribution / CommandCatalog | CommandDispatcher.create 查询并创建 Command；CommandExecutor.execute 串行执行；帮助读取同一目录 | builtin-commands，stats/StatsCommand，dir/DirCommand | 原命令完整保留；stats/dir 报 unknown command，help 不列它们 | 重名拒绝整个插件；工厂/执行异常转错误，后续命令继续；编辑类必须通过 EditChangeSetCommand/ChangeSet 参与历史和补偿 |
+| TreeDecorator / DecoratorCatalog | TreeFormatter.decorate 对画布及每行依注册顺序调用 labels(TreeLineContext) | shape-box/BoxTypeDecorator，modified-star/ModifiedStarDecorator | 无额外标签，tree 与 final 逐字节一致 | 非数组、非文本或多行标签拒绝；查询返回单行装饰错误，领域和历史不变；labels 不得修改文档 |
+| AttributeHandler / AttributeCatalog | ShapeEditCommandFactory.createSet → AttributeResolver.prepare → SetShapeAttributeCommand；受限 AttributeEditContext 只准备类型化属性变更及读值 | shape-box/BoxAttributeHandler（fill、label） | 零匹配走原白名单，普通 rect.fill 有效，未定义 label 报 unknown attribute | 多匹配报 ambiguous attribute handler；处理器失败不得默认回退；非法准备结果拒绝；组合变更整体补偿，失败不入历史、不清 redo |
+
+所有接口位于 application，具体类位于独立插件包。PluginRegistry.runActivation 在 PluginRegistration 暂存，完成 activate 及四类 manifest 集合比较后才发布；重名/错误/清单不符撤销本插件，已成功插件保留。属性最小 ChangeSet 必须自身失败原子，组合器补偿此前成功子变更；不能把违约插件的任意外部副作用包装成可恢复事务。完整取舍见 ADR-007/008/009/010。
+
+### 18.3 重构前后依赖
+
+重构前真实设计保留于 [Phase 1 报告](README_PHASE1.md)；下图提炼其封闭分派与最终插件注册的差别，不将后续调整追述为原始设计。
+
+```plantuml
+@startuml
+skinparam componentStyle rectangle
+package "Phase 1（历史）" {
+  component "bootstrap" as oldMain
+  component "CLI" as oldCli
+  component "application\n内置命令工厂/固定类型投影" as oldApp
+  component "domain\nShapeFactory/Composite/ChangeSet" as oldDomain
+  component "infrastructure\n固定 SVG 元素工厂" as oldIO
+  oldMain --> oldCli
+  oldMain --> oldApp
+  oldMain --> oldIO
+  oldCli --> oldApp
+  oldApp --> oldDomain
+  oldIO --> oldDomain
+}
+package "Phase 2（当前）" {
+  component "bootstrap\nMain/CodePlugins/PluginLoader" as main
+  component "CLI\nREPL/通用标签渲染" as cli
+  component "application\nCommandExecutor/History/DocumentService" as app
+  component "application.extensions\n四扩展点/Registry/Manifest" as api
+  component "application.ports\nDirectoryAccess/CheckpointSource/存储" as ports
+  component "domain\nShapeSpec/Composite/候选结构/ChangeSet" as domain
+  component "infrastructure\n通用 SVG/NodeDirectoryAccess" as io
+  component "plugins\nbuiltins/stats/dir/box/modified-star" as plugins
+  main --> cli
+  main --> app
+  main --> api
+  main --> io
+  main --> plugins : 仅代码装配
+  cli --> app
+  cli --> api
+  app --> api
+  app --> ports
+  app --> domain
+  api --> domain
+  plugins --> api
+  plugins --> ports
+  plugins --> domain
+  io --> api
+  io --> ports
+  io --> domain
+}
+@enduml
+```
+
+新增目录职责：application/extensions 保存契约及原子注册；plugins 各包分别提供能力；bootstrap 负责选择实例/配置，加载器不硬编码插件；domain 增加完整子树和最终结构策略但不依赖宿主、XML、注册实现。dir 的 Adapter 对应关系见第 15 节；CheckpointSource 提供成功 IO 的只读保存点，标签状态仍保存在标签实例。
+
+### 18.4 真实验证与提交证据
+
+```sh
+pnpm run check
+node scripts/validate-phase2.mjs
+node scripts/metrics.mjs final p2 docs/metrics/phase2
+```
+
+本轮完整检查：CLI 48 文件/196 项，VSCode 扩展 3 文件/21 项，两部分严格类型及构建通过。未重跑 GUI/VSIX/联网审计；第 5 节已保存此前真实宿主和用户截图，不将历史证据写成本轮执行。手工动态输入更新那一行继续留空。
+
+[最终验收记录](cli/evidence/phase2/validation.txt)由 scripts/validate-phase2.mjs 生成：30 项通过，含 7 个 final fixture、两份旧 stdout/两份 SVG 共 11 项基线字节比较；四份会话的 A/B stdout 和 SVG 及固定目录检查；新增命令/并存标签检查；5 个真实接入提交的零内核/旧插件差异。输入脚本没有提示符和示例输出，stdout 与 SVG 分开存放，日志在固定工作目录之外，不规范化换行。
+
+- [基础 A 输出](cli/evidence/phase2/typical.code.stdout.txt)、[基础 B 输出](cli/evidence/phase2/typical.config.stdout.txt)
+- [box A 输出](cli/evidence/phase2/box.code.stdout.txt)、[box B 输出](cli/evidence/phase2/box.config.stdout.txt)、[box SVG](cli/evidence/phase2/flowchart-box.svg)
+- [新增命令 A 输出](cli/evidence/phase2/plugins.code.stdout.txt)、[新增命令 B 输出](cli/evidence/phase2/plugins.config.stdout.txt)
+
+接入提交：stats d7d2b91（A）、dir 57a5319（B）、box f1188f6（A）/d096758（B）、标签 c28c439。脚本先确认被检查目录在提交中实际存在，再核对 src 全部差异只位于新插件和允许的 CodePlugins；没有用不存在路径的空 diff 充当证据。box B 在插件已安装后仅添加配置；A/B 复用同一实现。测试、文档、会话属于课程允许的非运行改动，插件接入没有修改包管理依赖或锁文件。
+
+指标见 [自动汇总](../docs/metrics/phase2/summary.md)、[逐文件清单与职责](../docs/metrics/phase2/files.md)、[原始 JSON](../docs/metrics/phase2/metrics.json)。首次框架结果保留在 docs/metrics/framework。全部数字由脚本从 Git 源码生成，CLI 与 VSCode 分开。最终指标记录源码树指纹，避免文档/指标提交自身 SHA 的循环引用；p2 处重跑应字节一致，详见 [口径与复现](../docs/metrics/README.md)。内核代码因插件迁移减少不代表系统总复杂度减少，额外注册/候选校验也带来框架复杂度。
+
+### 18.5 自查与实际边界
+
+逐步自查覆盖类/字段封装、一类一文件、依赖、分派位置、Command 与 Composite、领域输入、展示、异常原子性、扩展点和测试组织。实际修正包括：结果构造失败回滚、完整复合导入、子树 redo 身份、过期解组计划、候选最终父级、处理器冲突、标签基线测试装配和 TS7 指标 API。具体先失败/修正过程保留在各步记录，不声称所有新增代码都经历测试先行。
+
+内核只消费接口，不枚举业务插件名；box 和标签接入后内核/渲染器差异为零。历史仍保存局部变更，候选结构复制只用于预演；无插件匹配保持 Phase 1。单元/集成/真实 CLI 分开，dir 含真实适配器，标签有独立状态机，box 可无其他插件独立注册及领域创建。
+
+保留的边界：CLI 读取/遍历/序列化仍有递归深度和输出体积风险；内容指纹精确比较会重复计算祖先，未测极深树性能；插件遵守同步只读查询/准备与最小变更原子契约，不具备进程隔离。未实现选做图形和动态卸载。最终本地验收后创建 p2，既有 final 不移动；远程推送不在本次授权内。
+
+最终补充：tests/plugins 的四份测试仅导入对应插件及内核契约，使用上下文/目录/查询/保存点替身，4 项独立注册与调用测试通过。最终完整检查日志见 [check.txt](cli/evidence/phase2/check.txt)，CLI 48 文件/196 项及扩展 21 项、类型与构建通过。

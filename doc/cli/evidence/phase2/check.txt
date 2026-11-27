@@ -1,0 +1,29 @@
+$ pnpm run typecheck && pnpm run test && pnpm run build && pnpm run check:extension
+$ tsc --noEmit
+$ vitest run
+
+ RUN  v5.0.5 F:/Coding/CODE/svg-editor-cli
+
+
+ Test Files  48 passed (48)
+      Tests  196 passed (196)
+   Start at  20:15:18
+   Duration  4.04s (transform 67%, import 17%, tests 14%, worker 2%)
+
+    Isolate  48 workers spawned · ~821ms startup each (spawn + environment, per file)
+             at least ~892ms faster with isolate: false — reuses workers across files instead of one per file
+
+$ node scripts/clean.mjs && tsc -p tsconfig.build.json && node scripts/copy-plugin-manifests.mjs
+$ pnpm run typecheck:extension && pnpm run test:extension && pnpm run build:extension
+$ tsc -p extensions/svg-tools/tsconfig.json
+$ vitest run --config extensions/svg-tools/vitest.config.ts
+
+ RUN  v5.0.5 F:/Coding/CODE/svg-editor-cli
+
+
+ Test Files  3 passed (3)
+      Tests  21 passed (21)
+   Start at  20:15:25
+   Duration  513ms (tests 73%, import 16%, transform 8%, worker 3%)
+
+$ node scripts/build-extension.mjs
