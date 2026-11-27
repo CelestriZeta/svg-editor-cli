@@ -1,0 +1,11 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="400" height="220" viewBox="0 0 400 220">
+  <g id="flow">
+    <rect id="start" x="20" y="50" width="120" height="60" fill="#4a90d9"/>
+    <g id="labels">
+      <text x="35" y="85">开始</text>
+      <text id="end-label" x="250" y="85">结束</text>
+    </g>
+    <path id="arrow" d="M140 80 H240" fill="none" stroke="black"/>
+    <circle cx="280" cy="160" r="20" fill="#f5a623"/>
+  </g>
+</svg>

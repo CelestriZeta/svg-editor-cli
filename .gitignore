@@ -11,8 +11,13 @@ coverage/
 # Tool caches
 .archify/
 .cache/
+.vscode-test/
+*.vsix
 .eslintcache
 .npm/
+
+# Local project memory
+/doc/WORK_MEMORY.md
 
 # Local environment and credentials
 .env

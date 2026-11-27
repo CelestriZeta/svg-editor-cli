@@ -1,1 +1,4 @@
+allowBuilds:
+  '@vscode/vsce-sign': false
+  esbuild: true
 nodeLinker: hoisted

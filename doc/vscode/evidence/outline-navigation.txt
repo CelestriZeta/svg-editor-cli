@@ -1,0 +1,11 @@
+Command: pnpm run test:extension:host
+Before manifest fix:
+AssertionError [ERR_ASSERTION]: symbol navigation must open source text, not Image Preview
+Exit code:   1
+
+After manifest fix:
+PASS host: source navigation resolves to Text Editor at the symbol location
+PASS host: native nested symbols, missing ids, source ranges
+PASS host: unsaved edit refresh, invalid XML and recovery
+PASS host: real file and directory decorations; filenames and bytes unchanged
+Exit code:   0

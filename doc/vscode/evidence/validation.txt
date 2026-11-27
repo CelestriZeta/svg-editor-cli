@@ -1,0 +1,34 @@
+Command: pnpm run check
+$ pnpm run typecheck && pnpm run test && pnpm run build && pnpm run check:extension
+$ tsc --noEmit
+$ vitest run
+
+ RUN  v5.0.5 F:/Coding/CODE/svg-editor-cli
+
+
+ Test Files  31 passed (31)
+      Tests  97 passed (97)
+   Start at  16:48:59
+   Duration  2.83s (transform 68%, import 16%, tests 14%, worker 2%)
+
+$ node scripts/clean.mjs && tsc -p tsconfig.build.json
+$ pnpm run typecheck:extension && pnpm run test:extension && pnpm run build:extension
+$ tsc -p extensions/svg-tools/tsconfig.json
+$ vitest run --config extensions/svg-tools/vitest.config.ts
+
+ RUN  v5.0.5 F:/Coding/CODE/svg-editor-cli
+
+
+ Test Files  3 passed (3)
+      Tests  21 passed (21)
+   Start at  16:49:05
+   Duration  441ms (tests 75%, import 15%, transform 7%, worker 3%)
+
+$ node scripts/build-extension.mjs
+
+Command: pnpm run test:extension:host (local VSCode 1.148.0)
+PASS host: source navigation resolves to Text Editor at the symbol location
+PASS host: native nested symbols, missing ids, source ranges
+PASS host: unsaved edit refresh, invalid XML and recovery
+PASS host: real file and directory decorations; filenames and bytes unchanged
+Exit code:   0

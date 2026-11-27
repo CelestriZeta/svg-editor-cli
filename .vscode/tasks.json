@@ -1,0 +1,12 @@
+{
+  "version": "2.0.0",
+  "tasks": [
+    {
+      "label": "Build SVG extension",
+      "type": "process",
+      "command": "node",
+      "args": ["scripts/build-extension.mjs"],
+      "problemMatcher": []
+    }
+  ]
+}

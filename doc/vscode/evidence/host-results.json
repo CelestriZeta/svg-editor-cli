@@ -1,0 +1,15 @@
+{
+  "vscode": "1.148.0",
+  "checks": [
+    "nested-symbols-and-navigation",
+    "source-editor-resolution",
+    "explicit-image-preview",
+    "uppercase-source-navigation",
+    "unsaved-edits",
+    "incomplete-xml-recovery",
+    "file-badges",
+    "directory-exclusion",
+    "unchanged-files"
+  ],
+  "passed": true
+}
