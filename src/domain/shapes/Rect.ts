@@ -6,7 +6,6 @@ import { GeometryValueChange } from './GeometryValueChange.js';
 import { Shape } from './Shape.js';
 import { ShapeAttributeSlot } from './ShapeAttributeSlot.js';
 import { ShapeAttributeValue } from './ShapeAttributeValue.js';
-import type { ShapeVisitor } from '../visitor/ShapeVisitor.js';
 
 export class Rect extends Shape {
   #x: number;
@@ -129,9 +128,6 @@ export class Rect extends Shape {
     ]);
   }
 
-  public override accept<T>(visitor: ShapeVisitor<T>): T {
-    return visitor.visitRect(this);
-  }
 
   protected override ownAttributeSlot(
     name: string

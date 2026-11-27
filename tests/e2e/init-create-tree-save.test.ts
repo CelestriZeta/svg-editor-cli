@@ -1,3 +1,4 @@
+import { TestShapeCatalog } from '../support/TestShapeCatalog.js';
 import { mkdir, readdir, readFile } from 'node:fs/promises';
 
 import { afterEach, beforeEach, describe, expect, it } from 'vitest';
@@ -22,7 +23,7 @@ describe('init -> create rect -> tree -> save', () => {
   it('[SAVE-02/04/06, HIST-07] runs the complete path through a real file', async () => {
     const file = directory.file('demo.svg');
     const harness = await ApplicationHarness.create(
-      new SvgDocumentStore(new SvgReader(), new SvgWriteVisitor())
+      new SvgDocumentStore(new SvgReader(new TestShapeCatalog()), new SvgWriteVisitor(new TestShapeCatalog()))
     );
     const { history, repl } = harness;
 
@@ -65,7 +66,7 @@ describe('init -> create rect -> tree -> save', () => {
   it('[EXEC-02] keeps history and path unchanged after a real write failure', async () => {
     const invalidFile = directory.file('missing/demo.svg');
     const harness = await ApplicationHarness.create(
-      new SvgDocumentStore(new SvgReader(), new SvgWriteVisitor())
+      new SvgDocumentStore(new SvgReader(new TestShapeCatalog()), new SvgWriteVisitor(new TestShapeCatalog()))
     );
     const { history, repl } = harness;
 
@@ -90,7 +91,7 @@ describe('init -> create rect -> tree -> save', () => {
     const targetDirectory = directory.file('target');
     await mkdir(targetDirectory);
     const harness = await ApplicationHarness.create(
-      new SvgDocumentStore(new SvgReader(), new SvgWriteVisitor())
+      new SvgDocumentStore(new SvgReader(new TestShapeCatalog()), new SvgWriteVisitor(new TestShapeCatalog()))
     );
     const { history, repl } = harness;
     await repl.executeLine('init 100 100');

@@ -1,3 +1,4 @@
+import { TestShapeCatalog } from '../support/TestShapeCatalog.js';
 import { describe, expect, it } from 'vitest';
 
 import { DomainError } from '../../src/domain/DomainError.js';
@@ -5,7 +6,7 @@ import { SvgReader } from '../../src/infrastructure/SvgReader.js';
 
 describe('SVG reader boundaries', () => {
   it('[READ-03/07/09] assigns collision-free ids case-sensitively and accepts a valid viewBox', () => {
-    const result = new SvgReader().read(
+    const result = new SvgReader(new TestShapeCatalog()).read(
       [
         '<?xml version="1.0" encoding="UTF-8"?>',
         '<svg xmlns="http://www.w3.org/2000/svg" width="10.5" height="20" viewBox="0 0 10.5 20">',
@@ -71,26 +72,26 @@ describe('SVG reader boundaries', () => {
       'text cannot contain child elements'
     ]
   ])('rejects %s', (_name, source, message) => {
-    expect(() => new SvgReader().read(source)).toThrowError(
+    expect(() => new SvgReader(new TestShapeCatalog()).read(source)).toThrowError(
       new DomainError(message)
     );
   });
 
   it('[READ-06/12] rejects malformed XML and duplicate ids', () => {
     expect(() =>
-      new SvgReader().read(
+      new SvgReader(new TestShapeCatalog()).read(
         '<!DOCTYPE svg><svg xmlns="http://www.w3.org/2000/svg" width="10" height="20"/>'
       )
     ).toThrowError(new DomainError('DOCTYPE is not supported'));
 
     expect(() =>
-      new SvgReader().read(
+      new SvgReader(new TestShapeCatalog()).read(
         '<svg xmlns="http://www.w3.org/2000/svg" width="10" height="20"><rect id="r1" x="0" y="0" width="1" height="1"></g></svg>'
       )
     ).toThrowError(/^invalid SVG XML:/);
 
     expect(() =>
-      new SvgReader().read(
+      new SvgReader(new TestShapeCatalog()).read(
         '<svg xmlns="http://www.w3.org/2000/svg" width="10" height="20"><rect id="same" x="0" y="0" width="1" height="1"/><circle id="same" cx="1" cy="1" r="1"/></svg>'
       )
     ).toThrowError(new DomainError('id already exists: same'));

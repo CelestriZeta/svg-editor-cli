@@ -9,12 +9,13 @@ export class SvgAttributes {
 
   public constructor(
     tagName: string,
-    attributes: Record<string, SaxesAttributeNS>
+    attributes: Record<string, SaxesAttributeNS>,
+    private readonly allowKind = false
   ) {
     this.#tagName = tagName;
     this.#attributes = new Map(
       Object.values(attributes).map((attribute) => [
-        attribute.local,
+        attribute.name,
         attribute
       ])
     );
@@ -22,6 +23,7 @@ export class SvgAttributes {
 
   public requireSupported(names: readonly string[]): void {
     const supported = new Set(names);
+    if (this.allowKind) supported.add('data-kind');
     for (const attribute of this.#attributes.values()) {
       const isNamespaceDeclaration =
         attribute.local === 'xmlns' &&
@@ -43,6 +45,10 @@ export class SvgAttributes {
       throw new DomainError('shape id must not be empty');
     }
     return id;
+  }
+
+  public optional(name: string): string | undefined {
+    return this.#attributes.get(name)?.value;
   }
 
   public requireNumber(name: string): number {

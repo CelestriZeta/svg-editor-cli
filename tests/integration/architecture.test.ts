@@ -231,7 +231,9 @@ describe('architecture guards', () => {
       'extensions/CommandContribution.ts', 'extensions/CommandCatalog.ts',
       'extensions/ShapeCatalog.ts', 'extensions/ShapeProvider.ts',
       'ports/ActiveDocument.ts', 'ports/DocumentOperations.ts',
-      'ports/LoadedDocument.ts', 'queries/DocumentQuery.ts'
+      'ports/LoadedDocument.ts', 'queries/DocumentQuery.ts',
+      'ports/SvgContentKind.ts', 'ports/SvgShapeInput.ts', 'ports/SvgShapeOutput.ts',
+      'queries/GeometrySnapshot.ts', 'queries/ShapeAnchor.ts'
     ];
     for (const file of files) {
       const source = await readFile(file, 'utf8');
@@ -260,5 +262,19 @@ describe('architecture guards', () => {
       join(sourceRoot, 'plugins/builtin-commands/factories/CreateShapeCommandFactory.ts'), 'utf8'
     );
     expect(createFactory).not.toMatch(/new Map|SpecBuilder|builtin-shapes/);
+  });
+
+  it('[ARCH-P2-03] keeps traversal, query and SVG adapters open to provider types', async () => {
+    const targets = [
+      'domain/visitor/ShapeVisitor.ts', 'domain/visitor/ShapeCollector.ts',
+      'application/queries/DocumentViewVisitor.ts', 'infrastructure/SvgWriteVisitor.ts',
+      'infrastructure/SvgReader.ts', 'infrastructure/SvgElementFactory.ts', 'infrastructure/SvgElement.ts'
+    ];
+    for (const target of targets) {
+      const source = await readFile(join(sourceRoot, target), 'utf8');
+      expect(source).not.toMatch(/visit(?:Rect|Circle|Ellipse|Line|Text)|enterGroup|leaveGroup/);
+      expect(source).not.toMatch(/from ['"][^'"]*(?:shapes|specs)\/(?:Rect|Circle|Ellipse|Line|Text|Group)/);
+      expect(source).not.toMatch(/builtin-shapes|new Map/);
+    }
   });
 });

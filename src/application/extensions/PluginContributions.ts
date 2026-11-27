@@ -4,11 +4,14 @@ import { ExtensionRegistry } from './ExtensionRegistry.js';
 import type { ShapeProvider } from './ShapeProvider.js';
 import type { TreeDecorator } from './TreeDecorator.js';
 import { PluginRegistrationError } from './PluginRegistrationError.js';
+import { SvgContentKind } from '../ports/SvgContentKind.js';
 
 /** 四类注册的同一发布版本，替换一次引用即可原子发布。 */
 export class PluginContributions {
   public constructor(
-    private readonly shapeProviders = ExtensionRegistry.empty<ShapeProvider>('shapes', ['createSpec']),
+    private readonly shapeProviders = ExtensionRegistry.empty<ShapeProvider>(
+      'shapes', ['createSpec', 'project', 'encode', 'decode', 'validateImported']
+    ),
     private readonly commandContributions = ExtensionRegistry.empty<CommandContribution>('commands', ['create']),
     private readonly treeDecorators = ExtensionRegistry.empty<TreeDecorator>('decorators', ['labels']),
     private readonly attributeHandlers = ExtensionRegistry.empty<AttributeHandler>('attributes', ['handles', 'prepare'])
@@ -35,6 +38,10 @@ export class PluginContributions {
   public withShape(provider: ShapeProvider): PluginContributions {
     const shapes = this.shapes.with(provider);
     this.requireSyntaxes(provider.syntaxes, `invalid shape syntax: ${provider.name}`);
+    if (typeof provider.svgTag !== 'string' || !/^[A-Za-z_][\w.-]*$/.test(provider.svgTag) ||
+        !Object.values(SvgContentKind).includes(provider.content)) {
+      throw new PluginRegistrationError(`invalid shape SVG contract: ${provider.name}`);
+    }
     return new PluginContributions(
       shapes, this.commands, this.decorators, this.attributes
     );

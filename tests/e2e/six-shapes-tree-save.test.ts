@@ -1,3 +1,4 @@
+import { TestShapeCatalog } from '../support/TestShapeCatalog.js';
 import { readFile } from 'node:fs/promises';
 
 import { afterEach, beforeEach, describe, expect, it } from 'vitest';
@@ -22,7 +23,7 @@ describe('six shapes -> tree -> save', () => {
   it('[CREATE-02/03/04/05/06, SAVE-05] dispatches and serializes all built-in shapes', async () => {
     const file = directory.file('shapes.svg');
     const harness = await ApplicationHarness.create(
-      new SvgDocumentStore(new SvgReader(), new SvgWriteVisitor())
+      new SvgDocumentStore(new SvgReader(new TestShapeCatalog()), new SvgWriteVisitor(new TestShapeCatalog()))
     );
     const { repl } = harness;
 

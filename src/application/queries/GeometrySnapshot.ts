@@ -1,9 +1,6 @@
 import { ShapeAnchor } from './ShapeAnchor.js';
 
-export type GeometryAttribute =
-  | 'x' | 'y' | 'width' | 'height'
-  | 'cx' | 'cy' | 'r' | 'rx' | 'ry'
-  | 'x1' | 'y1' | 'x2' | 'y2';
+export type GeometryAttribute = string;
 export type NumericGeometry = readonly (readonly [GeometryAttribute, number])[];
 
 export class GeometrySnapshot {

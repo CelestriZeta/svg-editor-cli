@@ -1,3 +1,4 @@
+import { TestShapeCatalog } from '../support/TestShapeCatalog.js';
 import { describe, expect, it } from 'vitest';
 
 import { SvgDocument } from '../../src/domain/document/SvgDocument.js';
@@ -25,7 +26,7 @@ describe('SVG writing', () => {
     rect.set(ShapeAttributeUpdate.number('stroke-width', 2.5));
     document.createShape(new TextSpec('t1', 5, 6, 'A & B < C > "D"'));
 
-    const svg = new SvgWriteVisitor().serialize(document);
+    const svg = new SvgWriteVisitor(new TestShapeCatalog()).serialize(document);
 
     expect(svg).toContain(
       '<rect id="r&amp;&quot;1" x="1" y="2" width="3" height="4" fill="red&amp;&quot;" stroke="&lt;blue&gt;" stroke-width="2.5"/>'

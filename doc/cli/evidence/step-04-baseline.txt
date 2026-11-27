@@ -1,0 +1,11 @@
+PASS fixture unchanged from final: typical.txt
+PASS fixture unchanged from final: typical.expected.txt
+PASS fixture unchanged from final: demo.svg
+PASS fixture unchanged from final: flowchart.txt
+PASS fixture unchanged from final: flowchart.expected.txt
+PASS fixture unchanged from final: flowchart.svg
+PASS fixture unchanged from final: other.svg
+PASS stdout equals final fixture: typical.txt
+PASS SVG equals final fixture: demo.svg
+PASS stdout equals final fixture: flowchart.txt
+PASS SVG equals final fixture: flowchart.svg

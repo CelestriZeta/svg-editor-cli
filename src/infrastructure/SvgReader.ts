@@ -1,3 +1,5 @@
+import type { ShapeCatalog } from '../application/extensions/ShapeCatalog.js';
+import { SvgElementFactory } from './SvgElementFactory.js';
 import { LoadedDocument } from '../application/ports/LoadedDocument.js';
 import { SvgDocument } from '../domain/document/SvgDocument.js';
 import { MissingIdAllocator } from './MissingIdAllocator.js';
@@ -5,7 +7,8 @@ import { SvgTreeParser } from './SvgTreeParser.js';
 
 export class SvgReader {
   public constructor(
-    private readonly parser = new SvgTreeParser()
+    catalog: ShapeCatalog,
+    private readonly parser = new SvgTreeParser(new SvgElementFactory(catalog))
   ) {}
 
   public read(source: string): LoadedDocument {

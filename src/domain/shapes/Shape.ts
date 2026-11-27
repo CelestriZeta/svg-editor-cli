@@ -86,7 +86,9 @@ export abstract class Shape {
     this.prepareScale(factor).apply();
   }
 
-  public abstract accept<T>(visitor: ShapeVisitor<T>): T;
+  public accept<T>(visitor: ShapeVisitor<T>): T {
+    return visitor.visitShape(this);
+  }
 
   public abstract prepareMove(dx: number, dy: number): GeometryChangeSet;
 

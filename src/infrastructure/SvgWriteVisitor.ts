@@ -1,138 +1,50 @@
 import type { SvgDocument } from '../domain/document/SvgDocument.js';
-import type { Circle } from '../domain/shapes/Circle.js';
-import type { Ellipse } from '../domain/shapes/Ellipse.js';
-import type { Group } from '../domain/shapes/Group.js';
-import type { Line } from '../domain/shapes/Line.js';
-import type { Rect } from '../domain/shapes/Rect.js';
+import { ContainerShape } from '../domain/shapes/ContainerShape.js';
 import type { Shape } from '../domain/shapes/Shape.js';
-import type { Text } from '../domain/shapes/Text.js';
 import { ShapeVisitor } from '../domain/visitor/ShapeVisitor.js';
+import { DomainError } from '../domain/DomainError.js';
+import type { ShapeCatalog } from '../application/extensions/ShapeCatalog.js';
+import { SvgContentKind } from '../application/ports/SvgContentKind.js';
+import { SvgShapeOutput } from '../application/ports/SvgShapeOutput.js';
 
 export class SvgWriteVisitor extends ShapeVisitor<string> {
+  public constructor(private readonly catalog: ShapeCatalog) { super(); }
   public serialize(document: SvgDocument): string {
-    const lines = [
-      '<?xml version="1.0" encoding="UTF-8"?>',
-      `<svg xmlns="http://www.w3.org/2000/svg" width="${document.width}" height="${document.height}" viewBox="0 0 ${document.width} ${document.height}">`
-    ];
-
-    for (const shape of document.children) {
-      lines.push(
-        ...shape
-          .accept(this)
-          .split('\n')
-          .map((line) => `  ${line}`)
-      );
-    }
-
+    const lines = ['<?xml version="1.0" encoding="UTF-8"?>',
+      '<svg xmlns="http://www.w3.org/2000/svg" width="' + document.width + '" height="' + document.height +
+      '" viewBox="0 0 ' + document.width + ' ' + document.height + '">'];
+    for (const shape of document.children) lines.push(...shape.accept(this).split('\n').map((line) => '  ' + line));
     lines.push('</svg>', '');
     return lines.join('\n');
   }
-
-  public enterGroup(): boolean {
-    return true;
-  }
-
-  public leaveGroup(group: Group, children: readonly string[]): string {
-    const attributes = this.attributes(group.id, [], group);
-    if (children.length === 0) {
-      return `<g ${attributes}/>`;
+  public enterContainer(): boolean { return true; }
+  public leaveContainer(shape: ContainerShape, children: readonly string[]): string { return this.element(shape, children); }
+  public visitShape(shape: Shape): string { return this.element(shape, []); }
+  private element(shape: Shape, children: readonly string[]): string {
+    const provider = this.catalog.findShape(shape.type);
+    if (provider === undefined) throw new DomainError('unknown shape type: ' + shape.type);
+    if (!/^[A-Za-z_][\w.-]*$/.test(provider.svgTag) ||
+        (provider.content === SvgContentKind.Children) !== (shape instanceof ContainerShape)) {
+      throw new DomainError('invalid SVG shape structure: ' + shape.type);
     }
-
-    const childLines = children.flatMap((child) =>
-      child.split('\n').map((line) => `  ${line}`)
-    );
-    return [
-      `<g ${attributes}>`,
-      ...childLines,
-      '</g>'
-    ].join('\n');
-  }
-
-  public visitCircle(circle: Circle): string {
-    const attributes = this.attributes(
-      circle.id,
-      [`cx="${circle.cx}"`, `cy="${circle.cy}"`, `r="${circle.r}"`],
-      circle
-    );
-    return `<circle ${attributes}/>`;
-  }
-
-  public visitEllipse(ellipse: Ellipse): string {
-    const attributes = this.attributes(
-      ellipse.id,
-      [
-        `cx="${ellipse.cx}"`,
-        `cy="${ellipse.cy}"`,
-        `rx="${ellipse.rx}"`,
-        `ry="${ellipse.ry}"`
-      ],
-      ellipse
-    );
-    return `<ellipse ${attributes}/>`;
-  }
-
-  public visitLine(line: Line): string {
-    const attributes = this.attributes(
-      line.id,
-      [
-        `x1="${line.x1}"`,
-        `y1="${line.y1}"`,
-        `x2="${line.x2}"`,
-        `y2="${line.y2}"`
-      ],
-      line
-    );
-    return `<line ${attributes}/>`;
-  }
-
-  public visitRect(rect: Rect): string {
-    const attributes = this.attributes(
-      rect.id,
-      [
-        `x="${rect.x}"`,
-        `y="${rect.y}"`,
-        `width="${rect.width}"`,
-        `height="${rect.height}"`
-      ],
-      rect
-    );
-    return `<rect ${attributes}/>`;
-  }
-
-  public visitText(text: Text): string {
-    const attributes = this.attributes(
-      text.id,
-      [`x="${text.x}"`, `y="${text.y}"`],
-      text
-    );
-    return `<text ${attributes}>${this.escape(text.content)}</text>`;
-  }
-
-  private attributes(
-    id: string,
-    geometry: readonly string[],
-    shape: Shape
-  ): string {
-    const attributes = [`id="${this.escape(id)}"`, ...geometry];
-
-    if (shape.fill !== undefined) {
-      attributes.push(`fill="${this.escape(shape.fill)}"`);
+    const output = provider.encode(shape);
+    if (!(output instanceof SvgShapeOutput) ||
+        (provider.content === SvgContentKind.Text) !== (output.text !== undefined)) {
+      throw new DomainError('invalid SVG shape output: ' + shape.type);
     }
-    if (shape.stroke !== undefined) {
-      attributes.push(`stroke="${this.escape(shape.stroke)}"`);
-    }
-    if (shape.strokeWidth !== undefined) {
-      attributes.push(`stroke-width="${shape.strokeWidth}"`);
-    }
-
-    return attributes.join(' ');
+    const attributes = ['id="' + this.escape(shape.id) + '"',
+      ...output.attributes.map(([name, value]) => name + '="' + this.escape(String(value)) + '"')];
+    if (shape.fill !== undefined) attributes.push('fill="' + this.escape(shape.fill) + '"');
+    if (shape.stroke !== undefined) attributes.push('stroke="' + this.escape(shape.stroke) + '"');
+    if (shape.strokeWidth !== undefined) attributes.push('stroke-width="' + shape.strokeWidth + '"');
+    if (provider.name !== provider.svgTag) attributes.push('data-kind="' + this.escape(provider.name) + '"');
+    const open = '<' + provider.svgTag + ' ' + attributes.join(' ');
+    if (output.text !== undefined) return open + '>' + this.escape(output.text) + '</' + provider.svgTag + '>';
+    if (children.length === 0) return open + '/>';
+    return [open + '>', ...children.flatMap((child) => child.split('\n').map((line) => '  ' + line)),
+      '</' + provider.svgTag + '>'].join('\n');
   }
-
   private escape(value: string): string {
-    return value
-      .replaceAll('&', '&amp;')
-      .replaceAll('"', '&quot;')
-      .replaceAll('<', '&lt;')
-      .replaceAll('>', '&gt;');
+    return value.replaceAll('&', '&amp;').replaceAll('"', '&quot;').replaceAll('<', '&lt;').replaceAll('>', '&gt;');
   }
 }

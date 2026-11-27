@@ -1,38 +1,19 @@
 import { DomainError } from '../domain/DomainError.js';
 import type { SaxesAttributeNS } from 'saxes';
+import type { ShapeCatalog } from '../application/extensions/ShapeCatalog.js';
 import { SvgAttributes } from './SvgAttributes.js';
-import { SvgCircleElement } from './SvgCircleElement.js';
-import { SvgEllipseElement } from './SvgEllipseElement.js';
-import type { SvgElement } from './SvgElement.js';
-import { SvgGroupElement } from './SvgGroupElement.js';
-import { SvgLineElement } from './SvgLineElement.js';
-import { SvgRectElement } from './SvgRectElement.js';
-import { SvgTextElement } from './SvgTextElement.js';
-
-type ElementBuilder = (attributes: SvgAttributes) => SvgElement;
+import { SvgElement } from './SvgElement.js';
 
 export class SvgElementFactory {
-  readonly #builders: ReadonlyMap<string, ElementBuilder>;
-
-  public constructor() {
-    this.#builders = new Map<string, ElementBuilder>([
-      ['rect', (attributes) => new SvgRectElement(attributes)],
-      ['circle', (attributes) => new SvgCircleElement(attributes)],
-      ['ellipse', (attributes) => new SvgEllipseElement(attributes)],
-      ['line', (attributes) => new SvgLineElement(attributes)],
-      ['text', (attributes) => new SvgTextElement(attributes)],
-      ['g', (attributes) => new SvgGroupElement(attributes)]
-    ]);
-  }
-
-  public create(
-    tagName: string,
-    attributes: Record<string, SaxesAttributeNS>
-  ): SvgElement {
-    const builder = this.#builders.get(tagName);
-    if (builder === undefined) {
-      throw new DomainError(`unsupported element: ${tagName}`);
-    }
-    return builder(new SvgAttributes(tagName, attributes));
+  public constructor(private readonly catalog: ShapeCatalog) {}
+  public create(tagName: string, raw: Record<string, SaxesAttributeNS>): SvgElement {
+    const attributes = new SvgAttributes(tagName, raw, true);
+    const kind = attributes.optional('data-kind');
+    if (kind !== undefined && kind.trim().length === 0) throw new DomainError('invalid SVG shape kind');
+    const marked = kind === undefined ? undefined : this.catalog.findShape(kind);
+    const provider = marked ?? this.catalog.findShape(tagName);
+    if (provider === undefined) throw new DomainError('unsupported element: ' + tagName);
+    if (provider.svgTag !== tagName) throw new DomainError('SVG tag does not match shape type: ' + provider.name);
+    return new SvgElement(tagName, attributes, provider);
   }
 }

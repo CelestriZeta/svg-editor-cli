@@ -1,3 +1,4 @@
+import { TestShapeCatalog } from '../support/TestShapeCatalog.js';
 import { readFile, writeFile } from 'node:fs/promises';
 
 import { afterEach, beforeEach, describe, expect, it } from 'vitest';
@@ -41,7 +42,7 @@ describe('SVG reading', () => {
       'utf8'
     );
     const harness = await ApplicationHarness.create(
-      new SvgDocumentStore(new SvgReader(), new SvgWriteVisitor())
+      new SvgDocumentStore(new SvgReader(new TestShapeCatalog()), new SvgWriteVisitor(new TestShapeCatalog()))
     );
 
     expect(await harness.repl.executeLine(`read "${path}"`)).toBe(
@@ -85,7 +86,7 @@ describe('SVG reading', () => {
 
   it('[READ-05/06/08/12] rejects invalid SVG without replacing the session', async () => {
     const harness = await ApplicationHarness.create(
-      new SvgDocumentStore(new SvgReader(), new SvgWriteVisitor())
+      new SvgDocumentStore(new SvgReader(new TestShapeCatalog()), new SvgWriteVisitor(new TestShapeCatalog()))
     );
     const { history, repl } = harness;
     const validPath = directory.file('valid.svg');
@@ -127,7 +128,7 @@ describe('SVG reading', () => {
 
   it('[CANVAS-01/02/03, HIST-03/04] queries and resizes the canvas atomically', async () => {
     const harness = await ApplicationHarness.create(
-      new SvgDocumentStore(new SvgReader(), new SvgWriteVisitor())
+      new SvgDocumentStore(new SvgReader(new TestShapeCatalog()), new SvgWriteVisitor(new TestShapeCatalog()))
     );
     const { history, repl } = harness;
 

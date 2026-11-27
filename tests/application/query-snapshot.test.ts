@@ -1,3 +1,4 @@
+import { TestShapeCatalog } from '../support/TestShapeCatalog.js';
 import { describe, expect, it, vi } from 'vitest';
 
 import { DocumentViewVisitor } from '../../src/application/queries/DocumentViewVisitor.js';
@@ -17,7 +18,7 @@ describe('immutable query snapshots', () => {
     const document = new SvgDocument(100, 100);
     const group = document.createShape(new GroupSpec('g1'));
     const rect = document.createShape(new RectSpec('r1', 1, 2, 3, 4), document.requireContainer(group.id));
-    const visitor = new DocumentViewVisitor();
+    const visitor = new DocumentViewVisitor(new TestShapeCatalog());
     const snapshot = visitor.visit(document);
     const details = visitor.inspect(rect);
     const tree = new TreeFormatter();
@@ -45,7 +46,7 @@ describe('immutable query snapshots', () => {
     const document = new SvgDocument(100, 100);
     const group = document.createShape(new GroupSpec('g1'));
     const rect = document.createShape(new RectSpec('r1', 1, 2, 3, 4), document.requireContainer(group.id));
-    const visitor = new DocumentViewVisitor();
+    const visitor = new DocumentViewVisitor(new TestShapeCatalog());
     const before = visitor.visit(document);
     const accept = vi.spyOn(rect, 'accept').mockImplementation(() => {
       throw new Error('child must not be visited');
@@ -67,7 +68,7 @@ describe('immutable query snapshots', () => {
     const document = new SvgDocument(100, 100);
     const text = document.createShape(new TextSpec('t1', -1, 2, ' '));
     const line = document.createShape(new LineSpec('l1', -1, 2, 3, -4));
-    const visitor = new DocumentViewVisitor();
+    const visitor = new DocumentViewVisitor(new TestShapeCatalog());
     const show = new ShowFormatter();
     expect(show.format(visitor.inspect(text))).toBe('text#t1  parent=svg\n  (-1,2) " "');
     expect(show.format(visitor.inspect(line))).toBe('line#l1  parent=svg\n  (-1,2) -> (3,-4)');

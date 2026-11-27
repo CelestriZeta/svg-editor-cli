@@ -1,7 +1,6 @@
 import { DomainError } from '../DomainError.js';
 import type { ShapeRelations } from './ShapeRelations.js';
 import type { CircleSpec } from '../specs/CircleSpec.js';
-import type { ShapeVisitor } from '../visitor/ShapeVisitor.js';
 import { GeometryChangeSet } from './GeometryChangeSet.js';
 import { GeometryValueChange } from './GeometryValueChange.js';
 import { Shape } from './Shape.js';
@@ -107,9 +106,6 @@ export class Circle extends Shape {
     ]);
   }
 
-  public override accept<T>(visitor: ShapeVisitor<T>): T {
-    return visitor.visitCircle(this);
-  }
 
   protected override ownAttributeSlot(
     name: string

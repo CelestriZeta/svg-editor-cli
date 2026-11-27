@@ -1,3 +1,4 @@
+import { TestShapeCatalog } from '../support/TestShapeCatalog.js';
 import { execFileSync, spawnSync } from 'node:child_process';
 import { copyFile, readFile } from 'node:fs/promises';
 import { fileURLToPath } from 'node:url';
@@ -53,8 +54,8 @@ describe('course acceptance through the production CLI', () => {
       text.split('\n').slice(0, 7).join('\n'));
     expect(trees).toHaveLength(2);
     expect(trees[0]).toBe(trees[1]);
-    const reader = new SvgReader();
-    const writer = new SvgWriteVisitor();
+    const reader = new SvgReader(new TestShapeCatalog());
+    const writer = new SvgWriteVisitor(new TestShapeCatalog());
     const original = reader.read(await readFile(directory.file('other.svg'), 'utf8'));
     const restored = reader.read(await readFile(directory.file('imported.svg'), 'utf8'));
     expect(writer.serialize(restored.document)).toBe(writer.serialize(original.document));

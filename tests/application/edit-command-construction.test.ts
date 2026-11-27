@@ -1,3 +1,4 @@
+import { TestShapeCatalog } from '../support/TestShapeCatalog.js';
 import { DocumentViewVisitor } from '../../src/application/queries/DocumentViewVisitor.js';
 import { describe, expect, it } from 'vitest';
 
@@ -21,8 +22,8 @@ describe('edit command construction', () => {
     const executor = new CommandExecutor(history);
     const commands = [
       new DeleteShapeCommand(document, 'missing'),
-      new MoveShapeCommand(document, 'missing', 1, 2, new DocumentViewVisitor()),
-      new ScaleShapeCommand(document, 'missing', 2, new DocumentViewVisitor()),
+      new MoveShapeCommand(document, 'missing', 1, 2, new DocumentViewVisitor(new TestShapeCatalog())),
+      new ScaleShapeCommand(document, 'missing', 2, new DocumentViewVisitor(new TestShapeCatalog())),
       new SetShapeAttributeCommand(
         document,
         'missing',
@@ -47,10 +48,10 @@ describe('edit command construction', () => {
     document.createShape(new RectSpec('r1', 1, 2, 3, 4));
 
     const moved = await executor.execute(
-      new MoveShapeCommand(document, 'r1', 0, 0, new DocumentViewVisitor())
+      new MoveShapeCommand(document, 'r1', 0, 0, new DocumentViewVisitor(new TestShapeCatalog()))
     );
     const scaled = await executor.execute(
-      new ScaleShapeCommand(document, 'r1', 1, new DocumentViewVisitor())
+      new ScaleShapeCommand(document, 'r1', 1, new DocumentViewVisitor(new TestShapeCatalog()))
     );
 
     expect(moved).toBeInstanceOf(ShapeMovedResult);

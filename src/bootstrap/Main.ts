@@ -22,15 +22,15 @@ import { BuiltinCommandsPlugin } from '../plugins/builtin-commands/BuiltinComman
 export class Main {
   public async run(): Promise<void> {
     const session = new EditorSession();
-    const documents = new DocumentService(
-      session,
-      new SvgDocumentStore(new SvgReader(), new SvgWriteVisitor())
-    );
-    const history = new CommandHistory();
     const plugins = new PluginRegistry();
     await plugins.activate('builtin-shapes', new BuiltinShapesPlugin());
+    const documents = new DocumentService(
+      session,
+      new SvgDocumentStore(new SvgReader(plugins), new SvgWriteVisitor(plugins))
+    );
+    const history = new CommandHistory();
     await plugins.activate('builtin-commands', new BuiltinCommandsPlugin(
-      session, documents, history, new DocumentViewVisitor(), plugins
+      session, documents, history, new DocumentViewVisitor(plugins), plugins
     ));
     const dispatcher = new CommandDispatcher(plugins);
     const executor = new CommandExecutor(history);

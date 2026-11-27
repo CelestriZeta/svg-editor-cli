@@ -1,3 +1,4 @@
+import { TestShapeCatalog } from '../support/TestShapeCatalog.js';
 import { readFile, readdir, rename, writeFile } from 'node:fs/promises';
 
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
@@ -27,7 +28,7 @@ describe('save failure atomicity with real files', () => {
   it.each(['create', 'partial write', 'replace'] as const)(
     '[SAVE-07/08] preserves the same target and complete session after %s failure',
     async (failure) => {
-      const harness = await ApplicationHarness.create(new SvgDocumentStore(new SvgReader(), new SvgWriteVisitor()));
+      const harness = await ApplicationHarness.create(new SvgDocumentStore(new SvgReader(new TestShapeCatalog()), new SvgWriteVisitor(new TestShapeCatalog())));
       const { repl, history } = harness;
       const path = directory.file('existing.svg');
       await repl.executeLine('init 100 100');

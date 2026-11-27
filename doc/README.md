@@ -4,7 +4,7 @@
 
 ## 1. 当前范围与架构
 
-已实现第一部分 VSCode 插件实践：Explorer 文件标记、原生 Outline 元素层级与源码定位、编辑更新及异常 XML 恢复。第二部分按逐步检查、逐步提交的顺序推进：第 2 步已提交为 112e608；当前完成第 3 步六图形创建注册化，等待用户检查，详见第 8 节。命令与图形创建均消费注册表，图形查询、SVG 读写、属性与树标签的业务扩展仍待后续节点。
+已实现第一部分 VSCode 插件实践。CLI 第 3 步已提交为 6a1e77c；当前完成第 4 步查询与 SVG 读写扩展，等待用户检查，详见第 9 节。命令、创建、查询与 SVG 编解码消费注册能力；复合创建与结构保护、属性处理和树标签留待后续节点。第 6—8 节保留各步当时的实现与验证状态。
 
 | 目录或类 | 实际职责 |
 |---|---|
@@ -442,3 +442,73 @@ specs --> model
 最终 pnpm run check 通过：CLI 34 文件/139 测试，扩展 3 文件/21 测试，两部分类型检查和构建通过；课程会话、help、六图形、in 与历史回归包含在该检查中。新集成测试 9 项，含默认顺序与三项非法语法参数化用例。完整日志见 [step-03-check.txt](cli/evidence/step-03-check.txt)。未重跑 GUI、VSIX 或依赖审计。交付检查通过：60 个本地文档路径、代码块闭合、40 个本步文本的 UTF-8/LF/末尾换行及 git diff --check；索引无差异。
 
 本步未暂存、提交、推送或操作标签。用户检查并完成提交后再推进第 4 步查询与 SVG 读写扩展。
+
+## 9. CLI 重构第 4 步：查询与 SVG 读写扩展
+
+本步从干净的 6a1e77c 继续；未暂存、提交、推送或操作标签，尚未达到四类业务扩展全部接通的框架节点。
+
+### 9.1 当前扩展点与职责
+
+| 对象 | 内核实际调用位置与行为 |
+|---|---|
+| [ShapeProvider](../src/application/extensions/ShapeProvider.ts) | 新增 project、encode、decode、validateImported，以及 svgTag/content；六个内置 provider 均实现完整契约 |
+| [ShapeVisitor](../src/domain/visitor/ShapeVisitor.ts) | visitShape、enterContainer、leaveContainer；Shape 默认叶子访问，ContainerShape 统一递归与跳过，ShapeCollector 共用协议 |
+| [DocumentViewVisitor](../src/application/queries/DocumentViewVisitor.ts) | snapshot 查询目录并调用 project；组装不可变快照，inspect 仍不访问后代 |
+| [SvgElementFactory](../src/infrastructure/SvgElementFactory.ts) | create 在唯一导入分派处按 data-kind 或基础标签查询 provider，无六类型 builder 表 |
+| [SvgElement](../src/infrastructure/SvgElement.ts) | 通用语法节点；appendTo 调用 decode、验证规格与容器能力，后代完成后调用 validateImported |
+| [SvgWriteVisitor](../src/infrastructure/SvgWriteVisitor.ts) | element 调用 encode 并检查输出，统一处理 id、样式、标记、转义和缩进 |
+| [SvgShapeInput](../src/application/ports/SvgShapeInput.ts) / [SvgShapeOutput](../src/application/ports/SvgShapeOutput.ts) | 不暴露 XML 库的输入能力与不可变输出值；原七个具体解析/样式节点类删除 |
+
+ShapeSnapshot 的 type 为基础展示标签，kind 保留逻辑类型，isContainer 表示实际 Composite。GeometrySnapshot 允许新的几何属性名，仍复制和冻结结果；领域 set 白名单没有改变。TreeFormatter/ShowFormatter 无需新增类型分支。
+
+Main 向查询、reader、writer 显式注入同一 PluginRegistry；内核不依赖默认插件。插件 API 白名单增加 SVG 端口与查询值，继续禁止跨插件、宿主和内部树依赖。测试的 TestShapeCatalog 仅为静态目录替身，不替代生产注册事务检查。
+
+### 9.2 缺省、恢复与错误契约
+
+默认六图形及其输出保持不变。逻辑名与物理标签不同则写 data-kind；已注册标记恢复相应类型，标签不匹配拒绝。未知标记按基础标签降级，普通 g 保留后代和样式；无基础 provider 或空标记时拒绝。重复 id 无论是否降级都全局拒绝，缺 id 按实际 SVG 标签分配。
+
+project 须返回 GeometrySnapshot，encode 须返回 SvgShapeOutput，decode 须返回与 id/类型相符的 ShapeSpec；错误产物拒绝。输出不允许重复/保留属性、非法名称或非有限数字。注册层检查方法与元数据，业务调用检查实际结果。查询和编码须只读、同步；读回验证仅检查候选对象，不承诺回滚插件在契约之外执行的副作用。
+
+读回在新候选文档上完成，成功后才替换会话；写出完整文本后才进入原有原子文件保存流程。恢复/降级和已加载类型畸形时拒绝整份输入的实际决策见 [ADR-005](adr/005-provider-query-and-svg-roundtrip.md)。box 部件和复合创建保护尚未实现，marked 仅为独立测试类型。
+
+### 9.3 当前依赖与实际调整
+
+```plantuml
+@startuml
+component "bootstrap" as boot
+component "PluginRegistry / ShapeCatalog" as registry
+component "builtin-shapes" as plugins
+component "公开 ShapeProvider / SVG 端口 / 查询值" as api
+component "DocumentViewVisitor / SVG 适配器" as adapters
+component "Shape / ContainerShape / 通用 Visitor" as domain
+boot ..> registry
+boot ..> plugins
+boot ..> adapters
+registry --> api
+plugins --> api
+plugins --> domain
+adapters --> registry
+adapters --> api
+adapters --> domain
+api --> domain
+@enduml
+```
+
+具体投影、编码和解码迁入 provider；语法节点仅承担通用解析职责。XML 库只在 infrastructure，领域不知道 SVG 端口或外部语法；不支持的内容仍明确拒绝。叶子访问收敛至 Shape，容器负责组合，不再在五个叶子重复 accept。
+
+### 9.4 过程、自查与实际验证
+
+先写 marked 容器、规格、provider 及往返测试，实际因 SvgContentKind 模块缺失失败。迁移检查发现换行转义和文本投影方法替换错误，同轮修正后类型检查及 7 文件/33 项针对性检查通过。随后增加真实 IO 故障与产物检查用例、开放遍历守卫，并修复 SvgAttributes 按 local 名索引会隐藏被普通 id 覆盖的 xml:id 的问题，改按完整 name 保存并补测。
+
+自查覆盖类/字段封装、职责、依赖、多态与分派、Command/Composite、领域输入、展示、失败原子性、扩展及测试组织。通用层不导入六种图形，插件不获得内部索引/树写接口；复合创建、属性和标签没有提前改动。
+
+| 实际验证 | 结果 |
+|---|---|
+| pnpm run check | CLI 35 文件/148 测试，扩展 3 文件/21 测试，两部分类型检查和构建通过 |
+| provider-roundtrip.test.ts | 新增 8 项：独立类型往返、降级、严格标记、重复 id、产物与属性校验、真实 IO 失败 |
+| 真实 CLI 对照 final | 7 个样本未变，两份 stdout 和两份 SVG 字节一致，共 11 项；不规范化换行 |
+| 文档路径、文本格式与 git diff --check | 8 份文档的 81 个本地路径与代码块检查通过；57 个本步文本 UTF-8/LF、末尾换行检查及 diff 检查通过，索引无差异 |
+
+证据：[完整检查](cli/evidence/step-04-check.txt)、[final 字节比较](cli/evidence/step-04-baseline.txt)。临时目录在核对真实路径及专用前缀后清理。未重新运行 GUI、VSIX、依赖审计、跨平台或极深树性能测试。
+
+停下供用户检查并提交后，再做第 5 步候选子树、整树 id 校验与复合结构约束；其余插件、配置装配、最终指标仍按后续节点推进。

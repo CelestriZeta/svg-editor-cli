@@ -42,7 +42,7 @@ async function createDispatcher(): Promise<{
   const plugins = new PluginRegistry();
   await plugins.activate('builtin-shapes', new BuiltinShapesPlugin());
     await plugins.activate('builtin-commands', new BuiltinCommandsPlugin(
-    session, documents, history, new DocumentViewVisitor(), plugins
+    session, documents, history, new DocumentViewVisitor(plugins), plugins
   ));
   return {
     dispatcher: new CommandDispatcher(plugins),

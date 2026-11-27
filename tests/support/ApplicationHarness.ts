@@ -28,7 +28,7 @@ export class ApplicationHarness {
     const documents = new DocumentService(session, store);
     this.#history = new CommandHistory();
     this.#builtins = new BuiltinCommandsPlugin(
-      session, documents, this.#history, new DocumentViewVisitor(), pluginRegistry
+      session, documents, this.#history, new DocumentViewVisitor(pluginRegistry), pluginRegistry
     );
     const dispatcher = new CommandDispatcher(pluginRegistry);
     this.#executor = new CommandExecutor(this.#history);

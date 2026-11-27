@@ -1,0 +1,26 @@
+$ pnpm run typecheck && pnpm run test && pnpm run build && pnpm run check:extension
+$ tsc --noEmit
+$ vitest run
+
+ RUN  v5.0.5 F:/Coding/CODE/svg-editor-cli
+
+
+ Test Files  35 passed (35)
+      Tests  148 passed (148)
+   Start at  18:14:59
+   Duration  3.21s (transform 71%, import 15%, tests 13%, worker 2%)
+
+$ node scripts/clean.mjs && tsc -p tsconfig.build.json
+$ pnpm run typecheck:extension && pnpm run test:extension && pnpm run build:extension
+$ tsc -p extensions/svg-tools/tsconfig.json
+$ vitest run --config extensions/svg-tools/vitest.config.ts
+
+ RUN  v5.0.5 F:/Coding/CODE/svg-editor-cli
+
+
+ Test Files  3 passed (3)
+      Tests  21 passed (21)
+   Start at  18:15:06
+   Duration  434ms (tests 74%, import 15%, transform 7%, worker 3%)
+
+$ node scripts/build-extension.mjs

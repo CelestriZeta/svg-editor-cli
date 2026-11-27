@@ -1,3 +1,4 @@
+import { TestShapeCatalog } from '../support/TestShapeCatalog.js';
 import { describe, expect, it } from 'vitest';
 
 import { DocumentViewVisitor } from '../../src/application/queries/DocumentViewVisitor.js';
@@ -20,9 +21,9 @@ describe('nested composite output', () => {
     );
 
     const tree = new TreeFormatter().format(
-      new DocumentViewVisitor().visit(document)
+      new DocumentViewVisitor(new TestShapeCatalog()).visit(document)
     );
-    const svg = new SvgWriteVisitor().serialize(document);
+    const svg = new SvgWriteVisitor(new TestShapeCatalog()).serialize(document);
 
     expect(tree).toBe(
       [
@@ -42,7 +43,7 @@ describe('nested composite output', () => {
       ].join('\n')
     );
 
-    const details = new DocumentViewVisitor().inspect(outer);
+    const details = new DocumentViewVisitor(new TestShapeCatalog()).inspect(outer);
     expect(details.type).toBe('g');
     expect(details.children).toEqual([]);
   });

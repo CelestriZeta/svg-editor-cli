@@ -13,7 +13,7 @@ const SVG_NAMESPACE = 'http://www.w3.org/2000/svg';
 export class SvgTreeParser {
   readonly #factory: SvgElementFactory;
 
-  public constructor(factory = new SvgElementFactory()) {
+  public constructor(factory: SvgElementFactory) {
     this.#factory = factory;
   }
 

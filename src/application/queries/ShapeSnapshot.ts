@@ -11,7 +11,9 @@ export class ShapeSnapshot {
     private readonly shapeStroke?: string,
     private readonly shapeStrokeWidth?: number,
     private readonly parentReference?: ShapeReference,
-    children: readonly ShapeSnapshot[] = []
+    children: readonly ShapeSnapshot[] = [],
+    private readonly logicalKind = reference.type,
+    private readonly container = false
   ) {
     this.#children = Object.freeze([...children]);
     Object.freeze(this);
@@ -19,6 +21,14 @@ export class ShapeSnapshot {
 
   public get type(): string {
     return this.reference.type;
+  }
+
+  public get kind(): string {
+    return this.logicalKind;
+  }
+
+  public get isContainer(): boolean {
+    return this.container;
   }
 
   public get id(): string {

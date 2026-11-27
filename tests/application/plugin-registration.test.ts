@@ -1,3 +1,4 @@
+import { TestShapeCatalog } from '../support/TestShapeCatalog.js';
 import { describe, expect, it } from 'vitest';
 
 import { PluginRegistry } from '../../src/application/extensions/PluginRegistry.js';
@@ -55,7 +56,7 @@ describe('plugin registration transactions', () => {
     if (spec === undefined) throw new Error('missing registered shape');
     const document = new SvgDocument(100, 100);
     const shape = document.createShape(spec);
-    const visitor = new DocumentViewVisitor();
+    const visitor = new DocumentViewVisitor(new TestShapeCatalog());
     const view = visitor.visit(document);
     const snapshot = visitor.inspect(shape);
     const decorator = registry.decorators.get('probe-label');

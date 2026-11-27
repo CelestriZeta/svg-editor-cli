@@ -1,3 +1,5 @@
+import type { Shape } from '../../src/domain/shapes/Shape.js';
+import type { ContainerShape } from '../../src/domain/shapes/ContainerShape.js';
 import { describe, expect, it } from 'vitest';
 
 import { SvgDocument } from '../../src/domain/document/SvgDocument.js';
@@ -87,12 +89,12 @@ describe('Group composite', () => {
 });
 
 class RecordingVisitor extends ShapeVisitor<readonly string[]> {
-  public enterGroup(group: Group): boolean {
+  public enterContainer(group: ContainerShape): boolean {
     return group.id !== 'skipped';
   }
 
-  public leaveGroup(
-    group: Group,
+  public leaveContainer(
+    group: ContainerShape,
     children: readonly (readonly string[])[]
   ): readonly string[] {
     return [
@@ -102,23 +104,7 @@ class RecordingVisitor extends ShapeVisitor<readonly string[]> {
     ];
   }
 
-  public visitCircle(): readonly string[] {
-    return [];
-  }
-
-  public visitEllipse(): readonly string[] {
-    return [];
-  }
-
-  public visitLine(): readonly string[] {
-    return [];
-  }
-
-  public visitRect(rect: Rect): readonly string[] {
-    return [`rect:${rect.id}`];
-  }
-
-  public visitText(): readonly string[] {
-    return [];
+  public visitShape(shape: Shape): readonly string[] {
+    return [shape.type + ':' + shape.id];
   }
 }
