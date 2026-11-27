@@ -229,6 +229,7 @@ describe('architecture guards', () => {
       'commands/EditChangeSetCommand.ts', 'commands/InvalidCommand.ts',
       'extensions/Plugin.ts', 'extensions/PluginContext.ts',
       'extensions/CommandContribution.ts', 'extensions/CommandCatalog.ts',
+      'extensions/PluginServices.ts',
       'extensions/TreeDecorator.ts', 'extensions/TreeLineContext.ts',
       'extensions/DecoratorCatalog.ts', 'ports/CheckpointSource.ts',
       'queries/ShapeSnapshot.ts', 'queries/DocumentView.ts',

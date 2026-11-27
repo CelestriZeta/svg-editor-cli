@@ -611,3 +611,7 @@ metrics 脚本 scripts/metrics.mjs 从两个 Git ref 取源码，以 TypeScript 
 框架节点完整回归：pnpm run check 通过，CLI 40 文件/180 项，VSCode 3 文件/21 项，两部分类型及构建通过。
 
 框架首次指标：[Git 文件清单](../docs/metrics/framework/files.md)、[原始指标](../docs/metrics/framework/metrics.json)，目标 50ba852。初版脚本误用 TypeScript 旧 AST API，执行失败后适配已安装 TypeScript 7 的原生快照 API，实际生成成功；不额外安装依赖。
+
+## 14. stats 插件（第 9 步）
+
+独立包 src/plugins/stats 注册 stats；以快照 isContainer 判定组合节点，按 DFS 首次遇到的逻辑类型顺序统计叶子，根不计数，空文档输出 (total 0, containers 0)。查询不入历史，禁用后 help 消失并报未知命令。代码装配仅改 CodePlugins，配置可使用 ./dist/plugins/stats；同一插件类不依赖内置插件或宿主实现。
