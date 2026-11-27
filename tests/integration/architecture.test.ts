@@ -148,7 +148,7 @@ describe('architecture guards', () => {
         expect(basename(file)).toBe('ShapeFactory.ts');
       }
       expect(source).not.toMatch(/switch\s*\(\s*(?:tag|name|type)\s*\)/);
-      expect(source).not.toMatch(/\b(?:EditorApi|ShapeProvider|class\s+Box)\b/);
+      expect(source).not.toMatch(/\b(?:EditorApi|class\s+Box)\b/);
     }
     for (const file of commandFiles) {
       const source = await readFile(file, 'utf8');
@@ -188,6 +188,22 @@ describe('architecture guards', () => {
     expect(attributeUpdateSource).toMatch(
       /valueKind: ShapeAttributeValueKind/
     );
+  });
+
+  it('[ARCH-P2-01] keeps extension registration independent of hosts and internal tree mutation', async () => {
+    const files = await typescriptFiles(join(sourceRoot, 'application/extensions'));
+    for (const file of files) {
+      const source = await readFile(file, 'utf8');
+      expect(source).not.toMatch(
+        /from\s+['"][^'"]*(?:bootstrap|infrastructure|plugins|node:|saxes|domain\/document)/
+      );
+      expect(source).not.toMatch(/ShapeTree\b|ShapeStructurePlanner\b/);
+      expect(source).not.toMatch(/console\.|process\.|\bimport\s*\(/);
+    }
+    const context = await readFile(
+      join(sourceRoot, 'application/extensions/PluginContext.ts'), 'utf8'
+    );
+    expect(context).not.toMatch(/EditorSession|CommandHistory|SvgDocument|commit\(|finish\(/);
   });
 
   it('[ARCH-11] contains no skipped or placeholder tests', async () => {
