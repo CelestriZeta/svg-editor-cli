@@ -1,0 +1,4087 @@
+{
+  "baseline": {
+    "ref": "final",
+    "sha": "de07b3600de23e1283a4ba1b9e6f48700e04aab3",
+    "totals": {
+      "kernel": {
+        "files": 145,
+        "lines": 6538,
+        "complexity": 1131
+      },
+      "assembly": {
+        "files": 2,
+        "lines": 64,
+        "complexity": 4
+      },
+      "plugins": {
+        "files": 0,
+        "lines": 0,
+        "complexity": 0
+      },
+      "vscode": {
+        "files": 0,
+        "lines": 0,
+        "complexity": 0
+      }
+    }
+  },
+  "target": {
+    "ref": "HEAD",
+    "sha": "50ba8525f6b628b9edeb1a7f13f4848abe011bd4",
+    "totals": {
+      "kernel": {
+        "files": 151,
+        "lines": 6036,
+        "complexity": 1185
+      },
+      "assembly": {
+        "files": 4,
+        "lines": 161,
+        "complexity": 47
+      },
+      "plugins": {
+        "files": 34,
+        "lines": 1440,
+        "complexity": 256
+      },
+      "vscode": {
+        "files": 5,
+        "lines": 195,
+        "complexity": 38
+      }
+    }
+  },
+  "method": "TypeScript AST: function baseline + if/loop/catch/case/conditional/&&/||/?? decisions; comments and strings excluded. Includes CLI production TypeScript only; VSCode separately; excludes tests, dependencies and build products.",
+  "before": [
+    {
+      "path": "src/application/CommandDispatcher.ts",
+      "category": "kernel",
+      "classes": [
+        "CommandDispatcher"
+      ],
+      "role": "领域、应用或 IO/CLI 适配（依所在目录）",
+      "lines": 199,
+      "complexity": 55,
+      "functions": 42,
+      "decisions": 13
+    },
+    {
+      "path": "src/application/CommandExecutor.ts",
+      "category": "kernel",
+      "classes": [
+        "CommandExecutor"
+      ],
+      "role": "领域、应用或 IO/CLI 适配（依所在目录）",
+      "lines": 52,
+      "complexity": 13,
+      "functions": 6,
+      "decisions": 7
+    },
+    {
+      "path": "src/application/CommandHistory.ts",
+      "category": "kernel",
+      "classes": [
+        "CommandHistory"
+      ],
+      "role": "领域、应用或 IO/CLI 适配（依所在目录）",
+      "lines": 82,
+      "complexity": 18,
+      "functions": 10,
+      "decisions": 8
+    },
+    {
+      "path": "src/application/DocumentService.ts",
+      "category": "kernel",
+      "classes": [
+        "DocumentService"
+      ],
+      "role": "领域、应用或 IO/CLI 适配（依所在目录）",
+      "lines": 73,
+      "complexity": 15,
+      "functions": 7,
+      "decisions": 8
+    },
+    {
+      "path": "src/application/EditorSession.ts",
+      "category": "kernel",
+      "classes": [
+        "EditorSession"
+      ],
+      "role": "领域、应用或 IO/CLI 适配（依所在目录）",
+      "lines": 32,
+      "complexity": 6,
+      "functions": 5,
+      "decisions": 1
+    },
+    {
+      "path": "src/application/commands/AddToCommand.ts",
+      "category": "kernel",
+      "classes": [
+        "AddToCommand"
+      ],
+      "role": "领域、应用或 IO/CLI 适配（依所在目录）",
+      "lines": 34,
+      "complexity": 3,
+      "functions": 3,
+      "decisions": 0
+    },
+    {
+      "path": "src/application/commands/BackShapeCommand.ts",
+      "category": "kernel",
+      "classes": [
+        "BackShapeCommand"
+      ],
+      "role": "领域、应用或 IO/CLI 适配（依所在目录）",
+      "lines": 18,
+      "complexity": 3,
+      "functions": 3,
+      "decisions": 0
+    },
+    {
+      "path": "src/application/commands/CreateShapeCommand.ts",
+      "category": "kernel",
+      "classes": [
+        "CreateShapeCommand"
+      ],
+      "role": "领域、应用或 IO/CLI 适配（依所在目录）",
+      "lines": 31,
+      "complexity": 3,
+      "functions": 3,
+      "decisions": 0
+    },
+    {
+      "path": "src/application/commands/DeleteShapeCommand.ts",
+      "category": "kernel",
+      "classes": [
+        "DeleteShapeCommand"
+      ],
+      "role": "领域、应用或 IO/CLI 适配（依所在目录）",
+      "lines": 42,
+      "complexity": 5,
+      "functions": 4,
+      "decisions": 1
+    },
+    {
+      "path": "src/application/commands/EditChangeSetCommand.ts",
+      "category": "kernel",
+      "classes": [
+        "EditChangeSetCommand"
+      ],
+      "role": "领域、应用或 IO/CLI 适配（依所在目录）",
+      "lines": 71,
+      "complexity": 13,
+      "functions": 8,
+      "decisions": 5
+    },
+    {
+      "path": "src/application/commands/FrontShapeCommand.ts",
+      "category": "kernel",
+      "classes": [
+        "FrontShapeCommand"
+      ],
+      "role": "领域、应用或 IO/CLI 适配（依所在目录）",
+      "lines": 18,
+      "complexity": 3,
+      "functions": 3,
+      "decisions": 0
+    },
+    {
+      "path": "src/application/commands/GroupShapesCommand.ts",
+      "category": "kernel",
+      "classes": [
+        "GroupShapesCommand"
+      ],
+      "role": "领域、应用或 IO/CLI 适配（依所在目录）",
+      "lines": 28,
+      "complexity": 3,
+      "functions": 3,
+      "decisions": 0
+    },
+    {
+      "path": "src/application/commands/HelpCommand.ts",
+      "category": "kernel",
+      "classes": [
+        "HelpCommand"
+      ],
+      "role": "领域、应用或 IO/CLI 适配（依所在目录）",
+      "lines": 14,
+      "complexity": 2,
+      "functions": 2,
+      "decisions": 0
+    },
+    {
+      "path": "src/application/commands/InitCommand.ts",
+      "category": "kernel",
+      "classes": [
+        "InitCommand"
+      ],
+      "role": "领域、应用或 IO/CLI 适配（依所在目录）",
+      "lines": 23,
+      "complexity": 3,
+      "functions": 3,
+      "decisions": 0
+    },
+    {
+      "path": "src/application/commands/InvalidCommand.ts",
+      "category": "kernel",
+      "classes": [
+        "InvalidCommand"
+      ],
+      "role": "领域、应用或 IO/CLI 适配（依所在目录）",
+      "lines": 14,
+      "complexity": 2,
+      "functions": 2,
+      "decisions": 0
+    },
+    {
+      "path": "src/application/commands/MoveShapeCommand.ts",
+      "category": "kernel",
+      "classes": [
+        "MoveShapeCommand"
+      ],
+      "role": "领域、应用或 IO/CLI 适配（依所在目录）",
+      "lines": 52,
+      "complexity": 6,
+      "functions": 4,
+      "decisions": 2
+    },
+    {
+      "path": "src/application/commands/ReadDocumentCommand.ts",
+      "category": "kernel",
+      "classes": [
+        "ReadDocumentCommand"
+      ],
+      "role": "领域、应用或 IO/CLI 适配（依所在目录）",
+      "lines": 30,
+      "complexity": 4,
+      "functions": 4,
+      "decisions": 0
+    },
+    {
+      "path": "src/application/commands/RedoCommand.ts",
+      "category": "kernel",
+      "classes": [
+        "RedoCommand"
+      ],
+      "role": "领域、应用或 IO/CLI 适配（依所在目录）",
+      "lines": 15,
+      "complexity": 3,
+      "functions": 3,
+      "decisions": 0
+    },
+    {
+      "path": "src/application/commands/ReorderShapeCommand.ts",
+      "category": "kernel",
+      "classes": [
+        "ReorderShapeCommand"
+      ],
+      "role": "领域、应用或 IO/CLI 适配（依所在目录）",
+      "lines": 34,
+      "complexity": 2,
+      "functions": 2,
+      "decisions": 0
+    },
+    {
+      "path": "src/application/commands/ResizeCanvasCommand.ts",
+      "category": "kernel",
+      "classes": [
+        "ResizeCanvasCommand"
+      ],
+      "role": "领域、应用或 IO/CLI 适配（依所在目录）",
+      "lines": 23,
+      "complexity": 3,
+      "functions": 3,
+      "decisions": 0
+    },
+    {
+      "path": "src/application/commands/SaveCommand.ts",
+      "category": "kernel",
+      "classes": [
+        "SaveCommand"
+      ],
+      "role": "领域、应用或 IO/CLI 适配（依所在目录）",
+      "lines": 23,
+      "complexity": 3,
+      "functions": 3,
+      "decisions": 0
+    },
+    {
+      "path": "src/application/commands/ScaleShapeCommand.ts",
+      "category": "kernel",
+      "classes": [
+        "ScaleShapeCommand"
+      ],
+      "role": "领域、应用或 IO/CLI 适配（依所在目录）",
+      "lines": 49,
+      "complexity": 5,
+      "functions": 4,
+      "decisions": 1
+    },
+    {
+      "path": "src/application/commands/SetShapeAttributeCommand.ts",
+      "category": "kernel",
+      "classes": [
+        "SetShapeAttributeCommand"
+      ],
+      "role": "领域、应用或 IO/CLI 适配（依所在目录）",
+      "lines": 61,
+      "complexity": 8,
+      "functions": 5,
+      "decisions": 3
+    },
+    {
+      "path": "src/application/commands/ShowCanvasCommand.ts",
+      "category": "kernel",
+      "classes": [
+        "ShowCanvasCommand"
+      ],
+      "role": "领域、应用或 IO/CLI 适配（依所在目录）",
+      "lines": 19,
+      "complexity": 3,
+      "functions": 3,
+      "decisions": 0
+    },
+    {
+      "path": "src/application/commands/ShowCommand.ts",
+      "category": "kernel",
+      "classes": [
+        "ShowCommand"
+      ],
+      "role": "领域、应用或 IO/CLI 适配（依所在目录）",
+      "lines": 24,
+      "complexity": 3,
+      "functions": 3,
+      "decisions": 0
+    },
+    {
+      "path": "src/application/commands/TreeCommand.ts",
+      "category": "kernel",
+      "classes": [
+        "TreeCommand"
+      ],
+      "role": "领域、应用或 IO/CLI 适配（依所在目录）",
+      "lines": 31,
+      "complexity": 4,
+      "functions": 3,
+      "decisions": 1
+    },
+    {
+      "path": "src/application/commands/UndoCommand.ts",
+      "category": "kernel",
+      "classes": [
+        "UndoCommand"
+      ],
+      "role": "领域、应用或 IO/CLI 适配（依所在目录）",
+      "lines": 15,
+      "complexity": 3,
+      "functions": 3,
+      "decisions": 0
+    },
+    {
+      "path": "src/application/commands/UngroupShapeCommand.ts",
+      "category": "kernel",
+      "classes": [
+        "UngroupShapeCommand"
+      ],
+      "role": "领域、应用或 IO/CLI 适配（依所在目录）",
+      "lines": 34,
+      "complexity": 3,
+      "functions": 3,
+      "decisions": 0
+    },
+    {
+      "path": "src/application/commands/contracts/Command.ts",
+      "category": "kernel",
+      "classes": [
+        "Command"
+      ],
+      "role": "领域、应用或 IO/CLI 适配（依所在目录）",
+      "lines": 17,
+      "complexity": 3,
+      "functions": 3,
+      "decisions": 0
+    },
+    {
+      "path": "src/application/commands/contracts/CommandCategory.ts",
+      "category": "kernel",
+      "classes": [],
+      "role": "领域、应用或 IO/CLI 适配（依所在目录）",
+      "lines": 6,
+      "complexity": 0,
+      "functions": 0,
+      "decisions": 0
+    },
+    {
+      "path": "src/application/commands/contracts/CommandResult.ts",
+      "category": "kernel",
+      "classes": [
+        "CommandResult"
+      ],
+      "role": "领域、应用或 IO/CLI 适配（依所在目录）",
+      "lines": 7,
+      "complexity": 0,
+      "functions": 0,
+      "decisions": 0
+    },
+    {
+      "path": "src/application/commands/contracts/CommandResultVisitor.ts",
+      "category": "kernel",
+      "classes": [],
+      "role": "领域、应用或 IO/CLI 适配（依所在目录）",
+      "lines": 41,
+      "complexity": 0,
+      "functions": 0,
+      "decisions": 0
+    },
+    {
+      "path": "src/application/commands/contracts/ReorderDirection.ts",
+      "category": "kernel",
+      "classes": [],
+      "role": "领域、应用或 IO/CLI 适配（依所在目录）",
+      "lines": 4,
+      "complexity": 0,
+      "functions": 0,
+      "decisions": 0
+    },
+    {
+      "path": "src/application/commands/contracts/ShapeSpecBuilder.ts",
+      "category": "kernel",
+      "classes": [],
+      "role": "领域、应用或 IO/CLI 适配（依所在目录）",
+      "lines": 5,
+      "complexity": 0,
+      "functions": 0,
+      "decisions": 0
+    },
+    {
+      "path": "src/application/commands/contracts/UndoableCommand.ts",
+      "category": "kernel",
+      "classes": [
+        "UndoableCommand"
+      ],
+      "role": "领域、应用或 IO/CLI 适配（依所在目录）",
+      "lines": 17,
+      "complexity": 2,
+      "functions": 2,
+      "decisions": 0
+    },
+    {
+      "path": "src/application/commands/factories/CreateShapeCommandFactory.ts",
+      "category": "kernel",
+      "classes": [
+        "CreateShapeCommandFactory"
+      ],
+      "role": "领域、应用或 IO/CLI 适配（依所在目录）",
+      "lines": 74,
+      "complexity": 15,
+      "functions": 4,
+      "decisions": 11
+    },
+    {
+      "path": "src/application/commands/factories/DocumentCommandFactory.ts",
+      "category": "kernel",
+      "classes": [
+        "DocumentCommandFactory"
+      ],
+      "role": "领域、应用或 IO/CLI 适配（依所在目录）",
+      "lines": 60,
+      "complexity": 12,
+      "functions": 5,
+      "decisions": 7
+    },
+    {
+      "path": "src/application/commands/factories/ShapeEditCommandFactory.ts",
+      "category": "kernel",
+      "classes": [
+        "ShapeEditCommandFactory"
+      ],
+      "role": "领域、应用或 IO/CLI 适配（依所在目录）",
+      "lines": 82,
+      "complexity": 23,
+      "functions": 9,
+      "decisions": 14
+    },
+    {
+      "path": "src/application/commands/results/AssignedShapeId.ts",
+      "category": "kernel",
+      "classes": [
+        "AssignedShapeId"
+      ],
+      "role": "领域、应用或 IO/CLI 适配（依所在目录）",
+      "lines": 17,
+      "complexity": 3,
+      "functions": 3,
+      "decisions": 0
+    },
+    {
+      "path": "src/application/commands/results/CanvasCreatedResult.ts",
+      "category": "kernel",
+      "classes": [
+        "CanvasCreatedResult"
+      ],
+      "role": "领域、应用或 IO/CLI 适配（依所在目录）",
+      "lines": 25,
+      "complexity": 4,
+      "functions": 4,
+      "decisions": 0
+    },
+    {
+      "path": "src/application/commands/results/CanvasResizedResult.ts",
+      "category": "kernel",
+      "classes": [
+        "CanvasResizedResult"
+      ],
+      "role": "领域、应用或 IO/CLI 适配（依所在目录）",
+      "lines": 25,
+      "complexity": 4,
+      "functions": 4,
+      "decisions": 0
+    },
+    {
+      "path": "src/application/commands/results/CanvasResult.ts",
+      "category": "kernel",
+      "classes": [
+        "CanvasResult"
+      ],
+      "role": "领域、应用或 IO/CLI 适配（依所在目录）",
+      "lines": 25,
+      "complexity": 4,
+      "functions": 4,
+      "decisions": 0
+    },
+    {
+      "path": "src/application/commands/results/DocumentReadResult.ts",
+      "category": "kernel",
+      "classes": [
+        "DocumentReadResult"
+      ],
+      "role": "领域、应用或 IO/CLI 适配（依所在目录）",
+      "lines": 33,
+      "complexity": 5,
+      "functions": 5,
+      "decisions": 0
+    },
+    {
+      "path": "src/application/commands/results/DocumentSavedResult.ts",
+      "category": "kernel",
+      "classes": [
+        "DocumentSavedResult"
+      ],
+      "role": "领域、应用或 IO/CLI 适配（依所在目录）",
+      "lines": 25,
+      "complexity": 4,
+      "functions": 4,
+      "decisions": 0
+    },
+    {
+      "path": "src/application/commands/results/EditDirection.ts",
+      "category": "kernel",
+      "classes": [],
+      "role": "领域、应用或 IO/CLI 适配（依所在目录）",
+      "lines": 5,
+      "complexity": 0,
+      "functions": 0,
+      "decisions": 0
+    },
+    {
+      "path": "src/application/commands/results/ErrorResult.ts",
+      "category": "kernel",
+      "classes": [
+        "ErrorResult"
+      ],
+      "role": "领域、应用或 IO/CLI 适配（依所在目录）",
+      "lines": 25,
+      "complexity": 4,
+      "functions": 4,
+      "decisions": 0
+    },
+    {
+      "path": "src/application/commands/results/GroupCreatedResult.ts",
+      "category": "kernel",
+      "classes": [
+        "GroupCreatedResult"
+      ],
+      "role": "领域、应用或 IO/CLI 适配（依所在目录）",
+      "lines": 21,
+      "complexity": 3,
+      "functions": 3,
+      "decisions": 0
+    },
+    {
+      "path": "src/application/commands/results/HelpResult.ts",
+      "category": "kernel",
+      "classes": [
+        "HelpResult"
+      ],
+      "role": "领域、应用或 IO/CLI 适配（依所在目录）",
+      "lines": 20,
+      "complexity": 3,
+      "functions": 3,
+      "decisions": 0
+    },
+    {
+      "path": "src/application/commands/results/ShapeAttributeSetResult.ts",
+      "category": "kernel",
+      "classes": [
+        "ShapeAttributeSetResult"
+      ],
+      "role": "领域、应用或 IO/CLI 适配（依所在目录）",
+      "lines": 28,
+      "complexity": 4,
+      "functions": 4,
+      "decisions": 0
+    },
+    {
+      "path": "src/application/commands/results/ShapeAttributeSnapshot.ts",
+      "category": "kernel",
+      "classes": [
+        "ShapeAttributeSnapshot"
+      ],
+      "role": "领域、应用或 IO/CLI 适配（依所在目录）",
+      "lines": 61,
+      "complexity": 11,
+      "functions": 7,
+      "decisions": 4
+    },
+    {
+      "path": "src/application/commands/results/ShapeCreatedResult.ts",
+      "category": "kernel",
+      "classes": [
+        "ShapeCreatedResult"
+      ],
+      "role": "领域、应用或 IO/CLI 适配（依所在目录）",
+      "lines": 22,
+      "complexity": 3,
+      "functions": 3,
+      "decisions": 0
+    },
+    {
+      "path": "src/application/commands/results/ShapeDeletedResult.ts",
+      "category": "kernel",
+      "classes": [
+        "ShapeDeletedResult"
+      ],
+      "role": "领域、应用或 IO/CLI 适配（依所在目录）",
+      "lines": 22,
+      "complexity": 3,
+      "functions": 3,
+      "decisions": 0
+    },
+    {
+      "path": "src/application/commands/results/ShapeDetailsResult.ts",
+      "category": "kernel",
+      "classes": [
+        "ShapeDetailsResult"
+      ],
+      "role": "领域、应用或 IO/CLI 适配（依所在目录）",
+      "lines": 21,
+      "complexity": 3,
+      "functions": 3,
+      "decisions": 0
+    },
+    {
+      "path": "src/application/commands/results/ShapeMovedIntoContainerResult.ts",
+      "category": "kernel",
+      "classes": [
+        "ShapeMovedIntoContainerResult"
+      ],
+      "role": "领域、应用或 IO/CLI 适配（依所在目录）",
+      "lines": 23,
+      "complexity": 3,
+      "functions": 3,
+      "decisions": 0
+    },
+    {
+      "path": "src/application/commands/results/ShapeMovedResult.ts",
+      "category": "kernel",
+      "classes": [
+        "ShapeMovedResult"
+      ],
+      "role": "领域、应用或 IO/CLI 适配（依所在目录）",
+      "lines": 34,
+      "complexity": 5,
+      "functions": 5,
+      "decisions": 0
+    },
+    {
+      "path": "src/application/commands/results/ShapeReorderedResult.ts",
+      "category": "kernel",
+      "classes": [
+        "ShapeReorderedResult"
+      ],
+      "role": "领域、应用或 IO/CLI 适配（依所在目录）",
+      "lines": 24,
+      "complexity": 3,
+      "functions": 3,
+      "decisions": 0
+    },
+    {
+      "path": "src/application/commands/results/ShapeScaledResult.ts",
+      "category": "kernel",
+      "classes": [
+        "ShapeScaledResult"
+      ],
+      "role": "领域、应用或 IO/CLI 适配（依所在目录）",
+      "lines": 29,
+      "complexity": 4,
+      "functions": 4,
+      "decisions": 0
+    },
+    {
+      "path": "src/application/commands/results/StructureChangedResult.ts",
+      "category": "kernel",
+      "classes": [
+        "StructureChangedResult"
+      ],
+      "role": "领域、应用或 IO/CLI 适配（依所在目录）",
+      "lines": 31,
+      "complexity": 5,
+      "functions": 5,
+      "decisions": 0
+    },
+    {
+      "path": "src/application/commands/results/TreeResult.ts",
+      "category": "kernel",
+      "classes": [
+        "TreeResult"
+      ],
+      "role": "领域、应用或 IO/CLI 适配（依所在目录）",
+      "lines": 21,
+      "complexity": 3,
+      "functions": 3,
+      "decisions": 0
+    },
+    {
+      "path": "src/application/commands/results/TreeSubtreeResult.ts",
+      "category": "kernel",
+      "classes": [
+        "TreeSubtreeResult"
+      ],
+      "role": "领域、应用或 IO/CLI 适配（依所在目录）",
+      "lines": 21,
+      "complexity": 3,
+      "functions": 3,
+      "decisions": 0
+    },
+    {
+      "path": "src/application/commands/results/UngroupedResult.ts",
+      "category": "kernel",
+      "classes": [
+        "UngroupedResult"
+      ],
+      "role": "领域、应用或 IO/CLI 适配（依所在目录）",
+      "lines": 26,
+      "complexity": 4,
+      "functions": 4,
+      "decisions": 0
+    },
+    {
+      "path": "src/application/commands/specs/CircleSpecBuilder.ts",
+      "category": "kernel",
+      "classes": [
+        "CircleSpecBuilder"
+      ],
+      "role": "领域、应用或 IO/CLI 适配（依所在目录）",
+      "lines": 25,
+      "complexity": 4,
+      "functions": 2,
+      "decisions": 2
+    },
+    {
+      "path": "src/application/commands/specs/EllipseSpecBuilder.ts",
+      "category": "kernel",
+      "classes": [
+        "EllipseSpecBuilder"
+      ],
+      "role": "领域、应用或 IO/CLI 适配（依所在目录）",
+      "lines": 26,
+      "complexity": 4,
+      "functions": 2,
+      "decisions": 2
+    },
+    {
+      "path": "src/application/commands/specs/GroupSpecBuilder.ts",
+      "category": "kernel",
+      "classes": [
+        "GroupSpecBuilder"
+      ],
+      "role": "领域、应用或 IO/CLI 适配（依所在目录）",
+      "lines": 13,
+      "complexity": 2,
+      "functions": 1,
+      "decisions": 1
+    },
+    {
+      "path": "src/application/commands/specs/LineSpecBuilder.ts",
+      "category": "kernel",
+      "classes": [
+        "LineSpecBuilder"
+      ],
+      "role": "领域、应用或 IO/CLI 适配（依所在目录）",
+      "lines": 26,
+      "complexity": 4,
+      "functions": 2,
+      "decisions": 2
+    },
+    {
+      "path": "src/application/commands/specs/RectSpecBuilder.ts",
+      "category": "kernel",
+      "classes": [
+        "RectSpecBuilder"
+      ],
+      "role": "领域、应用或 IO/CLI 适配（依所在目录）",
+      "lines": 26,
+      "complexity": 4,
+      "functions": 2,
+      "decisions": 2
+    },
+    {
+      "path": "src/application/commands/specs/TextSpecBuilder.ts",
+      "category": "kernel",
+      "classes": [
+        "TextSpecBuilder"
+      ],
+      "role": "领域、应用或 IO/CLI 适配（依所在目录）",
+      "lines": 23,
+      "complexity": 4,
+      "functions": 2,
+      "decisions": 2
+    },
+    {
+      "path": "src/application/commands/support/CommandDocumentBinding.ts",
+      "category": "kernel",
+      "classes": [
+        "CommandDocumentBinding"
+      ],
+      "role": "领域、应用或 IO/CLI 适配（依所在目录）",
+      "lines": 21,
+      "complexity": 3,
+      "functions": 1,
+      "decisions": 2
+    },
+    {
+      "path": "src/application/commands/support/CommandExecutionGuard.ts",
+      "category": "kernel",
+      "classes": [
+        "CommandExecutionGuard"
+      ],
+      "role": "领域、应用或 IO/CLI 适配（依所在目录）",
+      "lines": 24,
+      "complexity": 5,
+      "functions": 1,
+      "decisions": 4
+    },
+    {
+      "path": "src/application/commands/support/CommandNumberParser.ts",
+      "category": "kernel",
+      "classes": [
+        "CommandNumberParser"
+      ],
+      "role": "领域、应用或 IO/CLI 适配（依所在目录）",
+      "lines": 22,
+      "complexity": 6,
+      "functions": 2,
+      "decisions": 4
+    },
+    {
+      "path": "src/application/ports/DocumentReadError.ts",
+      "category": "kernel",
+      "classes": [
+        "DocumentReadError"
+      ],
+      "role": "领域、应用或 IO/CLI 适配（依所在目录）",
+      "lines": 16,
+      "complexity": 3,
+      "functions": 2,
+      "decisions": 1
+    },
+    {
+      "path": "src/application/ports/DocumentStore.ts",
+      "category": "kernel",
+      "classes": [],
+      "role": "领域、应用或 IO/CLI 适配（依所在目录）",
+      "lines": 7,
+      "complexity": 0,
+      "functions": 0,
+      "decisions": 0
+    },
+    {
+      "path": "src/application/ports/DocumentStoreError.ts",
+      "category": "kernel",
+      "classes": [
+        "DocumentStoreError"
+      ],
+      "role": "领域、应用或 IO/CLI 适配（依所在目录）",
+      "lines": 19,
+      "complexity": 3,
+      "functions": 2,
+      "decisions": 1
+    },
+    {
+      "path": "src/application/ports/ImportedShapeId.ts",
+      "category": "kernel",
+      "classes": [
+        "ImportedShapeId"
+      ],
+      "role": "领域、应用或 IO/CLI 适配（依所在目录）",
+      "lines": 17,
+      "complexity": 3,
+      "functions": 3,
+      "decisions": 0
+    },
+    {
+      "path": "src/application/ports/LoadedDocument.ts",
+      "category": "kernel",
+      "classes": [
+        "LoadedDocument"
+      ],
+      "role": "领域、应用或 IO/CLI 适配（依所在目录）",
+      "lines": 21,
+      "complexity": 3,
+      "functions": 3,
+      "decisions": 0
+    },
+    {
+      "path": "src/application/queries/DocumentView.ts",
+      "category": "kernel",
+      "classes": [
+        "DocumentView"
+      ],
+      "role": "领域、应用或 IO/CLI 适配（依所在目录）",
+      "lines": 29,
+      "complexity": 4,
+      "functions": 4,
+      "decisions": 0
+    },
+    {
+      "path": "src/application/queries/DocumentViewVisitor.ts",
+      "category": "kernel",
+      "classes": [
+        "DocumentViewVisitor"
+      ],
+      "role": "领域、应用或 IO/CLI 适配（依所在目录）",
+      "lines": 76,
+      "complexity": 14,
+      "functions": 13,
+      "decisions": 1
+    },
+    {
+      "path": "src/application/queries/GeometrySnapshot.ts",
+      "category": "kernel",
+      "classes": [
+        "GeometrySnapshot"
+      ],
+      "role": "领域、应用或 IO/CLI 适配（依所在目录）",
+      "lines": 68,
+      "complexity": 10,
+      "functions": 10,
+      "decisions": 0
+    },
+    {
+      "path": "src/application/queries/ShapeAnchor.ts",
+      "category": "kernel",
+      "classes": [
+        "ShapeAnchor"
+      ],
+      "role": "领域、应用或 IO/CLI 适配（依所在目录）",
+      "lines": 16,
+      "complexity": 3,
+      "functions": 3,
+      "decisions": 0
+    },
+    {
+      "path": "src/application/queries/ShapeReference.ts",
+      "category": "kernel",
+      "classes": [
+        "ShapeReference"
+      ],
+      "role": "领域、应用或 IO/CLI 适配（依所在目录）",
+      "lines": 17,
+      "complexity": 3,
+      "functions": 3,
+      "decisions": 0
+    },
+    {
+      "path": "src/application/queries/ShapeSnapshot.ts",
+      "category": "kernel",
+      "classes": [
+        "ShapeSnapshot"
+      ],
+      "role": "领域、应用或 IO/CLI 适配（依所在目录）",
+      "lines": 51,
+      "complexity": 9,
+      "functions": 9,
+      "decisions": 0
+    },
+    {
+      "path": "src/bootstrap/Main.ts",
+      "category": "assembly",
+      "classes": [
+        "Main"
+      ],
+      "role": "宿主启动及插件装配",
+      "lines": 61,
+      "complexity": 4,
+      "functions": 3,
+      "decisions": 1
+    },
+    {
+      "path": "src/bootstrap/entry.ts",
+      "category": "assembly",
+      "classes": [],
+      "role": "宿主启动及插件装配",
+      "lines": 3,
+      "complexity": 0,
+      "functions": 0,
+      "decisions": 0
+    },
+    {
+      "path": "src/cli/CommandLineParser.ts",
+      "category": "kernel",
+      "classes": [
+        "CommandLineParser"
+      ],
+      "role": "领域、应用或 IO/CLI 适配（依所在目录）",
+      "lines": 45,
+      "complexity": 10,
+      "functions": 1,
+      "decisions": 9
+    },
+    {
+      "path": "src/cli/CommandSyntaxError.ts",
+      "category": "kernel",
+      "classes": [
+        "CommandSyntaxError"
+      ],
+      "role": "领域、应用或 IO/CLI 适配（依所在目录）",
+      "lines": 6,
+      "complexity": 1,
+      "functions": 1,
+      "decisions": 0
+    },
+    {
+      "path": "src/cli/OutputFormatter.ts",
+      "category": "kernel",
+      "classes": [
+        "OutputFormatter"
+      ],
+      "role": "领域、应用或 IO/CLI 适配（依所在目录）",
+      "lines": 195,
+      "complexity": 50,
+      "functions": 26,
+      "decisions": 24
+    },
+    {
+      "path": "src/cli/Repl.ts",
+      "category": "kernel",
+      "classes": [
+        "Repl"
+      ],
+      "role": "领域、应用或 IO/CLI 适配（依所在目录）",
+      "lines": 66,
+      "complexity": 10,
+      "functions": 3,
+      "decisions": 7
+    },
+    {
+      "path": "src/cli/ShapeFormatter.ts",
+      "category": "kernel",
+      "classes": [
+        "ShapeFormatter"
+      ],
+      "role": "领域、应用或 IO/CLI 适配（依所在目录）",
+      "lines": 43,
+      "complexity": 14,
+      "functions": 5,
+      "decisions": 9
+    },
+    {
+      "path": "src/cli/ShowFormatter.ts",
+      "category": "kernel",
+      "classes": [
+        "ShowFormatter"
+      ],
+      "role": "领域、应用或 IO/CLI 适配（依所在目录）",
+      "lines": 21,
+      "complexity": 5,
+      "functions": 2,
+      "decisions": 3
+    },
+    {
+      "path": "src/cli/TreeFormatter.ts",
+      "category": "kernel",
+      "classes": [
+        "TreeFormatter"
+      ],
+      "role": "领域、应用或 IO/CLI 适配（依所在目录）",
+      "lines": 39,
+      "complexity": 7,
+      "functions": 5,
+      "decisions": 2
+    },
+    {
+      "path": "src/domain/ChangeSet.ts",
+      "category": "kernel",
+      "classes": [],
+      "role": "领域、应用或 IO/CLI 适配（依所在目录）",
+      "lines": 7,
+      "complexity": 0,
+      "functions": 0,
+      "decisions": 0
+    },
+    {
+      "path": "src/domain/ChangeSetExecutor.ts",
+      "category": "kernel",
+      "classes": [
+        "ChangeSetExecutor"
+      ],
+      "role": "领域、应用或 IO/CLI 适配（依所在目录）",
+      "lines": 55,
+      "complexity": 13,
+      "functions": 6,
+      "decisions": 7
+    },
+    {
+      "path": "src/domain/CompositeChangeSet.ts",
+      "category": "kernel",
+      "classes": [
+        "CompositeChangeSet"
+      ],
+      "role": "领域、应用或 IO/CLI 适配（依所在目录）",
+      "lines": 26,
+      "complexity": 6,
+      "functions": 6,
+      "decisions": 0
+    },
+    {
+      "path": "src/domain/DomainError.ts",
+      "category": "kernel",
+      "classes": [
+        "DomainError"
+      ],
+      "role": "领域、应用或 IO/CLI 适配（依所在目录）",
+      "lines": 6,
+      "complexity": 1,
+      "functions": 1,
+      "decisions": 0
+    },
+    {
+      "path": "src/domain/ShapeFactory.ts",
+      "category": "kernel",
+      "classes": [
+        "ShapeFactory"
+      ],
+      "role": "领域、应用或 IO/CLI 适配（依所在目录）",
+      "lines": 57,
+      "complexity": 13,
+      "functions": 1,
+      "decisions": 12
+    },
+    {
+      "path": "src/domain/document/CanvasSize.ts",
+      "category": "kernel",
+      "classes": [
+        "CanvasSize"
+      ],
+      "role": "领域、应用或 IO/CLI 适配（依所在目录）",
+      "lines": 30,
+      "complexity": 7,
+      "functions": 3,
+      "decisions": 4
+    },
+    {
+      "path": "src/domain/document/ShapeStructurePlanner.ts",
+      "category": "kernel",
+      "classes": [
+        "ShapeStructurePlanner"
+      ],
+      "role": "领域、应用或 IO/CLI 适配（依所在目录）",
+      "lines": 254,
+      "complexity": 45,
+      "functions": 18,
+      "decisions": 27
+    },
+    {
+      "path": "src/domain/document/ShapeTree.ts",
+      "category": "kernel",
+      "classes": [
+        "ShapeTree"
+      ],
+      "role": "领域、应用或 IO/CLI 适配（依所在目录）",
+      "lines": 168,
+      "complexity": 40,
+      "functions": 17,
+      "decisions": 23
+    },
+    {
+      "path": "src/domain/document/SvgDocument.ts",
+      "category": "kernel",
+      "classes": [
+        "SvgDocument"
+      ],
+      "role": "领域、应用或 IO/CLI 适配（依所在目录）",
+      "lines": 126,
+      "complexity": 23,
+      "functions": 20,
+      "decisions": 3
+    },
+    {
+      "path": "src/domain/shapes/Circle.ts",
+      "category": "kernel",
+      "classes": [
+        "Circle"
+      ],
+      "role": "领域、应用或 IO/CLI 适配（依所在目录）",
+      "lines": 125,
+      "complexity": 18,
+      "functions": 16,
+      "decisions": 2
+    },
+    {
+      "path": "src/domain/shapes/ContainerShape.ts",
+      "category": "kernel",
+      "classes": [
+        "ContainerShape"
+      ],
+      "role": "领域、应用或 IO/CLI 适配（依所在目录）",
+      "lines": 38,
+      "complexity": 6,
+      "functions": 4,
+      "decisions": 2
+    },
+    {
+      "path": "src/domain/shapes/Ellipse.ts",
+      "category": "kernel",
+      "classes": [
+        "Ellipse"
+      ],
+      "role": "领域、应用或 IO/CLI 适配（依所在目录）",
+      "lines": 147,
+      "complexity": 22,
+      "functions": 20,
+      "decisions": 2
+    },
+    {
+      "path": "src/domain/shapes/GeometryChangeSet.ts",
+      "category": "kernel",
+      "classes": [
+        "GeometryChangeSet"
+      ],
+      "role": "领域、应用或 IO/CLI 适配（依所在目录）",
+      "lines": 10,
+      "complexity": 1,
+      "functions": 1,
+      "decisions": 0
+    },
+    {
+      "path": "src/domain/shapes/GeometryValueChange.ts",
+      "category": "kernel",
+      "classes": [
+        "GeometryValueChange"
+      ],
+      "role": "领域、应用或 IO/CLI 适配（依所在目录）",
+      "lines": 43,
+      "complexity": 9,
+      "functions": 6,
+      "decisions": 3
+    },
+    {
+      "path": "src/domain/shapes/Group.ts",
+      "category": "kernel",
+      "classes": [
+        "Group"
+      ],
+      "role": "领域、应用或 IO/CLI 适配（依所在目录）",
+      "lines": 31,
+      "complexity": 5,
+      "functions": 2,
+      "decisions": 3
+    },
+    {
+      "path": "src/domain/shapes/Line.ts",
+      "category": "kernel",
+      "classes": [
+        "Line"
+      ],
+      "role": "领域、应用或 IO/CLI 适配（依所在目录）",
+      "lines": 143,
+      "complexity": 18,
+      "functions": 17,
+      "decisions": 1
+    },
+    {
+      "path": "src/domain/shapes/Rect.ts",
+      "category": "kernel",
+      "classes": [
+        "Rect"
+      ],
+      "role": "领域、应用或 IO/CLI 适配（依所在目录）",
+      "lines": 147,
+      "complexity": 22,
+      "functions": 20,
+      "decisions": 2
+    },
+    {
+      "path": "src/domain/shapes/Shape.ts",
+      "category": "kernel",
+      "classes": [
+        "Shape"
+      ],
+      "role": "领域、应用或 IO/CLI 适配（依所在目录）",
+      "lines": 198,
+      "complexity": 45,
+      "functions": 28,
+      "decisions": 17
+    },
+    {
+      "path": "src/domain/shapes/ShapeAttributeChange.ts",
+      "category": "kernel",
+      "classes": [
+        "ShapeAttributeChange"
+      ],
+      "role": "领域、应用或 IO/CLI 适配（依所在目录）",
+      "lines": 23,
+      "complexity": 4,
+      "functions": 4,
+      "decisions": 0
+    },
+    {
+      "path": "src/domain/shapes/ShapeAttributeSlot.ts",
+      "category": "kernel",
+      "classes": [
+        "ShapeAttributeSlot"
+      ],
+      "role": "领域、应用或 IO/CLI 适配（依所在目录）",
+      "lines": 94,
+      "complexity": 18,
+      "functions": 12,
+      "decisions": 6
+    },
+    {
+      "path": "src/domain/shapes/ShapeAttributeUpdate.ts",
+      "category": "kernel",
+      "classes": [
+        "ShapeAttributeUpdate"
+      ],
+      "role": "领域、应用或 IO/CLI 适配（依所在目录）",
+      "lines": 71,
+      "complexity": 11,
+      "functions": 7,
+      "decisions": 4
+    },
+    {
+      "path": "src/domain/shapes/ShapeAttributeValue.ts",
+      "category": "kernel",
+      "classes": [
+        "ShapeAttributeValue"
+      ],
+      "role": "领域、应用或 IO/CLI 适配（依所在目录）",
+      "lines": 102,
+      "complexity": 20,
+      "functions": 10,
+      "decisions": 10
+    },
+    {
+      "path": "src/domain/shapes/ShapeAttributeValueKind.ts",
+      "category": "kernel",
+      "classes": [],
+      "role": "领域、应用或 IO/CLI 适配（依所在目录）",
+      "lines": 4,
+      "complexity": 0,
+      "functions": 0,
+      "decisions": 0
+    },
+    {
+      "path": "src/domain/shapes/ShapeDissolutionChange.ts",
+      "category": "kernel",
+      "classes": [
+        "ShapeDissolutionChange"
+      ],
+      "role": "领域、应用或 IO/CLI 适配（依所在目录）",
+      "lines": 83,
+      "complexity": 14,
+      "functions": 10,
+      "decisions": 4
+    },
+    {
+      "path": "src/domain/shapes/ShapeGeometryChange.ts",
+      "category": "kernel",
+      "classes": [
+        "ShapeGeometryChange"
+      ],
+      "role": "领域、应用或 IO/CLI 适配（依所在目录）",
+      "lines": 64,
+      "complexity": 15,
+      "functions": 10,
+      "decisions": 5
+    },
+    {
+      "path": "src/domain/shapes/ShapeInsertionChange.ts",
+      "category": "kernel",
+      "classes": [
+        "ShapeInsertionChange"
+      ],
+      "role": "领域、应用或 IO/CLI 适配（依所在目录）",
+      "lines": 32,
+      "complexity": 4,
+      "functions": 4,
+      "decisions": 0
+    },
+    {
+      "path": "src/domain/shapes/ShapeLocation.ts",
+      "category": "kernel",
+      "classes": [
+        "ShapeLocation"
+      ],
+      "role": "领域、应用或 IO/CLI 适配（依所在目录）",
+      "lines": 24,
+      "complexity": 5,
+      "functions": 3,
+      "decisions": 2
+    },
+    {
+      "path": "src/domain/shapes/ShapeRelocationChange.ts",
+      "category": "kernel",
+      "classes": [
+        "ShapeRelocationChange"
+      ],
+      "role": "领域、应用或 IO/CLI 适配（依所在目录）",
+      "lines": 33,
+      "complexity": 3,
+      "functions": 3,
+      "decisions": 0
+    },
+    {
+      "path": "src/domain/shapes/ShapeRemovalChange.ts",
+      "category": "kernel",
+      "classes": [
+        "ShapeRemovalChange"
+      ],
+      "role": "领域、应用或 IO/CLI 适配（依所在目录）",
+      "lines": 28,
+      "complexity": 3,
+      "functions": 3,
+      "decisions": 0
+    },
+    {
+      "path": "src/domain/shapes/ShapeStyle.ts",
+      "category": "kernel",
+      "classes": [
+        "ShapeStyle"
+      ],
+      "role": "领域、应用或 IO/CLI 适配（依所在目录）",
+      "lines": 56,
+      "complexity": 14,
+      "functions": 7,
+      "decisions": 7
+    },
+    {
+      "path": "src/domain/shapes/ShapeTreeChange.ts",
+      "category": "kernel",
+      "classes": [
+        "ShapeTreeChange"
+      ],
+      "role": "领域、应用或 IO/CLI 适配（依所在目录）",
+      "lines": 9,
+      "complexity": 0,
+      "functions": 0,
+      "decisions": 0
+    },
+    {
+      "path": "src/domain/shapes/Text.ts",
+      "category": "kernel",
+      "classes": [
+        "Text"
+      ],
+      "role": "领域、应用或 IO/CLI 适配（依所在目录）",
+      "lines": 120,
+      "complexity": 17,
+      "functions": 15,
+      "decisions": 2
+    },
+    {
+      "path": "src/domain/specs/CircleSpec.ts",
+      "category": "kernel",
+      "classes": [
+        "CircleSpec"
+      ],
+      "role": "领域、应用或 IO/CLI 适配（依所在目录）",
+      "lines": 44,
+      "complexity": 6,
+      "functions": 4,
+      "decisions": 2
+    },
+    {
+      "path": "src/domain/specs/EllipseSpec.ts",
+      "category": "kernel",
+      "classes": [
+        "EllipseSpec"
+      ],
+      "role": "领域、应用或 IO/CLI 适配（依所在目录）",
+      "lines": 51,
+      "complexity": 8,
+      "functions": 5,
+      "decisions": 3
+    },
+    {
+      "path": "src/domain/specs/GroupSpec.ts",
+      "category": "kernel",
+      "classes": [
+        "GroupSpec"
+      ],
+      "role": "领域、应用或 IO/CLI 适配（依所在目录）",
+      "lines": 10,
+      "complexity": 1,
+      "functions": 1,
+      "decisions": 0
+    },
+    {
+      "path": "src/domain/specs/LineSpec.ts",
+      "category": "kernel",
+      "classes": [
+        "LineSpec"
+      ],
+      "role": "领域、应用或 IO/CLI 适配（依所在目录）",
+      "lines": 48,
+      "complexity": 6,
+      "functions": 5,
+      "decisions": 1
+    },
+    {
+      "path": "src/domain/specs/RectSpec.ts",
+      "category": "kernel",
+      "classes": [
+        "RectSpec"
+      ],
+      "role": "领域、应用或 IO/CLI 适配（依所在目录）",
+      "lines": 49,
+      "complexity": 8,
+      "functions": 5,
+      "decisions": 3
+    },
+    {
+      "path": "src/domain/specs/ShapeSpec.ts",
+      "category": "kernel",
+      "classes": [
+        "ShapeSpec"
+      ],
+      "role": "领域、应用或 IO/CLI 适配（依所在目录）",
+      "lines": 26,
+      "complexity": 4,
+      "functions": 3,
+      "decisions": 1
+    },
+    {
+      "path": "src/domain/specs/TextSpec.ts",
+      "category": "kernel",
+      "classes": [
+        "TextSpec"
+      ],
+      "role": "领域、应用或 IO/CLI 适配（依所在目录）",
+      "lines": 44,
+      "complexity": 6,
+      "functions": 4,
+      "decisions": 2
+    },
+    {
+      "path": "src/domain/visitor/ShapeCollector.ts",
+      "category": "kernel",
+      "classes": [
+        "ShapeCollector"
+      ],
+      "role": "领域、应用或 IO/CLI 适配（依所在目录）",
+      "lines": 45,
+      "complexity": 8,
+      "functions": 8,
+      "decisions": 0
+    },
+    {
+      "path": "src/domain/visitor/ShapeVisitor.ts",
+      "category": "kernel",
+      "classes": [
+        "ShapeVisitor"
+      ],
+      "role": "领域、应用或 IO/CLI 适配（依所在目录）",
+      "lines": 16,
+      "complexity": 0,
+      "functions": 0,
+      "decisions": 0
+    },
+    {
+      "path": "src/infrastructure/MissingIdAllocator.ts",
+      "category": "kernel",
+      "classes": [
+        "MissingIdAllocator"
+      ],
+      "role": "领域、应用或 IO/CLI 适配（依所在目录）",
+      "lines": 33,
+      "complexity": 6,
+      "functions": 3,
+      "decisions": 3
+    },
+    {
+      "path": "src/infrastructure/SvgAttributes.ts",
+      "category": "kernel",
+      "classes": [
+        "SvgAttributes"
+      ],
+      "role": "领域、应用或 IO/CLI 适配（依所在目录）",
+      "lines": 103,
+      "complexity": 29,
+      "functions": 9,
+      "decisions": 20
+    },
+    {
+      "path": "src/infrastructure/SvgCanvas.ts",
+      "category": "kernel",
+      "classes": [
+        "SvgCanvas"
+      ],
+      "role": "领域、应用或 IO/CLI 适配（依所在目录）",
+      "lines": 25,
+      "complexity": 4,
+      "functions": 4,
+      "decisions": 0
+    },
+    {
+      "path": "src/infrastructure/SvgCircleElement.ts",
+      "category": "kernel",
+      "classes": [
+        "SvgCircleElement"
+      ],
+      "role": "领域、应用或 IO/CLI 适配（依所在目录）",
+      "lines": 30,
+      "complexity": 2,
+      "functions": 2,
+      "decisions": 0
+    },
+    {
+      "path": "src/infrastructure/SvgDocumentStore.ts",
+      "category": "kernel",
+      "classes": [
+        "SvgDocumentStore"
+      ],
+      "role": "领域、应用或 IO/CLI 适配（依所在目录）",
+      "lines": 42,
+      "complexity": 5,
+      "functions": 3,
+      "decisions": 2
+    },
+    {
+      "path": "src/infrastructure/SvgElement.ts",
+      "category": "kernel",
+      "classes": [
+        "SvgElement"
+      ],
+      "role": "领域、应用或 IO/CLI 适配（依所在目录）",
+      "lines": 56,
+      "complexity": 10,
+      "functions": 7,
+      "decisions": 3
+    },
+    {
+      "path": "src/infrastructure/SvgElementFactory.ts",
+      "category": "kernel",
+      "classes": [
+        "SvgElementFactory"
+      ],
+      "role": "领域、应用或 IO/CLI 适配（依所在目录）",
+      "lines": 38,
+      "complexity": 9,
+      "functions": 8,
+      "decisions": 1
+    },
+    {
+      "path": "src/infrastructure/SvgEllipseElement.ts",
+      "category": "kernel",
+      "classes": [
+        "SvgEllipseElement"
+      ],
+      "role": "领域、应用或 IO/CLI 适配（依所在目录）",
+      "lines": 40,
+      "complexity": 2,
+      "functions": 2,
+      "decisions": 0
+    },
+    {
+      "path": "src/infrastructure/SvgGroupElement.ts",
+      "category": "kernel",
+      "classes": [
+        "SvgGroupElement"
+      ],
+      "role": "领域、应用或 IO/CLI 适配（依所在目录）",
+      "lines": 56,
+      "complexity": 8,
+      "functions": 5,
+      "decisions": 3
+    },
+    {
+      "path": "src/infrastructure/SvgLineElement.ts",
+      "category": "kernel",
+      "classes": [
+        "SvgLineElement"
+      ],
+      "role": "领域、应用或 IO/CLI 适配（依所在目录）",
+      "lines": 40,
+      "complexity": 2,
+      "functions": 2,
+      "decisions": 0
+    },
+    {
+      "path": "src/infrastructure/SvgReader.ts",
+      "category": "kernel",
+      "classes": [
+        "SvgReader"
+      ],
+      "role": "领域、应用或 IO/CLI 适配（依所在目录）",
+      "lines": 27,
+      "complexity": 4,
+      "functions": 2,
+      "decisions": 2
+    },
+    {
+      "path": "src/infrastructure/SvgRectElement.ts",
+      "category": "kernel",
+      "classes": [
+        "SvgRectElement"
+      ],
+      "role": "领域、应用或 IO/CLI 适配（依所在目录）",
+      "lines": 40,
+      "complexity": 2,
+      "functions": 2,
+      "decisions": 0
+    },
+    {
+      "path": "src/infrastructure/SvgStyledElement.ts",
+      "category": "kernel",
+      "classes": [
+        "SvgStyledElement"
+      ],
+      "role": "领域、应用或 IO/CLI 适配（依所在目录）",
+      "lines": 19,
+      "complexity": 2,
+      "functions": 2,
+      "decisions": 0
+    },
+    {
+      "path": "src/infrastructure/SvgTextElement.ts",
+      "category": "kernel",
+      "classes": [
+        "SvgTextElement"
+      ],
+      "role": "领域、应用或 IO/CLI 适配（依所在目录）",
+      "lines": 38,
+      "complexity": 4,
+      "functions": 4,
+      "decisions": 0
+    },
+    {
+      "path": "src/infrastructure/SvgTreeParser.ts",
+      "category": "kernel",
+      "classes": [
+        "SvgTreeParser"
+      ],
+      "role": "领域、应用或 IO/CLI 适配（依所在目录）",
+      "lines": 130,
+      "complexity": 27,
+      "functions": 14,
+      "decisions": 13
+    },
+    {
+      "path": "src/infrastructure/SvgWriteVisitor.ts",
+      "category": "kernel",
+      "classes": [
+        "SvgWriteVisitor"
+      ],
+      "role": "领域、应用或 IO/CLI 适配（依所在目录）",
+      "lines": 138,
+      "complexity": 18,
+      "functions": 13,
+      "decisions": 5
+    }
+  ],
+  "after": [
+    {
+      "path": "extensions/svg-tools/src/SvgDocumentSymbolProvider.ts",
+      "category": "vscode",
+      "classes": [
+        "SvgDocumentSymbolProvider"
+      ],
+      "role": "独立 VSCode 插件实践",
+      "lines": 45,
+      "complexity": 6,
+      "functions": 4,
+      "decisions": 2
+    },
+    {
+      "path": "extensions/svg-tools/src/SvgFileDecorationProvider.ts",
+      "category": "vscode",
+      "classes": [
+        "SvgFileDecorationProvider"
+      ],
+      "role": "独立 VSCode 插件实践",
+      "lines": 37,
+      "complexity": 10,
+      "functions": 5,
+      "decisions": 5
+    },
+    {
+      "path": "extensions/svg-tools/src/extension.ts",
+      "category": "vscode",
+      "classes": [],
+      "role": "独立 VSCode 插件实践",
+      "lines": 16,
+      "complexity": 1,
+      "functions": 1,
+      "decisions": 0
+    },
+    {
+      "path": "extensions/svg-tools/src/outline/SvgOutlineElement.ts",
+      "category": "vscode",
+      "classes": [
+        "SvgOutlineElement"
+      ],
+      "role": "独立 VSCode 插件实践",
+      "lines": 41,
+      "complexity": 8,
+      "functions": 8,
+      "decisions": 0
+    },
+    {
+      "path": "extensions/svg-tools/src/outline/SvgOutlineParser.ts",
+      "category": "vscode",
+      "classes": [
+        "SvgOutlineParser"
+      ],
+      "role": "独立 VSCode 插件实践",
+      "lines": 56,
+      "complexity": 13,
+      "functions": 6,
+      "decisions": 7
+    },
+    {
+      "path": "src/application/CommandDispatcher.ts",
+      "category": "kernel",
+      "classes": [
+        "CommandDispatcher"
+      ],
+      "role": "领域、应用或 IO/CLI 适配（依所在目录）",
+      "lines": 30,
+      "complexity": 7,
+      "functions": 2,
+      "decisions": 5
+    },
+    {
+      "path": "src/application/CommandExecutor.ts",
+      "category": "kernel",
+      "classes": [
+        "CommandExecutor"
+      ],
+      "role": "领域、应用或 IO/CLI 适配（依所在目录）",
+      "lines": 52,
+      "complexity": 13,
+      "functions": 6,
+      "decisions": 7
+    },
+    {
+      "path": "src/application/CommandHistory.ts",
+      "category": "kernel",
+      "classes": [
+        "CommandHistory"
+      ],
+      "role": "领域、应用或 IO/CLI 适配（依所在目录）",
+      "lines": 83,
+      "complexity": 18,
+      "functions": 10,
+      "decisions": 8
+    },
+    {
+      "path": "src/application/DocumentCheckpoints.ts",
+      "category": "kernel",
+      "classes": [
+        "DocumentCheckpoints"
+      ],
+      "role": "领域、应用或 IO/CLI 适配（依所在目录）",
+      "lines": 28,
+      "complexity": 8,
+      "functions": 4,
+      "decisions": 4
+    },
+    {
+      "path": "src/application/DocumentService.ts",
+      "category": "kernel",
+      "classes": [
+        "DocumentService"
+      ],
+      "role": "领域、应用或 IO/CLI 适配（依所在目录）",
+      "lines": 79,
+      "complexity": 15,
+      "functions": 7,
+      "decisions": 8
+    },
+    {
+      "path": "src/application/EditorSession.ts",
+      "category": "kernel",
+      "classes": [
+        "EditorSession"
+      ],
+      "role": "领域、应用或 IO/CLI 适配（依所在目录）",
+      "lines": 33,
+      "complexity": 6,
+      "functions": 5,
+      "decisions": 1
+    },
+    {
+      "path": "src/application/commands/EditChangeSetCommand.ts",
+      "category": "kernel",
+      "classes": [
+        "EditChangeSetCommand"
+      ],
+      "role": "领域、应用或 IO/CLI 适配（依所在目录）",
+      "lines": 71,
+      "complexity": 13,
+      "functions": 8,
+      "decisions": 5
+    },
+    {
+      "path": "src/application/commands/InvalidCommand.ts",
+      "category": "kernel",
+      "classes": [
+        "InvalidCommand"
+      ],
+      "role": "领域、应用或 IO/CLI 适配（依所在目录）",
+      "lines": 14,
+      "complexity": 2,
+      "functions": 2,
+      "decisions": 0
+    },
+    {
+      "path": "src/application/commands/contracts/Command.ts",
+      "category": "kernel",
+      "classes": [
+        "Command"
+      ],
+      "role": "领域、应用或 IO/CLI 适配（依所在目录）",
+      "lines": 17,
+      "complexity": 3,
+      "functions": 3,
+      "decisions": 0
+    },
+    {
+      "path": "src/application/commands/contracts/CommandCategory.ts",
+      "category": "kernel",
+      "classes": [],
+      "role": "领域、应用或 IO/CLI 适配（依所在目录）",
+      "lines": 6,
+      "complexity": 0,
+      "functions": 0,
+      "decisions": 0
+    },
+    {
+      "path": "src/application/commands/contracts/CommandPresenter.ts",
+      "category": "kernel",
+      "classes": [],
+      "role": "领域、应用或 IO/CLI 适配（依所在目录）",
+      "lines": 4,
+      "complexity": 0,
+      "functions": 0,
+      "decisions": 0
+    },
+    {
+      "path": "src/application/commands/contracts/CommandResult.ts",
+      "category": "kernel",
+      "classes": [
+        "CommandResult"
+      ],
+      "role": "领域、应用或 IO/CLI 适配（依所在目录）",
+      "lines": 7,
+      "complexity": 0,
+      "functions": 0,
+      "decisions": 0
+    },
+    {
+      "path": "src/application/commands/contracts/CommandResultVisitor.ts",
+      "category": "kernel",
+      "classes": [],
+      "role": "领域、应用或 IO/CLI 适配（依所在目录）",
+      "lines": 43,
+      "complexity": 0,
+      "functions": 0,
+      "decisions": 0
+    },
+    {
+      "path": "src/application/commands/contracts/HistoryController.ts",
+      "category": "kernel",
+      "classes": [],
+      "role": "领域、应用或 IO/CLI 适配（依所在目录）",
+      "lines": 6,
+      "complexity": 0,
+      "functions": 0,
+      "decisions": 0
+    },
+    {
+      "path": "src/application/commands/contracts/ReorderDirection.ts",
+      "category": "kernel",
+      "classes": [],
+      "role": "领域、应用或 IO/CLI 适配（依所在目录）",
+      "lines": 4,
+      "complexity": 0,
+      "functions": 0,
+      "decisions": 0
+    },
+    {
+      "path": "src/application/commands/contracts/UndoableCommand.ts",
+      "category": "kernel",
+      "classes": [
+        "UndoableCommand"
+      ],
+      "role": "领域、应用或 IO/CLI 适配（依所在目录）",
+      "lines": 17,
+      "complexity": 2,
+      "functions": 2,
+      "decisions": 0
+    },
+    {
+      "path": "src/application/commands/results/AssignedShapeId.ts",
+      "category": "kernel",
+      "classes": [
+        "AssignedShapeId"
+      ],
+      "role": "领域、应用或 IO/CLI 适配（依所在目录）",
+      "lines": 17,
+      "complexity": 3,
+      "functions": 3,
+      "decisions": 0
+    },
+    {
+      "path": "src/application/commands/results/CanvasCreatedResult.ts",
+      "category": "kernel",
+      "classes": [
+        "CanvasCreatedResult"
+      ],
+      "role": "领域、应用或 IO/CLI 适配（依所在目录）",
+      "lines": 25,
+      "complexity": 4,
+      "functions": 4,
+      "decisions": 0
+    },
+    {
+      "path": "src/application/commands/results/CanvasResizedResult.ts",
+      "category": "kernel",
+      "classes": [
+        "CanvasResizedResult"
+      ],
+      "role": "领域、应用或 IO/CLI 适配（依所在目录）",
+      "lines": 25,
+      "complexity": 4,
+      "functions": 4,
+      "decisions": 0
+    },
+    {
+      "path": "src/application/commands/results/CanvasResult.ts",
+      "category": "kernel",
+      "classes": [
+        "CanvasResult"
+      ],
+      "role": "领域、应用或 IO/CLI 适配（依所在目录）",
+      "lines": 25,
+      "complexity": 4,
+      "functions": 4,
+      "decisions": 0
+    },
+    {
+      "path": "src/application/commands/results/DocumentReadResult.ts",
+      "category": "kernel",
+      "classes": [
+        "DocumentReadResult"
+      ],
+      "role": "领域、应用或 IO/CLI 适配（依所在目录）",
+      "lines": 33,
+      "complexity": 5,
+      "functions": 5,
+      "decisions": 0
+    },
+    {
+      "path": "src/application/commands/results/DocumentSavedResult.ts",
+      "category": "kernel",
+      "classes": [
+        "DocumentSavedResult"
+      ],
+      "role": "领域、应用或 IO/CLI 适配（依所在目录）",
+      "lines": 25,
+      "complexity": 4,
+      "functions": 4,
+      "decisions": 0
+    },
+    {
+      "path": "src/application/commands/results/EditDirection.ts",
+      "category": "kernel",
+      "classes": [],
+      "role": "领域、应用或 IO/CLI 适配（依所在目录）",
+      "lines": 5,
+      "complexity": 0,
+      "functions": 0,
+      "decisions": 0
+    },
+    {
+      "path": "src/application/commands/results/ErrorResult.ts",
+      "category": "kernel",
+      "classes": [
+        "ErrorResult"
+      ],
+      "role": "领域、应用或 IO/CLI 适配（依所在目录）",
+      "lines": 25,
+      "complexity": 4,
+      "functions": 4,
+      "decisions": 0
+    },
+    {
+      "path": "src/application/commands/results/GroupCreatedResult.ts",
+      "category": "kernel",
+      "classes": [
+        "GroupCreatedResult"
+      ],
+      "role": "领域、应用或 IO/CLI 适配（依所在目录）",
+      "lines": 21,
+      "complexity": 3,
+      "functions": 3,
+      "decisions": 0
+    },
+    {
+      "path": "src/application/commands/results/HelpResult.ts",
+      "category": "kernel",
+      "classes": [
+        "HelpResult"
+      ],
+      "role": "领域、应用或 IO/CLI 适配（依所在目录）",
+      "lines": 20,
+      "complexity": 3,
+      "functions": 3,
+      "decisions": 0
+    },
+    {
+      "path": "src/application/commands/results/PresentedCommandResult.ts",
+      "category": "kernel",
+      "classes": [
+        "PresentedCommandResult"
+      ],
+      "role": "领域、应用或 IO/CLI 适配（依所在目录）",
+      "lines": 31,
+      "complexity": 5,
+      "functions": 4,
+      "decisions": 1
+    },
+    {
+      "path": "src/application/commands/results/ShapeAttributeSetResult.ts",
+      "category": "kernel",
+      "classes": [
+        "ShapeAttributeSetResult"
+      ],
+      "role": "领域、应用或 IO/CLI 适配（依所在目录）",
+      "lines": 28,
+      "complexity": 4,
+      "functions": 4,
+      "decisions": 0
+    },
+    {
+      "path": "src/application/commands/results/ShapeAttributeSnapshot.ts",
+      "category": "kernel",
+      "classes": [
+        "ShapeAttributeSnapshot"
+      ],
+      "role": "领域、应用或 IO/CLI 适配（依所在目录）",
+      "lines": 61,
+      "complexity": 11,
+      "functions": 7,
+      "decisions": 4
+    },
+    {
+      "path": "src/application/commands/results/ShapeCreatedResult.ts",
+      "category": "kernel",
+      "classes": [
+        "ShapeCreatedResult"
+      ],
+      "role": "领域、应用或 IO/CLI 适配（依所在目录）",
+      "lines": 22,
+      "complexity": 3,
+      "functions": 3,
+      "decisions": 0
+    },
+    {
+      "path": "src/application/commands/results/ShapeDeletedResult.ts",
+      "category": "kernel",
+      "classes": [
+        "ShapeDeletedResult"
+      ],
+      "role": "领域、应用或 IO/CLI 适配（依所在目录）",
+      "lines": 22,
+      "complexity": 3,
+      "functions": 3,
+      "decisions": 0
+    },
+    {
+      "path": "src/application/commands/results/ShapeDetailsResult.ts",
+      "category": "kernel",
+      "classes": [
+        "ShapeDetailsResult"
+      ],
+      "role": "领域、应用或 IO/CLI 适配（依所在目录）",
+      "lines": 21,
+      "complexity": 3,
+      "functions": 3,
+      "decisions": 0
+    },
+    {
+      "path": "src/application/commands/results/ShapeMovedIntoContainerResult.ts",
+      "category": "kernel",
+      "classes": [
+        "ShapeMovedIntoContainerResult"
+      ],
+      "role": "领域、应用或 IO/CLI 适配（依所在目录）",
+      "lines": 23,
+      "complexity": 3,
+      "functions": 3,
+      "decisions": 0
+    },
+    {
+      "path": "src/application/commands/results/ShapeMovedResult.ts",
+      "category": "kernel",
+      "classes": [
+        "ShapeMovedResult"
+      ],
+      "role": "领域、应用或 IO/CLI 适配（依所在目录）",
+      "lines": 34,
+      "complexity": 5,
+      "functions": 5,
+      "decisions": 0
+    },
+    {
+      "path": "src/application/commands/results/ShapeReorderedResult.ts",
+      "category": "kernel",
+      "classes": [
+        "ShapeReorderedResult"
+      ],
+      "role": "领域、应用或 IO/CLI 适配（依所在目录）",
+      "lines": 24,
+      "complexity": 3,
+      "functions": 3,
+      "decisions": 0
+    },
+    {
+      "path": "src/application/commands/results/ShapeScaledResult.ts",
+      "category": "kernel",
+      "classes": [
+        "ShapeScaledResult"
+      ],
+      "role": "领域、应用或 IO/CLI 适配（依所在目录）",
+      "lines": 29,
+      "complexity": 4,
+      "functions": 4,
+      "decisions": 0
+    },
+    {
+      "path": "src/application/commands/results/StructureChangedResult.ts",
+      "category": "kernel",
+      "classes": [
+        "StructureChangedResult"
+      ],
+      "role": "领域、应用或 IO/CLI 适配（依所在目录）",
+      "lines": 31,
+      "complexity": 5,
+      "functions": 5,
+      "decisions": 0
+    },
+    {
+      "path": "src/application/commands/results/TreeResult.ts",
+      "category": "kernel",
+      "classes": [
+        "TreeResult"
+      ],
+      "role": "领域、应用或 IO/CLI 适配（依所在目录）",
+      "lines": 21,
+      "complexity": 3,
+      "functions": 3,
+      "decisions": 0
+    },
+    {
+      "path": "src/application/commands/results/TreeSubtreeResult.ts",
+      "category": "kernel",
+      "classes": [
+        "TreeSubtreeResult"
+      ],
+      "role": "领域、应用或 IO/CLI 适配（依所在目录）",
+      "lines": 21,
+      "complexity": 3,
+      "functions": 3,
+      "decisions": 0
+    },
+    {
+      "path": "src/application/commands/results/UngroupedResult.ts",
+      "category": "kernel",
+      "classes": [
+        "UngroupedResult"
+      ],
+      "role": "领域、应用或 IO/CLI 适配（依所在目录）",
+      "lines": 26,
+      "complexity": 4,
+      "functions": 4,
+      "decisions": 0
+    },
+    {
+      "path": "src/application/commands/support/CommandDocumentBinding.ts",
+      "category": "kernel",
+      "classes": [
+        "CommandDocumentBinding"
+      ],
+      "role": "领域、应用或 IO/CLI 适配（依所在目录）",
+      "lines": 21,
+      "complexity": 3,
+      "functions": 1,
+      "decisions": 2
+    },
+    {
+      "path": "src/application/commands/support/CommandExecutionGuard.ts",
+      "category": "kernel",
+      "classes": [
+        "CommandExecutionGuard"
+      ],
+      "role": "领域、应用或 IO/CLI 适配（依所在目录）",
+      "lines": 24,
+      "complexity": 5,
+      "functions": 1,
+      "decisions": 4
+    },
+    {
+      "path": "src/application/commands/support/CommandNumberParser.ts",
+      "category": "kernel",
+      "classes": [
+        "CommandNumberParser"
+      ],
+      "role": "领域、应用或 IO/CLI 适配（依所在目录）",
+      "lines": 22,
+      "complexity": 6,
+      "functions": 2,
+      "decisions": 4
+    },
+    {
+      "path": "src/application/extensions/AttributeCatalog.ts",
+      "category": "kernel",
+      "classes": [],
+      "role": "领域、应用或 IO/CLI 适配（依所在目录）",
+      "lines": 5,
+      "complexity": 0,
+      "functions": 0,
+      "decisions": 0
+    },
+    {
+      "path": "src/application/extensions/AttributeEditContext.ts",
+      "category": "kernel",
+      "classes": [],
+      "role": "领域、应用或 IO/CLI 适配（依所在目录）",
+      "lines": 10,
+      "complexity": 0,
+      "functions": 0,
+      "decisions": 0
+    },
+    {
+      "path": "src/application/extensions/AttributeHandler.ts",
+      "category": "kernel",
+      "classes": [],
+      "role": "领域、应用或 IO/CLI 适配（依所在目录）",
+      "lines": 18,
+      "complexity": 0,
+      "functions": 0,
+      "decisions": 0
+    },
+    {
+      "path": "src/application/extensions/AttributeResolver.ts",
+      "category": "kernel",
+      "classes": [
+        "AttributeResolver"
+      ],
+      "role": "领域、应用或 IO/CLI 适配（依所在目录）",
+      "lines": 23,
+      "complexity": 12,
+      "functions": 3,
+      "decisions": 9
+    },
+    {
+      "path": "src/application/extensions/CommandCatalog.ts",
+      "category": "kernel",
+      "classes": [],
+      "role": "领域、应用或 IO/CLI 适配（依所在目录）",
+      "lines": 7,
+      "complexity": 0,
+      "functions": 0,
+      "decisions": 0
+    },
+    {
+      "path": "src/application/extensions/CommandContribution.ts",
+      "category": "kernel",
+      "classes": [],
+      "role": "领域、应用或 IO/CLI 适配（依所在目录）",
+      "lines": 9,
+      "complexity": 0,
+      "functions": 0,
+      "decisions": 0
+    },
+    {
+      "path": "src/application/extensions/DecoratorCatalog.ts",
+      "category": "kernel",
+      "classes": [],
+      "role": "领域、应用或 IO/CLI 适配（依所在目录）",
+      "lines": 5,
+      "complexity": 0,
+      "functions": 0,
+      "decisions": 0
+    },
+    {
+      "path": "src/application/extensions/ExtensionRegistry.ts",
+      "category": "kernel",
+      "classes": [
+        "ExtensionRegistry"
+      ],
+      "role": "领域、应用或 IO/CLI 适配（依所在目录）",
+      "lines": 52,
+      "complexity": 11,
+      "functions": 5,
+      "decisions": 6
+    },
+    {
+      "path": "src/application/extensions/Plugin.ts",
+      "category": "kernel",
+      "classes": [],
+      "role": "领域、应用或 IO/CLI 适配（依所在目录）",
+      "lines": 5,
+      "complexity": 0,
+      "functions": 0,
+      "decisions": 0
+    },
+    {
+      "path": "src/application/extensions/PluginActivationError.ts",
+      "category": "kernel",
+      "classes": [
+        "PluginActivationError"
+      ],
+      "role": "领域、应用或 IO/CLI 适配（依所在目录）",
+      "lines": 7,
+      "complexity": 2,
+      "functions": 1,
+      "decisions": 1
+    },
+    {
+      "path": "src/application/extensions/PluginContext.ts",
+      "category": "kernel",
+      "classes": [],
+      "role": "领域、应用或 IO/CLI 适配（依所在目录）",
+      "lines": 12,
+      "complexity": 0,
+      "functions": 0,
+      "decisions": 0
+    },
+    {
+      "path": "src/application/extensions/PluginContributions.ts",
+      "category": "kernel",
+      "classes": [
+        "PluginContributions"
+      ],
+      "role": "领域、应用或 IO/CLI 适配（依所在目录）",
+      "lines": 76,
+      "complexity": 19,
+      "functions": 11,
+      "decisions": 8
+    },
+    {
+      "path": "src/application/extensions/PluginManifest.ts",
+      "category": "kernel",
+      "classes": [
+        "PluginManifest"
+      ],
+      "role": "领域、应用或 IO/CLI 适配（依所在目录）",
+      "lines": 26,
+      "complexity": 20,
+      "functions": 8,
+      "decisions": 12
+    },
+    {
+      "path": "src/application/extensions/PluginRegistration.ts",
+      "category": "kernel",
+      "classes": [
+        "PluginRegistration"
+      ],
+      "role": "领域、应用或 IO/CLI 适配（依所在目录）",
+      "lines": 59,
+      "complexity": 18,
+      "functions": 14,
+      "decisions": 4
+    },
+    {
+      "path": "src/application/extensions/PluginRegistrationError.ts",
+      "category": "kernel",
+      "classes": [
+        "PluginRegistrationError"
+      ],
+      "role": "领域、应用或 IO/CLI 适配（依所在目录）",
+      "lines": 7,
+      "complexity": 1,
+      "functions": 1,
+      "decisions": 0
+    },
+    {
+      "path": "src/application/extensions/PluginRegistry.ts",
+      "category": "kernel",
+      "classes": [
+        "PluginRegistry"
+      ],
+      "role": "领域、应用或 IO/CLI 适配（依所在目录）",
+      "lines": 80,
+      "complexity": 18,
+      "functions": 16,
+      "decisions": 2
+    },
+    {
+      "path": "src/application/extensions/PluginServices.ts",
+      "category": "kernel",
+      "classes": [],
+      "role": "领域、应用或 IO/CLI 适配（依所在目录）",
+      "lines": 11,
+      "complexity": 0,
+      "functions": 0,
+      "decisions": 0
+    },
+    {
+      "path": "src/application/extensions/PreparedAttributeEdit.ts",
+      "category": "kernel",
+      "classes": [],
+      "role": "领域、应用或 IO/CLI 适配（依所在目录）",
+      "lines": 9,
+      "complexity": 0,
+      "functions": 0,
+      "decisions": 0
+    },
+    {
+      "path": "src/application/extensions/ShapeCatalog.ts",
+      "category": "kernel",
+      "classes": [],
+      "role": "领域、应用或 IO/CLI 适配（依所在目录）",
+      "lines": 6,
+      "complexity": 0,
+      "functions": 0,
+      "decisions": 0
+    },
+    {
+      "path": "src/application/extensions/ShapeProvider.ts",
+      "category": "kernel",
+      "classes": [],
+      "role": "领域、应用或 IO/CLI 适配（依所在目录）",
+      "lines": 20,
+      "complexity": 0,
+      "functions": 0,
+      "decisions": 0
+    },
+    {
+      "path": "src/application/extensions/TreeDecorator.ts",
+      "category": "kernel",
+      "classes": [],
+      "role": "领域、应用或 IO/CLI 适配（依所在目录）",
+      "lines": 8,
+      "complexity": 0,
+      "functions": 0,
+      "decisions": 0
+    },
+    {
+      "path": "src/application/extensions/TreeLineContext.ts",
+      "category": "kernel",
+      "classes": [
+        "TreeLineContext"
+      ],
+      "role": "领域、应用或 IO/CLI 适配（依所在目录）",
+      "lines": 20,
+      "complexity": 3,
+      "functions": 3,
+      "decisions": 0
+    },
+    {
+      "path": "src/application/ports/ActiveDocument.ts",
+      "category": "kernel",
+      "classes": [],
+      "role": "领域、应用或 IO/CLI 适配（依所在目录）",
+      "lines": 5,
+      "complexity": 0,
+      "functions": 0,
+      "decisions": 0
+    },
+    {
+      "path": "src/application/ports/CheckpointSource.ts",
+      "category": "kernel",
+      "classes": [],
+      "role": "领域、应用或 IO/CLI 适配（依所在目录）",
+      "lines": 5,
+      "complexity": 0,
+      "functions": 0,
+      "decisions": 0
+    },
+    {
+      "path": "src/application/ports/DirectoryAccess.ts",
+      "category": "kernel",
+      "classes": [],
+      "role": "领域、应用或 IO/CLI 适配（依所在目录）",
+      "lines": 6,
+      "complexity": 0,
+      "functions": 0,
+      "decisions": 0
+    },
+    {
+      "path": "src/application/ports/DirectoryEntry.ts",
+      "category": "kernel",
+      "classes": [
+        "DirectoryEntry"
+      ],
+      "role": "领域、应用或 IO/CLI 适配（依所在目录）",
+      "lines": 7,
+      "complexity": 3,
+      "functions": 3,
+      "decisions": 0
+    },
+    {
+      "path": "src/application/ports/DocumentOperations.ts",
+      "category": "kernel",
+      "classes": [],
+      "role": "领域、应用或 IO/CLI 适配（依所在目录）",
+      "lines": 12,
+      "complexity": 0,
+      "functions": 0,
+      "decisions": 0
+    },
+    {
+      "path": "src/application/ports/DocumentReadError.ts",
+      "category": "kernel",
+      "classes": [
+        "DocumentReadError"
+      ],
+      "role": "领域、应用或 IO/CLI 适配（依所在目录）",
+      "lines": 16,
+      "complexity": 3,
+      "functions": 2,
+      "decisions": 1
+    },
+    {
+      "path": "src/application/ports/DocumentStore.ts",
+      "category": "kernel",
+      "classes": [],
+      "role": "领域、应用或 IO/CLI 适配（依所在目录）",
+      "lines": 7,
+      "complexity": 0,
+      "functions": 0,
+      "decisions": 0
+    },
+    {
+      "path": "src/application/ports/DocumentStoreError.ts",
+      "category": "kernel",
+      "classes": [
+        "DocumentStoreError"
+      ],
+      "role": "领域、应用或 IO/CLI 适配（依所在目录）",
+      "lines": 19,
+      "complexity": 3,
+      "functions": 2,
+      "decisions": 1
+    },
+    {
+      "path": "src/application/ports/ImportedShapeId.ts",
+      "category": "kernel",
+      "classes": [
+        "ImportedShapeId"
+      ],
+      "role": "领域、应用或 IO/CLI 适配（依所在目录）",
+      "lines": 17,
+      "complexity": 3,
+      "functions": 3,
+      "decisions": 0
+    },
+    {
+      "path": "src/application/ports/LoadedDocument.ts",
+      "category": "kernel",
+      "classes": [
+        "LoadedDocument"
+      ],
+      "role": "领域、应用或 IO/CLI 适配（依所在目录）",
+      "lines": 21,
+      "complexity": 3,
+      "functions": 3,
+      "decisions": 0
+    },
+    {
+      "path": "src/application/ports/SvgContentKind.ts",
+      "category": "kernel",
+      "classes": [],
+      "role": "领域、应用或 IO/CLI 适配（依所在目录）",
+      "lines": 5,
+      "complexity": 0,
+      "functions": 0,
+      "decisions": 0
+    },
+    {
+      "path": "src/application/ports/SvgShapeInput.ts",
+      "category": "kernel",
+      "classes": [],
+      "role": "领域、应用或 IO/CLI 适配（依所在目录）",
+      "lines": 10,
+      "complexity": 0,
+      "functions": 0,
+      "decisions": 0
+    },
+    {
+      "path": "src/application/ports/SvgShapeOutput.ts",
+      "category": "kernel",
+      "classes": [
+        "SvgShapeOutput"
+      ],
+      "role": "领域、应用或 IO/CLI 适配（依所在目录）",
+      "lines": 33,
+      "complexity": 11,
+      "functions": 4,
+      "decisions": 7
+    },
+    {
+      "path": "src/application/queries/DocumentQuery.ts",
+      "category": "kernel",
+      "classes": [],
+      "role": "领域、应用或 IO/CLI 适配（依所在目录）",
+      "lines": 10,
+      "complexity": 0,
+      "functions": 0,
+      "decisions": 0
+    },
+    {
+      "path": "src/application/queries/DocumentView.ts",
+      "category": "kernel",
+      "classes": [
+        "DocumentView"
+      ],
+      "role": "领域、应用或 IO/CLI 适配（依所在目录）",
+      "lines": 29,
+      "complexity": 4,
+      "functions": 4,
+      "decisions": 0
+    },
+    {
+      "path": "src/application/queries/DocumentViewVisitor.ts",
+      "category": "kernel",
+      "classes": [
+        "DocumentViewVisitor"
+      ],
+      "role": "领域、应用或 IO/CLI 适配（依所在目录）",
+      "lines": 60,
+      "complexity": 14,
+      "functions": 9,
+      "decisions": 5
+    },
+    {
+      "path": "src/application/queries/GeometrySnapshot.ts",
+      "category": "kernel",
+      "classes": [
+        "GeometrySnapshot"
+      ],
+      "role": "领域、应用或 IO/CLI 适配（依所在目录）",
+      "lines": 65,
+      "complexity": 10,
+      "functions": 10,
+      "decisions": 0
+    },
+    {
+      "path": "src/application/queries/ShapeAnchor.ts",
+      "category": "kernel",
+      "classes": [
+        "ShapeAnchor"
+      ],
+      "role": "领域、应用或 IO/CLI 适配（依所在目录）",
+      "lines": 16,
+      "complexity": 3,
+      "functions": 3,
+      "decisions": 0
+    },
+    {
+      "path": "src/application/queries/ShapeReference.ts",
+      "category": "kernel",
+      "classes": [
+        "ShapeReference"
+      ],
+      "role": "领域、应用或 IO/CLI 适配（依所在目录）",
+      "lines": 17,
+      "complexity": 3,
+      "functions": 3,
+      "decisions": 0
+    },
+    {
+      "path": "src/application/queries/ShapeSnapshot.ts",
+      "category": "kernel",
+      "classes": [
+        "ShapeSnapshot"
+      ],
+      "role": "领域、应用或 IO/CLI 适配（依所在目录）",
+      "lines": 61,
+      "complexity": 11,
+      "functions": 11,
+      "decisions": 0
+    },
+    {
+      "path": "src/bootstrap/CodePlugins.ts",
+      "category": "assembly",
+      "classes": [
+        "CodePlugins"
+      ],
+      "role": "宿主启动及插件装配",
+      "lines": 7,
+      "complexity": 1,
+      "functions": 1,
+      "decisions": 0
+    },
+    {
+      "path": "src/bootstrap/Main.ts",
+      "category": "assembly",
+      "classes": [
+        "Main"
+      ],
+      "role": "宿主启动及插件装配",
+      "lines": 76,
+      "complexity": 9,
+      "functions": 5,
+      "decisions": 4
+    },
+    {
+      "path": "src/bootstrap/PluginLoader.ts",
+      "category": "assembly",
+      "classes": [
+        "PluginLoader"
+      ],
+      "role": "宿主启动及插件装配",
+      "lines": 75,
+      "complexity": 37,
+      "functions": 5,
+      "decisions": 32
+    },
+    {
+      "path": "src/bootstrap/entry.ts",
+      "category": "assembly",
+      "classes": [],
+      "role": "宿主启动及插件装配",
+      "lines": 3,
+      "complexity": 0,
+      "functions": 0,
+      "decisions": 0
+    },
+    {
+      "path": "src/cli/CommandLineParser.ts",
+      "category": "kernel",
+      "classes": [
+        "CommandLineParser"
+      ],
+      "role": "领域、应用或 IO/CLI 适配（依所在目录）",
+      "lines": 45,
+      "complexity": 10,
+      "functions": 1,
+      "decisions": 9
+    },
+    {
+      "path": "src/cli/CommandSyntaxError.ts",
+      "category": "kernel",
+      "classes": [
+        "CommandSyntaxError"
+      ],
+      "role": "领域、应用或 IO/CLI 适配（依所在目录）",
+      "lines": 6,
+      "complexity": 1,
+      "functions": 1,
+      "decisions": 0
+    },
+    {
+      "path": "src/cli/OutputFormatter.ts",
+      "category": "kernel",
+      "classes": [
+        "OutputFormatter"
+      ],
+      "role": "领域、应用或 IO/CLI 适配（依所在目录）",
+      "lines": 200,
+      "complexity": 51,
+      "functions": 27,
+      "decisions": 24
+    },
+    {
+      "path": "src/cli/Repl.ts",
+      "category": "kernel",
+      "classes": [
+        "Repl"
+      ],
+      "role": "领域、应用或 IO/CLI 适配（依所在目录）",
+      "lines": 67,
+      "complexity": 11,
+      "functions": 3,
+      "decisions": 8
+    },
+    {
+      "path": "src/cli/ShapeFormatter.ts",
+      "category": "kernel",
+      "classes": [
+        "ShapeFormatter"
+      ],
+      "role": "领域、应用或 IO/CLI 适配（依所在目录）",
+      "lines": 43,
+      "complexity": 14,
+      "functions": 5,
+      "decisions": 9
+    },
+    {
+      "path": "src/cli/ShowFormatter.ts",
+      "category": "kernel",
+      "classes": [
+        "ShowFormatter"
+      ],
+      "role": "领域、应用或 IO/CLI 适配（依所在目录）",
+      "lines": 21,
+      "complexity": 5,
+      "functions": 2,
+      "decisions": 3
+    },
+    {
+      "path": "src/cli/TreeFormatter.ts",
+      "category": "kernel",
+      "classes": [
+        "TreeFormatter"
+      ],
+      "role": "领域、应用或 IO/CLI 适配（依所在目录）",
+      "lines": 43,
+      "complexity": 17,
+      "functions": 9,
+      "decisions": 8
+    },
+    {
+      "path": "src/domain/ChangeSet.ts",
+      "category": "kernel",
+      "classes": [],
+      "role": "领域、应用或 IO/CLI 适配（依所在目录）",
+      "lines": 7,
+      "complexity": 0,
+      "functions": 0,
+      "decisions": 0
+    },
+    {
+      "path": "src/domain/ChangeSetExecutor.ts",
+      "category": "kernel",
+      "classes": [
+        "ChangeSetExecutor"
+      ],
+      "role": "领域、应用或 IO/CLI 适配（依所在目录）",
+      "lines": 55,
+      "complexity": 13,
+      "functions": 6,
+      "decisions": 7
+    },
+    {
+      "path": "src/domain/CompositeChangeSet.ts",
+      "category": "kernel",
+      "classes": [
+        "CompositeChangeSet"
+      ],
+      "role": "领域、应用或 IO/CLI 适配（依所在目录）",
+      "lines": 26,
+      "complexity": 6,
+      "functions": 6,
+      "decisions": 0
+    },
+    {
+      "path": "src/domain/DomainError.ts",
+      "category": "kernel",
+      "classes": [
+        "DomainError"
+      ],
+      "role": "领域、应用或 IO/CLI 适配（依所在目录）",
+      "lines": 6,
+      "complexity": 1,
+      "functions": 1,
+      "decisions": 0
+    },
+    {
+      "path": "src/domain/ShapeFactory.ts",
+      "category": "kernel",
+      "classes": [
+        "ShapeFactory"
+      ],
+      "role": "领域、应用或 IO/CLI 适配（依所在目录）",
+      "lines": 23,
+      "complexity": 8,
+      "functions": 5,
+      "decisions": 3
+    },
+    {
+      "path": "src/domain/document/CanvasSize.ts",
+      "category": "kernel",
+      "classes": [
+        "CanvasSize"
+      ],
+      "role": "领域、应用或 IO/CLI 适配（依所在目录）",
+      "lines": 30,
+      "complexity": 7,
+      "functions": 3,
+      "decisions": 4
+    },
+    {
+      "path": "src/domain/document/ShapeRelationsBinding.ts",
+      "category": "kernel",
+      "classes": [
+        "ShapeRelationsBinding"
+      ],
+      "role": "领域、应用或 IO/CLI 适配（依所在目录）",
+      "lines": 16,
+      "complexity": 5,
+      "functions": 5,
+      "decisions": 0
+    },
+    {
+      "path": "src/domain/document/ShapeStructureCandidate.ts",
+      "category": "kernel",
+      "classes": [
+        "ShapeStructureCandidate"
+      ],
+      "role": "领域、应用或 IO/CLI 适配（依所在目录）",
+      "lines": 130,
+      "complexity": 49,
+      "functions": 17,
+      "decisions": 32
+    },
+    {
+      "path": "src/domain/document/ShapeStructureChangeSet.ts",
+      "category": "kernel",
+      "classes": [
+        "ShapeStructureChangeSet"
+      ],
+      "role": "领域、应用或 IO/CLI 适配（依所在目录）",
+      "lines": 29,
+      "complexity": 6,
+      "functions": 4,
+      "decisions": 2
+    },
+    {
+      "path": "src/domain/document/ShapeStructurePlanner.ts",
+      "category": "kernel",
+      "classes": [
+        "ShapeStructurePlanner"
+      ],
+      "role": "领域、应用或 IO/CLI 适配（依所在目录）",
+      "lines": 248,
+      "complexity": 45,
+      "functions": 17,
+      "decisions": 28
+    },
+    {
+      "path": "src/domain/document/ShapeSubtree.ts",
+      "category": "kernel",
+      "classes": [
+        "ShapeSubtree"
+      ],
+      "role": "领域、应用或 IO/CLI 适配（依所在目录）",
+      "lines": 49,
+      "complexity": 12,
+      "functions": 7,
+      "decisions": 5
+    },
+    {
+      "path": "src/domain/document/ShapeTree.ts",
+      "category": "kernel",
+      "classes": [
+        "ShapeTree"
+      ],
+      "role": "领域、应用或 IO/CLI 适配（依所在目录）",
+      "lines": 192,
+      "complexity": 48,
+      "functions": 18,
+      "decisions": 30
+    },
+    {
+      "path": "src/domain/document/SvgDocument.ts",
+      "category": "kernel",
+      "classes": [
+        "SvgDocument"
+      ],
+      "role": "领域、应用或 IO/CLI 适配（依所在目录）",
+      "lines": 126,
+      "complexity": 23,
+      "functions": 20,
+      "decisions": 3
+    },
+    {
+      "path": "src/domain/shapes/Circle.ts",
+      "category": "kernel",
+      "classes": [
+        "Circle"
+      ],
+      "role": "领域、应用或 IO/CLI 适配（依所在目录）",
+      "lines": 121,
+      "complexity": 17,
+      "functions": 15,
+      "decisions": 2
+    },
+    {
+      "path": "src/domain/shapes/ContainerShape.ts",
+      "category": "kernel",
+      "classes": [
+        "ContainerShape"
+      ],
+      "role": "领域、应用或 IO/CLI 适配（依所在目录）",
+      "lines": 62,
+      "complexity": 11,
+      "functions": 7,
+      "decisions": 4
+    },
+    {
+      "path": "src/domain/shapes/Ellipse.ts",
+      "category": "kernel",
+      "classes": [
+        "Ellipse"
+      ],
+      "role": "领域、应用或 IO/CLI 适配（依所在目录）",
+      "lines": 143,
+      "complexity": 21,
+      "functions": 19,
+      "decisions": 2
+    },
+    {
+      "path": "src/domain/shapes/GeometryChangeSet.ts",
+      "category": "kernel",
+      "classes": [
+        "GeometryChangeSet"
+      ],
+      "role": "领域、应用或 IO/CLI 适配（依所在目录）",
+      "lines": 10,
+      "complexity": 1,
+      "functions": 1,
+      "decisions": 0
+    },
+    {
+      "path": "src/domain/shapes/GeometryValueChange.ts",
+      "category": "kernel",
+      "classes": [
+        "GeometryValueChange"
+      ],
+      "role": "领域、应用或 IO/CLI 适配（依所在目录）",
+      "lines": 43,
+      "complexity": 9,
+      "functions": 6,
+      "decisions": 3
+    },
+    {
+      "path": "src/domain/shapes/Group.ts",
+      "category": "kernel",
+      "classes": [
+        "Group"
+      ],
+      "role": "领域、应用或 IO/CLI 适配（依所在目录）",
+      "lines": 19,
+      "complexity": 3,
+      "functions": 2,
+      "decisions": 1
+    },
+    {
+      "path": "src/domain/shapes/Line.ts",
+      "category": "kernel",
+      "classes": [
+        "Line"
+      ],
+      "role": "领域、应用或 IO/CLI 适配（依所在目录）",
+      "lines": 139,
+      "complexity": 17,
+      "functions": 16,
+      "decisions": 1
+    },
+    {
+      "path": "src/domain/shapes/Rect.ts",
+      "category": "kernel",
+      "classes": [
+        "Rect"
+      ],
+      "role": "领域、应用或 IO/CLI 适配（依所在目录）",
+      "lines": 143,
+      "complexity": 21,
+      "functions": 19,
+      "decisions": 2
+    },
+    {
+      "path": "src/domain/shapes/Shape.ts",
+      "category": "kernel",
+      "classes": [
+        "Shape"
+      ],
+      "role": "领域、应用或 IO/CLI 适配（依所在目录）",
+      "lines": 200,
+      "complexity": 46,
+      "functions": 29,
+      "decisions": 17
+    },
+    {
+      "path": "src/domain/shapes/ShapeAttributeChange.ts",
+      "category": "kernel",
+      "classes": [
+        "ShapeAttributeChange"
+      ],
+      "role": "领域、应用或 IO/CLI 适配（依所在目录）",
+      "lines": 23,
+      "complexity": 4,
+      "functions": 4,
+      "decisions": 0
+    },
+    {
+      "path": "src/domain/shapes/ShapeAttributeSlot.ts",
+      "category": "kernel",
+      "classes": [
+        "ShapeAttributeSlot"
+      ],
+      "role": "领域、应用或 IO/CLI 适配（依所在目录）",
+      "lines": 94,
+      "complexity": 18,
+      "functions": 12,
+      "decisions": 6
+    },
+    {
+      "path": "src/domain/shapes/ShapeAttributeUpdate.ts",
+      "category": "kernel",
+      "classes": [
+        "ShapeAttributeUpdate"
+      ],
+      "role": "领域、应用或 IO/CLI 适配（依所在目录）",
+      "lines": 71,
+      "complexity": 11,
+      "functions": 7,
+      "decisions": 4
+    },
+    {
+      "path": "src/domain/shapes/ShapeAttributeValue.ts",
+      "category": "kernel",
+      "classes": [
+        "ShapeAttributeValue"
+      ],
+      "role": "领域、应用或 IO/CLI 适配（依所在目录）",
+      "lines": 102,
+      "complexity": 20,
+      "functions": 10,
+      "decisions": 10
+    },
+    {
+      "path": "src/domain/shapes/ShapeAttributeValueKind.ts",
+      "category": "kernel",
+      "classes": [],
+      "role": "领域、应用或 IO/CLI 适配（依所在目录）",
+      "lines": 4,
+      "complexity": 0,
+      "functions": 0,
+      "decisions": 0
+    },
+    {
+      "path": "src/domain/shapes/ShapeDissolutionChange.ts",
+      "category": "kernel",
+      "classes": [
+        "ShapeDissolutionChange"
+      ],
+      "role": "领域、应用或 IO/CLI 适配（依所在目录）",
+      "lines": 102,
+      "complexity": 23,
+      "functions": 14,
+      "decisions": 9
+    },
+    {
+      "path": "src/domain/shapes/ShapeGeometryChange.ts",
+      "category": "kernel",
+      "classes": [
+        "ShapeGeometryChange"
+      ],
+      "role": "领域、应用或 IO/CLI 适配（依所在目录）",
+      "lines": 64,
+      "complexity": 15,
+      "functions": 10,
+      "decisions": 5
+    },
+    {
+      "path": "src/domain/shapes/ShapeInsertionChange.ts",
+      "category": "kernel",
+      "classes": [
+        "ShapeInsertionChange"
+      ],
+      "role": "领域、应用或 IO/CLI 适配（依所在目录）",
+      "lines": 46,
+      "complexity": 7,
+      "functions": 5,
+      "decisions": 2
+    },
+    {
+      "path": "src/domain/shapes/ShapeLocation.ts",
+      "category": "kernel",
+      "classes": [
+        "ShapeLocation"
+      ],
+      "role": "领域、应用或 IO/CLI 适配（依所在目录）",
+      "lines": 24,
+      "complexity": 5,
+      "functions": 3,
+      "decisions": 2
+    },
+    {
+      "path": "src/domain/shapes/ShapeRelations.ts",
+      "category": "kernel",
+      "classes": [],
+      "role": "领域、应用或 IO/CLI 适配（依所在目录）",
+      "lines": 7,
+      "complexity": 0,
+      "functions": 0,
+      "decisions": 0
+    },
+    {
+      "path": "src/domain/shapes/ShapeRelocationChange.ts",
+      "category": "kernel",
+      "classes": [
+        "ShapeRelocationChange"
+      ],
+      "role": "领域、应用或 IO/CLI 适配（依所在目录）",
+      "lines": 39,
+      "complexity": 5,
+      "functions": 4,
+      "decisions": 1
+    },
+    {
+      "path": "src/domain/shapes/ShapeRemovalChange.ts",
+      "category": "kernel",
+      "classes": [
+        "ShapeRemovalChange"
+      ],
+      "role": "领域、应用或 IO/CLI 适配（依所在目录）",
+      "lines": 34,
+      "complexity": 5,
+      "functions": 4,
+      "decisions": 1
+    },
+    {
+      "path": "src/domain/shapes/ShapeStyle.ts",
+      "category": "kernel",
+      "classes": [
+        "ShapeStyle"
+      ],
+      "role": "领域、应用或 IO/CLI 适配（依所在目录）",
+      "lines": 56,
+      "complexity": 14,
+      "functions": 7,
+      "decisions": 7
+    },
+    {
+      "path": "src/domain/shapes/ShapeTreeChange.ts",
+      "category": "kernel",
+      "classes": [
+        "ShapeTreeChange"
+      ],
+      "role": "领域、应用或 IO/CLI 适配（依所在目录）",
+      "lines": 11,
+      "complexity": 0,
+      "functions": 0,
+      "decisions": 0
+    },
+    {
+      "path": "src/domain/shapes/Text.ts",
+      "category": "kernel",
+      "classes": [
+        "Text"
+      ],
+      "role": "领域、应用或 IO/CLI 适配（依所在目录）",
+      "lines": 116,
+      "complexity": 16,
+      "functions": 14,
+      "decisions": 2
+    },
+    {
+      "path": "src/domain/specs/CircleSpec.ts",
+      "category": "kernel",
+      "classes": [
+        "CircleSpec"
+      ],
+      "role": "领域、应用或 IO/CLI 适配（依所在目录）",
+      "lines": 49,
+      "complexity": 7,
+      "functions": 5,
+      "decisions": 2
+    },
+    {
+      "path": "src/domain/specs/EllipseSpec.ts",
+      "category": "kernel",
+      "classes": [
+        "EllipseSpec"
+      ],
+      "role": "领域、应用或 IO/CLI 适配（依所在目录）",
+      "lines": 56,
+      "complexity": 9,
+      "functions": 6,
+      "decisions": 3
+    },
+    {
+      "path": "src/domain/specs/GroupSpec.ts",
+      "category": "kernel",
+      "classes": [
+        "GroupSpec"
+      ],
+      "role": "领域、应用或 IO/CLI 适配（依所在目录）",
+      "lines": 15,
+      "complexity": 2,
+      "functions": 2,
+      "decisions": 0
+    },
+    {
+      "path": "src/domain/specs/LineSpec.ts",
+      "category": "kernel",
+      "classes": [
+        "LineSpec"
+      ],
+      "role": "领域、应用或 IO/CLI 适配（依所在目录）",
+      "lines": 53,
+      "complexity": 7,
+      "functions": 6,
+      "decisions": 1
+    },
+    {
+      "path": "src/domain/specs/RectSpec.ts",
+      "category": "kernel",
+      "classes": [
+        "RectSpec"
+      ],
+      "role": "领域、应用或 IO/CLI 适配（依所在目录）",
+      "lines": 54,
+      "complexity": 9,
+      "functions": 6,
+      "decisions": 3
+    },
+    {
+      "path": "src/domain/specs/ShapeSpec.ts",
+      "category": "kernel",
+      "classes": [
+        "ShapeSpec"
+      ],
+      "role": "领域、应用或 IO/CLI 适配（依所在目录）",
+      "lines": 33,
+      "complexity": 5,
+      "functions": 4,
+      "decisions": 1
+    },
+    {
+      "path": "src/domain/specs/ShapeSpecWithChildren.ts",
+      "category": "kernel",
+      "classes": [
+        "ShapeSpecWithChildren"
+      ],
+      "role": "领域、应用或 IO/CLI 适配（依所在目录）",
+      "lines": 20,
+      "complexity": 4,
+      "functions": 4,
+      "decisions": 0
+    },
+    {
+      "path": "src/domain/specs/TextSpec.ts",
+      "category": "kernel",
+      "classes": [
+        "TextSpec"
+      ],
+      "role": "领域、应用或 IO/CLI 适配（依所在目录）",
+      "lines": 49,
+      "complexity": 7,
+      "functions": 5,
+      "decisions": 2
+    },
+    {
+      "path": "src/domain/visitor/ShapeCollector.ts",
+      "category": "kernel",
+      "classes": [
+        "ShapeCollector"
+      ],
+      "role": "领域、应用或 IO/CLI 适配（依所在目录）",
+      "lines": 23,
+      "complexity": 4,
+      "functions": 4,
+      "decisions": 0
+    },
+    {
+      "path": "src/domain/visitor/ShapeVisitor.ts",
+      "category": "kernel",
+      "classes": [
+        "ShapeVisitor"
+      ],
+      "role": "领域、应用或 IO/CLI 适配（依所在目录）",
+      "lines": 8,
+      "complexity": 0,
+      "functions": 0,
+      "decisions": 0
+    },
+    {
+      "path": "src/infrastructure/DecodedSvgElement.ts",
+      "category": "kernel",
+      "classes": [
+        "DecodedSvgElement"
+      ],
+      "role": "领域、应用或 IO/CLI 适配（依所在目录）",
+      "lines": 36,
+      "complexity": 6,
+      "functions": 4,
+      "decisions": 2
+    },
+    {
+      "path": "src/infrastructure/MissingIdAllocator.ts",
+      "category": "kernel",
+      "classes": [
+        "MissingIdAllocator"
+      ],
+      "role": "领域、应用或 IO/CLI 适配（依所在目录）",
+      "lines": 33,
+      "complexity": 6,
+      "functions": 3,
+      "decisions": 3
+    },
+    {
+      "path": "src/infrastructure/NodeDirectoryAccess.ts",
+      "category": "kernel",
+      "classes": [
+        "NodeDirectoryAccess"
+      ],
+      "role": "领域、应用或 IO/CLI 适配（依所在目录）",
+      "lines": 12,
+      "complexity": 3,
+      "functions": 3,
+      "decisions": 0
+    },
+    {
+      "path": "src/infrastructure/SvgAttributes.ts",
+      "category": "kernel",
+      "classes": [
+        "SvgAttributes"
+      ],
+      "role": "领域、应用或 IO/CLI 适配（依所在目录）",
+      "lines": 109,
+      "complexity": 31,
+      "functions": 10,
+      "decisions": 21
+    },
+    {
+      "path": "src/infrastructure/SvgCanvas.ts",
+      "category": "kernel",
+      "classes": [
+        "SvgCanvas"
+      ],
+      "role": "领域、应用或 IO/CLI 适配（依所在目录）",
+      "lines": 25,
+      "complexity": 4,
+      "functions": 4,
+      "decisions": 0
+    },
+    {
+      "path": "src/infrastructure/SvgDocumentStore.ts",
+      "category": "kernel",
+      "classes": [
+        "SvgDocumentStore"
+      ],
+      "role": "领域、应用或 IO/CLI 适配（依所在目录）",
+      "lines": 42,
+      "complexity": 5,
+      "functions": 3,
+      "decisions": 2
+    },
+    {
+      "path": "src/infrastructure/SvgElement.ts",
+      "category": "kernel",
+      "classes": [
+        "SvgElement"
+      ],
+      "role": "领域、应用或 IO/CLI 适配（依所在目录）",
+      "lines": 50,
+      "complexity": 18,
+      "functions": 9,
+      "decisions": 9
+    },
+    {
+      "path": "src/infrastructure/SvgElementFactory.ts",
+      "category": "kernel",
+      "classes": [
+        "SvgElementFactory"
+      ],
+      "role": "领域、应用或 IO/CLI 适配（依所在目录）",
+      "lines": 19,
+      "complexity": 8,
+      "functions": 2,
+      "decisions": 6
+    },
+    {
+      "path": "src/infrastructure/SvgReader.ts",
+      "category": "kernel",
+      "classes": [
+        "SvgReader"
+      ],
+      "role": "领域、应用或 IO/CLI 适配（依所在目录）",
+      "lines": 30,
+      "complexity": 4,
+      "functions": 2,
+      "decisions": 2
+    },
+    {
+      "path": "src/infrastructure/SvgShapeInputValue.ts",
+      "category": "kernel",
+      "classes": [
+        "SvgShapeInputValue"
+      ],
+      "role": "领域、应用或 IO/CLI 适配（依所在目录）",
+      "lines": 33,
+      "complexity": 6,
+      "functions": 6,
+      "decisions": 0
+    },
+    {
+      "path": "src/infrastructure/SvgTreeParser.ts",
+      "category": "kernel",
+      "classes": [
+        "SvgTreeParser"
+      ],
+      "role": "领域、应用或 IO/CLI 适配（依所在目录）",
+      "lines": 130,
+      "complexity": 27,
+      "functions": 14,
+      "decisions": 13
+    },
+    {
+      "path": "src/infrastructure/SvgWriteVisitor.ts",
+      "category": "kernel",
+      "classes": [
+        "SvgWriteVisitor"
+      ],
+      "role": "领域、应用或 IO/CLI 适配（依所在目录）",
+      "lines": 50,
+      "complexity": 23,
+      "functions": 11,
+      "decisions": 12
+    },
+    {
+      "path": "src/plugins/builtin-commands/BuiltinCommandContribution.ts",
+      "category": "plugins",
+      "classes": [
+        "BuiltinCommandContribution"
+      ],
+      "role": "插件能力实现",
+      "lines": 27,
+      "complexity": 5,
+      "functions": 4,
+      "decisions": 1
+    },
+    {
+      "path": "src/plugins/builtin-commands/BuiltinCommandsPlugin.ts",
+      "category": "plugins",
+      "classes": [
+        "BuiltinCommandsPlugin"
+      ],
+      "role": "插件能力实现",
+      "lines": 179,
+      "complexity": 53,
+      "functions": 40,
+      "decisions": 13
+    },
+    {
+      "path": "src/plugins/builtin-commands/CreateCommandContribution.ts",
+      "category": "plugins",
+      "classes": [
+        "CreateCommandContribution"
+      ],
+      "role": "插件能力实现",
+      "lines": 21,
+      "complexity": 4,
+      "functions": 3,
+      "decisions": 1
+    },
+    {
+      "path": "src/plugins/builtin-commands/commands/AddToCommand.ts",
+      "category": "plugins",
+      "classes": [
+        "AddToCommand"
+      ],
+      "role": "插件能力实现",
+      "lines": 34,
+      "complexity": 3,
+      "functions": 3,
+      "decisions": 0
+    },
+    {
+      "path": "src/plugins/builtin-commands/commands/BackShapeCommand.ts",
+      "category": "plugins",
+      "classes": [
+        "BackShapeCommand"
+      ],
+      "role": "插件能力实现",
+      "lines": 18,
+      "complexity": 3,
+      "functions": 3,
+      "decisions": 0
+    },
+    {
+      "path": "src/plugins/builtin-commands/commands/CreateShapeCommand.ts",
+      "category": "plugins",
+      "classes": [
+        "CreateShapeCommand"
+      ],
+      "role": "插件能力实现",
+      "lines": 31,
+      "complexity": 3,
+      "functions": 3,
+      "decisions": 0
+    },
+    {
+      "path": "src/plugins/builtin-commands/commands/DeleteShapeCommand.ts",
+      "category": "plugins",
+      "classes": [
+        "DeleteShapeCommand"
+      ],
+      "role": "插件能力实现",
+      "lines": 42,
+      "complexity": 5,
+      "functions": 4,
+      "decisions": 1
+    },
+    {
+      "path": "src/plugins/builtin-commands/commands/FrontShapeCommand.ts",
+      "category": "plugins",
+      "classes": [
+        "FrontShapeCommand"
+      ],
+      "role": "插件能力实现",
+      "lines": 18,
+      "complexity": 3,
+      "functions": 3,
+      "decisions": 0
+    },
+    {
+      "path": "src/plugins/builtin-commands/commands/GroupShapesCommand.ts",
+      "category": "plugins",
+      "classes": [
+        "GroupShapesCommand"
+      ],
+      "role": "插件能力实现",
+      "lines": 28,
+      "complexity": 3,
+      "functions": 3,
+      "decisions": 0
+    },
+    {
+      "path": "src/plugins/builtin-commands/commands/HelpCommand.ts",
+      "category": "plugins",
+      "classes": [
+        "HelpCommand"
+      ],
+      "role": "插件能力实现",
+      "lines": 14,
+      "complexity": 2,
+      "functions": 2,
+      "decisions": 0
+    },
+    {
+      "path": "src/plugins/builtin-commands/commands/InitCommand.ts",
+      "category": "plugins",
+      "classes": [
+        "InitCommand"
+      ],
+      "role": "插件能力实现",
+      "lines": 23,
+      "complexity": 3,
+      "functions": 3,
+      "decisions": 0
+    },
+    {
+      "path": "src/plugins/builtin-commands/commands/MoveShapeCommand.ts",
+      "category": "plugins",
+      "classes": [
+        "MoveShapeCommand"
+      ],
+      "role": "插件能力实现",
+      "lines": 52,
+      "complexity": 6,
+      "functions": 4,
+      "decisions": 2
+    },
+    {
+      "path": "src/plugins/builtin-commands/commands/ReadDocumentCommand.ts",
+      "category": "plugins",
+      "classes": [
+        "ReadDocumentCommand"
+      ],
+      "role": "插件能力实现",
+      "lines": 30,
+      "complexity": 4,
+      "functions": 4,
+      "decisions": 0
+    },
+    {
+      "path": "src/plugins/builtin-commands/commands/RedoCommand.ts",
+      "category": "plugins",
+      "classes": [
+        "RedoCommand"
+      ],
+      "role": "插件能力实现",
+      "lines": 15,
+      "complexity": 3,
+      "functions": 3,
+      "decisions": 0
+    },
+    {
+      "path": "src/plugins/builtin-commands/commands/ReorderShapeCommand.ts",
+      "category": "plugins",
+      "classes": [
+        "ReorderShapeCommand"
+      ],
+      "role": "插件能力实现",
+      "lines": 34,
+      "complexity": 2,
+      "functions": 2,
+      "decisions": 0
+    },
+    {
+      "path": "src/plugins/builtin-commands/commands/ResizeCanvasCommand.ts",
+      "category": "plugins",
+      "classes": [
+        "ResizeCanvasCommand"
+      ],
+      "role": "插件能力实现",
+      "lines": 23,
+      "complexity": 3,
+      "functions": 3,
+      "decisions": 0
+    },
+    {
+      "path": "src/plugins/builtin-commands/commands/SaveCommand.ts",
+      "category": "plugins",
+      "classes": [
+        "SaveCommand"
+      ],
+      "role": "插件能力实现",
+      "lines": 23,
+      "complexity": 3,
+      "functions": 3,
+      "decisions": 0
+    },
+    {
+      "path": "src/plugins/builtin-commands/commands/ScaleShapeCommand.ts",
+      "category": "plugins",
+      "classes": [
+        "ScaleShapeCommand"
+      ],
+      "role": "插件能力实现",
+      "lines": 49,
+      "complexity": 5,
+      "functions": 4,
+      "decisions": 1
+    },
+    {
+      "path": "src/plugins/builtin-commands/commands/SetShapeAttributeCommand.ts",
+      "category": "plugins",
+      "classes": [
+        "SetShapeAttributeCommand"
+      ],
+      "role": "插件能力实现",
+      "lines": 65,
+      "complexity": 10,
+      "functions": 5,
+      "decisions": 5
+    },
+    {
+      "path": "src/plugins/builtin-commands/commands/ShowCanvasCommand.ts",
+      "category": "plugins",
+      "classes": [
+        "ShowCanvasCommand"
+      ],
+      "role": "插件能力实现",
+      "lines": 19,
+      "complexity": 3,
+      "functions": 3,
+      "decisions": 0
+    },
+    {
+      "path": "src/plugins/builtin-commands/commands/ShowCommand.ts",
+      "category": "plugins",
+      "classes": [
+        "ShowCommand"
+      ],
+      "role": "插件能力实现",
+      "lines": 24,
+      "complexity": 3,
+      "functions": 3,
+      "decisions": 0
+    },
+    {
+      "path": "src/plugins/builtin-commands/commands/TreeCommand.ts",
+      "category": "plugins",
+      "classes": [
+        "TreeCommand"
+      ],
+      "role": "插件能力实现",
+      "lines": 31,
+      "complexity": 4,
+      "functions": 3,
+      "decisions": 1
+    },
+    {
+      "path": "src/plugins/builtin-commands/commands/UndoCommand.ts",
+      "category": "plugins",
+      "classes": [
+        "UndoCommand"
+      ],
+      "role": "插件能力实现",
+      "lines": 15,
+      "complexity": 3,
+      "functions": 3,
+      "decisions": 0
+    },
+    {
+      "path": "src/plugins/builtin-commands/commands/UngroupShapeCommand.ts",
+      "category": "plugins",
+      "classes": [
+        "UngroupShapeCommand"
+      ],
+      "role": "插件能力实现",
+      "lines": 34,
+      "complexity": 3,
+      "functions": 3,
+      "decisions": 0
+    },
+    {
+      "path": "src/plugins/builtin-commands/factories/CreateShapeCommandFactory.ts",
+      "category": "plugins",
+      "classes": [
+        "CreateShapeCommandFactory"
+      ],
+      "role": "插件能力实现",
+      "lines": 60,
+      "complexity": 18,
+      "functions": 4,
+      "decisions": 14
+    },
+    {
+      "path": "src/plugins/builtin-commands/factories/DocumentCommandFactory.ts",
+      "category": "plugins",
+      "classes": [
+        "DocumentCommandFactory"
+      ],
+      "role": "插件能力实现",
+      "lines": 60,
+      "complexity": 12,
+      "functions": 5,
+      "decisions": 7
+    },
+    {
+      "path": "src/plugins/builtin-commands/factories/ShapeEditCommandFactory.ts",
+      "category": "plugins",
+      "classes": [
+        "ShapeEditCommandFactory"
+      ],
+      "role": "插件能力实现",
+      "lines": 93,
+      "complexity": 28,
+      "functions": 14,
+      "decisions": 14
+    },
+    {
+      "path": "src/plugins/builtin-shapes/BuiltinShapesPlugin.ts",
+      "category": "plugins",
+      "classes": [
+        "BuiltinShapesPlugin"
+      ],
+      "role": "插件能力实现",
+      "lines": 23,
+      "complexity": 1,
+      "functions": 1,
+      "decisions": 0
+    },
+    {
+      "path": "src/plugins/builtin-shapes/CircleShapeProvider.ts",
+      "category": "plugins",
+      "classes": [
+        "CircleShapeProvider"
+      ],
+      "role": "插件能力实现",
+      "lines": 62,
+      "complexity": 10,
+      "functions": 7,
+      "decisions": 3
+    },
+    {
+      "path": "src/plugins/builtin-shapes/EllipseShapeProvider.ts",
+      "category": "plugins",
+      "classes": [
+        "EllipseShapeProvider"
+      ],
+      "role": "插件能力实现",
+      "lines": 63,
+      "complexity": 10,
+      "functions": 7,
+      "decisions": 3
+    },
+    {
+      "path": "src/plugins/builtin-shapes/GroupShapeProvider.ts",
+      "category": "plugins",
+      "classes": [
+        "GroupShapeProvider"
+      ],
+      "role": "插件能力实现",
+      "lines": 47,
+      "complexity": 8,
+      "functions": 6,
+      "decisions": 2
+    },
+    {
+      "path": "src/plugins/builtin-shapes/LineShapeProvider.ts",
+      "category": "plugins",
+      "classes": [
+        "LineShapeProvider"
+      ],
+      "role": "插件能力实现",
+      "lines": 62,
+      "complexity": 10,
+      "functions": 7,
+      "decisions": 3
+    },
+    {
+      "path": "src/plugins/builtin-shapes/RectShapeProvider.ts",
+      "category": "plugins",
+      "classes": [
+        "RectShapeProvider"
+      ],
+      "role": "插件能力实现",
+      "lines": 63,
+      "complexity": 10,
+      "functions": 7,
+      "decisions": 3
+    },
+    {
+      "path": "src/plugins/builtin-shapes/TextShapeProvider.ts",
+      "category": "plugins",
+      "classes": [
+        "TextShapeProvider"
+      ],
+      "role": "插件能力实现",
+      "lines": 58,
+      "complexity": 10,
+      "functions": 7,
+      "decisions": 3
+    }
+  ],
+  "delta": {
+    "kernel": {
+      "lines": -502,
+      "complexity": 54
+    },
+    "assembly": {
+      "lines": 97,
+      "complexity": 43
+    },
+    "plugins": {
+      "lines": 1440,
+      "complexity": 256
+    },
+    "vscode": {
+      "lines": 195,
+      "complexity": 38
+    }
+  }
+}

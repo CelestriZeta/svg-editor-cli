@@ -609,3 +609,5 @@ metrics 脚本 scripts/metrics.mjs 从两个 Git ref 取源码，以 TypeScript 
 实际检查：类型检查、加载器 5 项与架构 9 项通过，包含求值依赖失败、禁用、options、部分注册回滚与同一代码装配路径。第 7 步提交前 diff 检查实际报告 Main.ts 尾空格，本步移除；不将那次检查记为通过。自查未发现内核反向依赖插件，加载器没有插件名称映射。
 
 框架节点完整回归：pnpm run check 通过，CLI 40 文件/180 项，VSCode 3 文件/21 项，两部分类型及构建通过。
+
+框架首次指标：[Git 文件清单](../docs/metrics/framework/files.md)、[原始指标](../docs/metrics/framework/metrics.json)，目标 50ba852。初版脚本误用 TypeScript 旧 AST API，执行失败后适配已安装 TypeScript 7 的原生快照 API，实际生成成功；不额外安装依赖。

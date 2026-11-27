@@ -1,6 +1,9 @@
 import { execFileSync } from 'node:child_process';
 import { mkdir, writeFile } from 'node:fs/promises';
-import ts from 'typescript';
+import * as ts from 'typescript/unstable/ast';
+import { API } from 'typescript/unstable/sync';
+import { createVirtualFileSystem } from 'typescript/unstable/fs';
+import { resolve } from 'node:path';
 
 const baseline = process.argv[2] ?? 'final';
 const target = process.argv[3] ?? 'HEAD';
@@ -8,23 +11,34 @@ const output = process.argv[4] ?? 'docs/metrics/current';
 const git = (...args) => execFileSync('git', args, { encoding:'utf8', maxBuffer:32*1024*1024 });
 function snapshot(ref) {
   const files = git('ls-tree','-r','--name-only',ref).trim().split('\n').filter(p=> /\.ts$/.test(p) && (p.startsWith('src/') || p.startsWith('extensions/svg-tools/src/')));
-  return files.map(path => {
-    const source = git('show',ref+':'+path).replace(/\r\n/g,'\n');
-    const ast = ts.createSourceFile(path, source, ts.ScriptTarget.Latest, true);
+  const root = resolve('.metrics-virtual').replaceAll('\\','/');
+  const sources = Object.fromEntries(files.map(p => [p, git('show',ref+':'+p).replace(/\r\n/g,'\n')]));
+  const virtual = Object.fromEntries(files.map(p=>[root+'/'+p,sources[p]]));
+  const config = root+'/tsconfig.json';
+  virtual[config] = JSON.stringify({compilerOptions:{noLib:true,noResolve:true},files:files});
+  const api = new API({cwd:root,fs:createVirtualFileSystem(virtual)});
+  const snap = api.updateSnapshot({openProjects:[config]});
+  const program = snap.getProject(config).program;
+  const rows = files.map(path => {
+    const source = sources[path];
+    const ast = program.getSourceFile(root+'/'+path);
+    if (!ast) throw new Error('missing AST: '+path);
     let decisions=0, functions=0;
     const classes=[];
     function visit(n) {
       if (ts.isClassDeclaration(n) && n.name) classes.push(n.name.text);
-      if (ts.isFunctionLike(n) && n.body) functions++;
+      if ([ts.SyntaxKind.FunctionDeclaration,ts.SyntaxKind.FunctionExpression,ts.SyntaxKind.ArrowFunction,ts.SyntaxKind.MethodDeclaration,ts.SyntaxKind.Constructor,ts.SyntaxKind.GetAccessor,ts.SyntaxKind.SetAccessor].includes(n.kind) && n.body) functions++;
       if (ts.isIfStatement(n)||ts.isForStatement(n)||ts.isForOfStatement(n)||ts.isForInStatement(n)||ts.isWhileStatement(n)||ts.isDoStatement(n)||ts.isCatchClause(n)||ts.isConditionalExpression(n)||ts.isCaseClause(n)) decisions++;
       if (ts.isBinaryExpression(n) && [ts.SyntaxKind.AmpersandAmpersandToken,ts.SyntaxKind.BarBarToken,ts.SyntaxKind.QuestionQuestionToken].includes(n.operatorToken.kind)) decisions++;
-      ts.forEachChild(n,visit);
+      n.forEachChild(visit);
     }
     visit(ast);
     const category=path.startsWith('extensions/')?'vscode':path.startsWith('src/plugins/')?'plugins':path.startsWith('src/bootstrap/')?'assembly':'kernel';
     const role={kernel:'领域、应用或 IO/CLI 适配（依所在目录）',assembly:'宿主启动及插件装配',plugins:'插件能力实现',vscode:'独立 VSCode 插件实践'}[category];
     return {path,category,classes,role,lines:source.split('\n').length-(source.endsWith('\n')?1:0),complexity:functions+decisions,functions,decisions};
   });
+  snap.dispose(); api.close();
+  return rows;
 }
 const before=snapshot(baseline),after=snapshot(target);
 const totals=rows=>Object.fromEntries(['kernel','assembly','plugins','vscode'].map(c=>[c,rows.filter(r=>r.category===c).reduce((a,r)=>({files:a.files+1,lines:a.lines+r.lines,complexity:a.complexity+r.complexity}),{files:0,lines:0,complexity:0})]));
