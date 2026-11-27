@@ -1,3 +1,4 @@
+import { BuiltinShapesPlugin } from '../plugins/builtin-shapes/BuiltinShapesPlugin.js';
 import { createInterface } from 'node:readline';
 
 import { CommandDispatcher } from '../application/CommandDispatcher.js';
@@ -27,6 +28,7 @@ export class Main {
     );
     const history = new CommandHistory();
     const plugins = new PluginRegistry();
+    await plugins.activate('builtin-shapes', new BuiltinShapesPlugin());
     await plugins.activate('builtin-commands', new BuiltinCommandsPlugin(
       session, documents, history, new DocumentViewVisitor(), plugins
     ));

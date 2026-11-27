@@ -1,5 +1,5 @@
 import { DomainError } from '../DomainError.js';
-import type { ShapeTree } from '../document/ShapeTree.js';
+import type { ShapeRelations } from './ShapeRelations.js';
 import type { ShapeVisitor } from '../visitor/ShapeVisitor.js';
 import type { ContainerShape } from './ContainerShape.js';
 import type { GeometryChangeSet } from './GeometryChangeSet.js';
@@ -13,13 +13,13 @@ import { ShapeStyle } from './ShapeStyle.js';
 
 export abstract class Shape {
   readonly #id: string;
-  readonly #tree: ShapeTree;
+  readonly #tree: ShapeRelations;
   readonly #styleAttributeSlots: ReadonlyMap<string, ShapeAttributeSlot>;
   #style: ShapeStyle;
 
   protected constructor(
     id: string,
-    tree: ShapeTree,
+    tree: ShapeRelations,
     style = new ShapeStyle()
   ) {
     if (id.trim().length === 0) {

@@ -1,5 +1,7 @@
 import { DomainError } from '../DomainError.js';
 import { ShapeStyle } from '../shapes/ShapeStyle.js';
+import type { Shape } from '../shapes/Shape.js';
+import type { ShapeRelations } from '../shapes/ShapeRelations.js';
 
 export abstract class ShapeSpec {
   readonly #id: string;
@@ -23,4 +25,5 @@ export abstract class ShapeSpec {
   }
 
   public abstract readonly type: string;
+  public abstract create(relations: ShapeRelations): Shape;
 }

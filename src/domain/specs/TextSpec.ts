@@ -1,3 +1,5 @@
+import { Text } from '../shapes/Text.js';
+import type { ShapeRelations } from '../shapes/ShapeRelations.js';
 import { DomainError } from '../DomainError.js';
 import { ShapeStyle } from '../shapes/ShapeStyle.js';
 import { ShapeSpec } from './ShapeSpec.js';
@@ -40,5 +42,8 @@ export class TextSpec extends ShapeSpec {
 
   public get content(): string {
     return this.#content;
+  }
+  public override create(relations: ShapeRelations): Text {
+    return new Text(this, relations);
   }
 }

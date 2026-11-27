@@ -1,6 +1,6 @@
 import type { ShapeSpec } from '../../domain/specs/ShapeSpec.js';
 
-/** 初版创建规格契约；领域构造与 SVG 编解码在后续迁移步骤中接入。 */
+/** CLI 输入在应用边界解码为可多态构造的领域规格；不接触内部树或 XML。 */
 export interface ShapeProvider {
   readonly name: string;
   readonly syntaxes: readonly string[];

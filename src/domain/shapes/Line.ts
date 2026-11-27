@@ -1,5 +1,5 @@
 import { DomainError } from '../DomainError.js';
-import type { ShapeTree } from '../document/ShapeTree.js';
+import type { ShapeRelations } from './ShapeRelations.js';
 import type { LineSpec } from '../specs/LineSpec.js';
 import type { ShapeVisitor } from '../visitor/ShapeVisitor.js';
 import { GeometryChangeSet } from './GeometryChangeSet.js';
@@ -15,7 +15,7 @@ export class Line extends Shape {
   #y2: number;
   readonly #attributeSlots: ReadonlyMap<string, ShapeAttributeSlot>;
 
-  public constructor(spec: LineSpec, tree: ShapeTree) {
+  public constructor(spec: LineSpec, tree: ShapeRelations) {
     super(spec.id, tree, spec.style);
 
     if (spec.type !== 'line') {

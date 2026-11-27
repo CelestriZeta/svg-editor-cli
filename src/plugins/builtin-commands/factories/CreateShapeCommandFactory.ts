@@ -1,35 +1,17 @@
+import type { ShapeCatalog } from '../../../application/extensions/ShapeCatalog.js';
 import { DomainError } from '../../../domain/DomainError.js';
-import type { ShapeSpec } from '../../../domain/specs/ShapeSpec.js';
+import { ShapeSpec } from '../../../domain/specs/ShapeSpec.js';
 import type { ActiveDocument } from '../../../application/ports/ActiveDocument.js';
 import { CreateShapeCommand } from '../commands/CreateShapeCommand.js';
 import { InvalidCommand } from '../../../application/commands/InvalidCommand.js';
 import type { Command } from '../../../application/commands/contracts/Command.js';
-import type { ShapeSpecBuilder } from '../../../application/commands/contracts/ShapeSpecBuilder.js';
-import { CircleSpecBuilder } from '../specs/CircleSpecBuilder.js';
-import { EllipseSpecBuilder } from '../specs/EllipseSpecBuilder.js';
-import { GroupSpecBuilder } from '../specs/GroupSpecBuilder.js';
-import { LineSpecBuilder } from '../specs/LineSpecBuilder.js';
-import { RectSpecBuilder } from '../specs/RectSpecBuilder.js';
-import { TextSpecBuilder } from '../specs/TextSpecBuilder.js';
-import type { CommandNumberParser } from '../../../application/commands/support/CommandNumberParser.js';
 import { CommandDocumentBinding } from '../../../application/commands/support/CommandDocumentBinding.js';
 
 export class CreateShapeCommandFactory {
-  readonly #shapeSpecBuilders: ReadonlyMap<string, ShapeSpecBuilder>;
-
   public constructor(
     private readonly session: ActiveDocument,
-    numbers: CommandNumberParser
-  ) {
-    this.#shapeSpecBuilders = new Map<string, ShapeSpecBuilder>([
-      ['rect', new RectSpecBuilder(numbers)],
-      ['circle', new CircleSpecBuilder(numbers)],
-      ['ellipse', new EllipseSpecBuilder(numbers)],
-      ['line', new LineSpecBuilder(numbers)],
-      ['text', new TextSpecBuilder(numbers)],
-      ['g', new GroupSpecBuilder()]
-    ]);
-  }
+    private readonly shapes: ShapeCatalog
+  ) {}
 
   public create(args: readonly string[]): Command {
     const [type, id, ...parameters] = args;
@@ -63,12 +45,16 @@ export class CreateShapeCommandFactory {
     id: string,
     parameters: readonly string[]
   ): ShapeSpec {
-    const builder = this.#shapeSpecBuilders.get(type);
+    const builder = this.shapes.findShape(type);
     if (builder === undefined) {
       throw new DomainError(
         `unknown shape type: ${type} (is the plugin loaded?)`
       );
     }
-    return builder.create(id, parameters);
+    const spec = builder.createSpec(id, parameters);
+    if (!(spec instanceof ShapeSpec) || spec.id !== id || spec.type !== type) {
+      throw new DomainError(`invalid shape specification: ${type}`);
+    }
+    return spec;
   }
 }

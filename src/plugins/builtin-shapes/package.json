@@ -1,0 +1,15 @@
+{
+  "name": "@svgframe/builtin-shapes",
+  "private": true,
+  "type": "module",
+  "contributes": {
+    "shapes": [
+      "rect",
+      "circle",
+      "ellipse",
+      "line",
+      "text",
+      "g"
+    ]
+  }
+}

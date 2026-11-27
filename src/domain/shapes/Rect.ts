@@ -1,5 +1,5 @@
 import { DomainError } from '../DomainError.js';
-import type { ShapeTree } from '../document/ShapeTree.js';
+import type { ShapeRelations } from './ShapeRelations.js';
 import type { RectSpec } from '../specs/RectSpec.js';
 import { GeometryChangeSet } from './GeometryChangeSet.js';
 import { GeometryValueChange } from './GeometryValueChange.js';
@@ -15,7 +15,7 @@ export class Rect extends Shape {
   #height: number;
   readonly #attributeSlots: ReadonlyMap<string, ShapeAttributeSlot>;
 
-  public constructor(spec: RectSpec, tree: ShapeTree) {
+  public constructor(spec: RectSpec, tree: ShapeRelations) {
     super(spec.id, tree, spec.style);
 
     if (spec.type !== 'rect') {

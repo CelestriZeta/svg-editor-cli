@@ -1,3 +1,5 @@
+import type { ShapeCatalog } from '../../application/extensions/ShapeCatalog.js';
+import { CreateCommandContribution } from './CreateCommandContribution.js';
 import type { SvgDocument } from '../../domain/document/SvgDocument.js';
 import { CommandDocumentBinding } from '../../application/commands/support/CommandDocumentBinding.js';
 import { AddToCommand } from './commands/AddToCommand.js';
@@ -33,14 +35,14 @@ export class BuiltinCommandsPlugin implements Plugin {
     private readonly documents: DocumentOperations,
     private readonly history: HistoryController,
     private readonly viewVisitor: DocumentQuery,
-    private readonly catalog: CommandCatalog
+    private readonly catalog: CommandCatalog & ShapeCatalog
   ) {}
 
   public activate(context: PluginContext): void {
     const { session, documents, history, viewVisitor } = this;
     const numbers = new CommandNumberParser();
     const documentCommands = new DocumentCommandFactory(documents, numbers);
-    const createShape = new CreateShapeCommandFactory(session, numbers);
+    const createShape = new CreateShapeCommandFactory(session, this.catalog);
     const shapeEdits = new ShapeEditCommandFactory(session, numbers, viewVisitor);
     const inDocument = (create: (document: SvgDocument) => Command): Command =>
       CommandDocumentBinding.withDocument(session, create);
@@ -56,18 +58,7 @@ export class BuiltinCommandsPlugin implements Plugin {
         'read <file.svg>',
         (args) => documentCommands.createRead(args)
       ),
-      new BuiltinCommandContribution(
-        'create',
-        [
-          'create rect <id> <x> <y> <w> <h> [fill] [in <container-id>]',
-          'create circle <id> <cx> <cy> <r> [fill] [in <container-id>]',
-          'create ellipse <id> <cx> <cy> <rx> <ry> [fill] [in <container-id>]',
-          'create line <id> <x1> <y1> <x2> <y2> [stroke] [in <container-id>]',
-          'create text <id> <x> <y> "content" [in <container-id>]',
-          'create g <id> [in <container-id>]'
-        ],
-        (args) => createShape.create(args)
-      ),
+      new CreateCommandContribution(createShape, this.catalog),
       new BuiltinCommandContribution(
         'delete',
         'delete <id>',

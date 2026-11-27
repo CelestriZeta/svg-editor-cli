@@ -1,3 +1,4 @@
+import { BuiltinShapesPlugin } from '../../src/plugins/builtin-shapes/BuiltinShapesPlugin.js';
 import { describe, expect, it } from 'vitest';
 
 import { CommandDispatcher } from '../../src/application/CommandDispatcher.js';
@@ -39,7 +40,8 @@ async function createDispatcher(): Promise<{
   const documents = new DocumentService(session, new RecordingDocumentStore());
   const history = new CommandHistory();
   const plugins = new PluginRegistry();
-  await plugins.activate('builtin-commands', new BuiltinCommandsPlugin(
+  await plugins.activate('builtin-shapes', new BuiltinShapesPlugin());
+    await plugins.activate('builtin-commands', new BuiltinCommandsPlugin(
     session, documents, history, new DocumentViewVisitor(), plugins
   ));
   return {

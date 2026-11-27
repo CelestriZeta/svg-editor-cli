@@ -1,3 +1,5 @@
+import { Ellipse } from '../shapes/Ellipse.js';
+import type { ShapeRelations } from '../shapes/ShapeRelations.js';
 import { DomainError } from '../DomainError.js';
 import { ShapeStyle } from '../shapes/ShapeStyle.js';
 import { ShapeSpec } from './ShapeSpec.js';
@@ -47,5 +49,8 @@ export class EllipseSpec extends ShapeSpec {
 
   public get ry(): number {
     return this.#ry;
+  }
+  public override create(relations: ShapeRelations): Ellipse {
+    return new Ellipse(this, relations);
   }
 }

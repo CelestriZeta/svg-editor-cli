@@ -1,3 +1,5 @@
+import type { Plugin } from '../../src/application/extensions/Plugin.js';
+import { BuiltinShapesPlugin } from '../../src/plugins/builtin-shapes/BuiltinShapesPlugin.js';
 import { CommandDispatcher } from '../../src/application/CommandDispatcher.js';
 import { CommandExecutor } from '../../src/application/CommandExecutor.js';
 import { CommandHistory } from '../../src/application/CommandHistory.js';
@@ -43,9 +45,10 @@ export class ApplicationHarness {
     );
   }
 
-  public static async create(store: DocumentStore): Promise<ApplicationHarness> {
+  public static async create(store: DocumentStore, shapes: Plugin | null = new BuiltinShapesPlugin()): Promise<ApplicationHarness> {
     const plugins = new PluginRegistry();
     const harness = new ApplicationHarness(store, plugins);
+    if (shapes !== null) await plugins.activate('builtin-shapes', shapes);
     await plugins.activate('builtin-commands', harness.#builtins);
     return harness;
   }

@@ -4,7 +4,7 @@
 
 ## 1. 当前范围与架构
 
-已实现第一部分 VSCode 插件实践：Explorer 文件标记、原生 Outline 元素层级与源码定位、编辑更新及异常 XML 恢复。第二部分按逐步检查、逐步提交的顺序推进：第 1 步注册基础已提交为 9e56bf1；当前完成第 2 步内置命令注册化与动态 help，等待用户检查，详见第 7 节。默认 CLI 已通过注册表分发命令；图形创建、属性设置、树标签和 SVG 读写的插件化仍待后续节点，领域 Composite 与历史语义保持原有行为。
+已实现第一部分 VSCode 插件实践：Explorer 文件标记、原生 Outline 元素层级与源码定位、编辑更新及异常 XML 恢复。第二部分按逐步检查、逐步提交的顺序推进：第 2 步已提交为 112e608；当前完成第 3 步六图形创建注册化，等待用户检查，详见第 8 节。命令与图形创建均消费注册表，图形查询、SVG 读写、属性与树标签的业务扩展仍待后续节点。
 
 | 目录或类 | 实际职责 |
 |---|---|
@@ -386,3 +386,59 @@ note bottom of builtins : activate 通过受限上下文注册；help 查询当�
 ### 7.5 剩余事项
 
 等待用户检查并完成第 2 步提交后，继续第 3 步图形创建注册化。后续步骤仍须实现图形/查询/SVG 扩展、复合结构保护、属性选择与事务、树装饰和生命周期，再接入加载器、目录端口与装配能力，最后独立接入 stats、dir、box 与 modified-star。未实现配置装配或宣称接入零内核差异判据已经通过，未生成最终指标或 p2 标签。
+
+## 8. CLI 重构第 3 步：图形创建注册化
+
+本步从干净的 112e608 继续，第 6、7 节保留当时状态。新增独立 builtin-shapes 源码包，六个规格 Builder 迁移并改为六个 ShapeProvider 类，默认顺序仍为 rect、circle、ellipse、line、text、g；启动时先注册图形，再注册命令。未新增依赖或改变构建入口。
+
+| 当前对象 | 实际职责与调用位置 |
+|---|---|
+| [ShapeProvider](../src/application/extensions/ShapeProvider.ts) | 提供 name、syntaxes 与 createSpec；参数解码返回类型化领域规格 |
+| [BuiltinShapesPlugin](../src/plugins/builtin-shapes/BuiltinShapesPlugin.ts) | activate 注册六个 provider；包声明 shapes 贡献，尚未动态加载或校验 manifest |
+| [ShapeCatalog](../src/application/extensions/ShapeCatalog.ts) / PluginRegistry | findShape、shapeSyntaxes 读取当前成功发布的 provider，不固定旧快照 |
+| [CreateShapeCommandFactory](../src/plugins/builtin-commands/factories/CreateShapeCommandFactory.ts) | createSpec 查目录、调用 provider，检查规格身份及请求 id/type；保留 in 的解析与父容器校验 |
+| [CreateCommandContribution](../src/plugins/builtin-commands/CreateCommandContribution.ts) | 动态从图形目录产生完整创建语法；没有 provider 时显示通用语法 |
+| [ShapeSpec](../src/domain/specs/ShapeSpec.ts) / [ShapeFactory](../src/domain/ShapeFactory.ts) | 规格多态构造；工厂只提供关系门面并检查产物，不再按类型枚举 |
+| [ShapeRelations](../src/domain/shapes/ShapeRelations.ts) | parentOf/childrenOf 只读领域接口；构造时传入冻结门面，禁止获得内部树写能力 |
+
+这是对原设计的实际调整：第 1 步只提供规格入口，现在规格具备构造行为，使新规格无需扩张领域工厂；旧 ShapeSpecBuilder 契约删除，避免平行创建协议。具体图形与规格仍为领域公开对象，CLI 和 XML 不进入领域。选择和取舍见 [ADR-004](adr/004-polymorphic-shape-creation.md)。
+
+### 8.1 缺省行为与失败契约
+
+默认装配继续提供六图形，help 语法与原顺序保持一致。未注册类型执行 create 时仍报 unknown shape type；后续成功注册立即影响创建与 help，激活失败不会发布其类型或语法。非法语法元数据拒绝整批；provider 返回非 ShapeSpec、错误 id/type 或领域构造返回非 Shape/错误身份均拒绝，在树插入之前失败。既有 ChangeSet 与历史机制不变，错误创建不清空已有 redo，重做复用首次对象。
+
+查询 Visitor、tree/show 投影与 SVG 读写仍为旧六类型链路，读入当前不查询注册表；这些属于第 4 步。完整复合子树和结构保护属于第 5 步。当前不声称任意新图形的显示和保存已经可用，也没有实现 box、配置双装配或最终指标。
+
+### 8.2 当前依赖变化
+
+第 7 节图中的命令插件与框架保持原依赖；新增图形插件只访问公开扩展契约、数字解码工具和领域规格，不依赖命令插件或内部树。创建工厂通过 ShapeCatalog 依赖抽象，领域通过 ShapeRelations 隔离具体树。
+
+```plantuml
+@startuml
+component "bootstrap" as boot
+component "builtin-shapes" as shapes
+component "builtin-commands/create" as commands
+component "PluginRegistry / ShapeCatalog" as registry
+component "ShapeProvider" as provider
+component "ShapeSpec / ShapeFactory" as specs
+component "Shape / ShapeRelations" as model
+boot ..> shapes
+boot ..> registry
+shapes --> provider
+shapes --> specs
+commands --> registry
+registry --> provider
+provider --> specs
+specs --> model
+@enduml
+```
+
+### 8.3 过程、架构自查与实际验证
+
+先写图形注册集成测试并实际因 RectShapeProvider 缺失失败；实现过程中迁移脚本造成创建工厂重复片段、门面的回调类型未显式推导，检查发现后修正；新增参数化测试的数组被测试框架按参数展开，改用命名对象用例，未将这些失败隐去或宣称首轮全绿。随后补齐元数据、redo、只读门面和非法构造结果用例。
+
+自查覆盖封装、类文件、职责、依赖、多态、分派、Command/Composite、领域输入、展示、失败原子性、扩展点及测试组织。消除工厂六类型枚举、命令插件对图形 Builder 的具体依赖、重复语法校验及 Shape 对内部树的构造依赖；注册白名单仅增加 ShapeProvider/ShapeCatalog，仍禁止插件跨包依赖和内部树访问。未把第 4、5 步能力提前用数据袋实现。
+
+最终 pnpm run check 通过：CLI 34 文件/139 测试，扩展 3 文件/21 测试，两部分类型检查和构建通过；课程会话、help、六图形、in 与历史回归包含在该检查中。新集成测试 9 项，含默认顺序与三项非法语法参数化用例。完整日志见 [step-03-check.txt](cli/evidence/step-03-check.txt)。未重跑 GUI、VSIX 或依赖审计。交付检查通过：60 个本地文档路径、代码块闭合、40 个本步文本的 UTF-8/LF/末尾换行及 git diff --check；索引无差异。
+
+本步未暂存、提交、推送或操作标签。用户检查并完成提交后再推进第 4 步查询与 SVG 读写扩展。

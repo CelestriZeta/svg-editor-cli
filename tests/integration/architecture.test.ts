@@ -229,6 +229,7 @@ describe('architecture guards', () => {
       'commands/EditChangeSetCommand.ts', 'commands/InvalidCommand.ts',
       'extensions/Plugin.ts', 'extensions/PluginContext.ts',
       'extensions/CommandContribution.ts', 'extensions/CommandCatalog.ts',
+      'extensions/ShapeCatalog.ts', 'extensions/ShapeProvider.ts',
       'ports/ActiveDocument.ts', 'ports/DocumentOperations.ts',
       'ports/LoadedDocument.ts', 'queries/DocumentQuery.ts'
     ];
@@ -253,5 +254,11 @@ describe('architecture guards', () => {
     }
     const dispatcher = await readFile(join(sourceRoot, 'application/CommandDispatcher.ts'), 'utf8');
     expect(dispatcher).not.toMatch(/Builtin|HelpCommand|new Map|definitions/);
+    const factory = await readFile(join(sourceRoot, 'domain/ShapeFactory.ts'), 'utf8');
+    expect(factory).not.toMatch(/switch\s*\(|case\s+|from ['"][^'"]*(?:Rect|Circle|Ellipse|Line|Text|Group)/);
+    const createFactory = await readFile(
+      join(sourceRoot, 'plugins/builtin-commands/factories/CreateShapeCommandFactory.ts'), 'utf8'
+    );
+    expect(createFactory).not.toMatch(/new Map|SpecBuilder|builtin-shapes/);
   });
 });

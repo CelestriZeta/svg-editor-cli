@@ -1,0 +1,28 @@
+import { DomainError } from '../../domain/DomainError.js';
+import { ShapeStyle } from '../../domain/shapes/ShapeStyle.js';
+import { CircleSpec } from '../../domain/specs/CircleSpec.js';
+import type { ShapeSpec } from '../../domain/specs/ShapeSpec.js';
+import type { ShapeProvider } from '../../application/extensions/ShapeProvider.js';
+import type { CommandNumberParser } from '../../application/commands/support/CommandNumberParser.js';
+
+export class CircleShapeProvider implements ShapeProvider {
+  public readonly name = 'circle';
+  public readonly syntaxes = Object.freeze(['create circle <id> <cx> <cy> <r> [fill] [in <container-id>]']);
+
+  public constructor(private readonly numbers: CommandNumberParser) {}
+
+  public createSpec(id: string, parameters: readonly string[]): ShapeSpec {
+    if (parameters.length !== 3 && parameters.length !== 4) {
+      throw new DomainError('circle requires cx, cy and r');
+    }
+
+    const [cxText, cyText, rText, fill] = parameters;
+    return new CircleSpec(
+      id,
+      this.numbers.parseShape('circle', cxText, 'cx'),
+      this.numbers.parseShape('circle', cyText, 'cy'),
+      this.numbers.parseShape('circle', rText, 'r'),
+      new ShapeStyle(fill)
+    );
+  }
+}

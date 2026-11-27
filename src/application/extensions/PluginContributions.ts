@@ -33,18 +33,16 @@ export class PluginContributions {
   }
 
   public withShape(provider: ShapeProvider): PluginContributions {
+    const shapes = this.shapes.with(provider);
+    this.requireSyntaxes(provider.syntaxes, `invalid shape syntax: ${provider.name}`);
     return new PluginContributions(
-      this.shapes.with(provider), this.commands, this.decorators, this.attributes
+      shapes, this.commands, this.decorators, this.attributes
     );
   }
 
   public withCommand(command: CommandContribution): PluginContributions {
     const commands = this.commands.with(command);
-    if (!Array.isArray(command.syntaxes) || command.syntaxes.length === 0 ||
-        command.syntaxes.some((syntax: unknown) =>
-          typeof syntax !== 'string' || syntax.trim().length === 0 || /[\r\n]/.test(syntax))) {
-      throw new PluginRegistrationError(`invalid command syntax: ${command.name}`);
-    }
+    this.requireSyntaxes(command.syntaxes, `invalid command syntax: ${command.name}`);
     return new PluginContributions(
       this.shapes, commands, this.decorators, this.attributes
     );
@@ -60,5 +58,12 @@ export class PluginContributions {
     return new PluginContributions(
       this.shapes, this.commands, this.decorators, this.attributes.with(handler)
     );
+  }
+  private requireSyntaxes(syntaxes: readonly string[], error: string): void {
+    if (!Array.isArray(syntaxes) || syntaxes.length === 0 ||
+        syntaxes.some((syntax: unknown) =>
+          typeof syntax !== 'string' || syntax.trim().length === 0 || /[\r\n]/.test(syntax))) {
+      throw new PluginRegistrationError(error);
+    }
   }
 }

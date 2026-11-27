@@ -1,3 +1,5 @@
+import { Circle } from '../shapes/Circle.js';
+import type { ShapeRelations } from '../shapes/ShapeRelations.js';
 import { DomainError } from '../DomainError.js';
 import { ShapeStyle } from '../shapes/ShapeStyle.js';
 import { ShapeSpec } from './ShapeSpec.js';
@@ -40,5 +42,8 @@ export class CircleSpec extends ShapeSpec {
 
   public get r(): number {
     return this.#r;
+  }
+  public override create(relations: ShapeRelations): Circle {
+    return new Circle(this, relations);
   }
 }

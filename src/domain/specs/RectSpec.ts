@@ -1,3 +1,5 @@
+import { Rect } from '../shapes/Rect.js';
+import type { ShapeRelations } from '../shapes/ShapeRelations.js';
 import { DomainError } from '../DomainError.js';
 import { ShapeStyle } from '../shapes/ShapeStyle.js';
 import { ShapeSpec } from './ShapeSpec.js';
@@ -45,5 +47,8 @@ export class RectSpec extends ShapeSpec {
 
   public get height(): number {
     return this.#height;
+  }
+  public override create(relations: ShapeRelations): Rect {
+    return new Rect(this, relations);
   }
 }

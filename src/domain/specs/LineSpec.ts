@@ -1,3 +1,5 @@
+import { Line } from '../shapes/Line.js';
+import type { ShapeRelations } from '../shapes/ShapeRelations.js';
 import { DomainError } from '../DomainError.js';
 import { ShapeStyle } from '../shapes/ShapeStyle.js';
 import { ShapeSpec } from './ShapeSpec.js';
@@ -44,5 +46,8 @@ export class LineSpec extends ShapeSpec {
 
   public get y2(): number {
     return this.#y2;
+  }
+  public override create(relations: ShapeRelations): Line {
+    return new Line(this, relations);
   }
 }
