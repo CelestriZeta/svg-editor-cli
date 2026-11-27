@@ -9,6 +9,7 @@ coverage/
 *.tsbuildinfo
 
 # Tool caches
+.archify/
 .cache/
 .eslintcache
 .npm/

@@ -1,5 +1,7 @@
 # PJ1 Phase 1：SVG 编辑器（CLI）
 
+课程要求：[Phase 1：SVG 编辑器（CLI）](phase_cli_1.md) · [Phase 2：插件实践与插件式重构](phase_cli_2.md)。本文件保留 Phase 1 的提交说明与验收记录；Phase 2 要求已归档，其实现与验收尚未开展。
+
 本项目使用 TypeScript 实现命令行 SVG 编辑器，支持 `rect`、`circle`、`ellipse`、`line`、`text`、`g` 六种内置图形，以及文档读写、树结构编辑、属性修改、查询和撤销重做。
 
 运行环境为 Node.js 24 或更高版本，包管理器版本由 `package.json` 的 `packageManager` 固定。安装、构建和启动：

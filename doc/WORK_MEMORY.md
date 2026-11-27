@@ -3,10 +3,12 @@
 ## 事实来源与优先级
 
 - 用户当前指令优先，其次遵循根目录 `AGENTS.md` 的协作约定。
-- `phase_cli_1.md` 是课程需求原文；用户明确要求整理最终提交 README，已据此更新文档。后续实现偏差仍在本文件记录；README 维护须区分方案和实际调整，不回溯虚构设计过程。
+- [Phase 1 要求](phase_cli_1.md) 与 [Phase 2 要求](phase_cli_2.md) 是课程需求原文，统一保存在 `doc/`；用户明确要求整理最终提交 README，已据此更新文档。后续实现偏差仍在本文件记录；README 维护须区分方案和实际调整，不回溯虚构设计过程。
 - 本文件记录已知事实、决策和下一步，不把计划写成已完成。
 
 ## 当前状态
+
+- Phase 1 要求已从根目录迁入 doc/phase_cli_1.md；Phase 2 要求及两张原始示意截图已从用户指定目录复制到 doc/phase_cli_2.md 和 doc/docs/images/。Phase 2 尚未开始实现，以下开发与验收记录仍属于 Phase 1。
 
 - 最终提交文档已按用户要求整理，README 包含架构方案、过程记录、一致性自查和质量保证手段；项目维护文档中的日期标记已移除。Git 交付仍等待用户检查及明确指令。
 - 初始化前仓库仅有 `phase_cli_1.md`；以下保留逐步开发的历史事实，阶段能力以阶段 8 验收记录为准。
@@ -322,3 +324,17 @@ Backspace 擦除 `svg>` 的原因是 Repl 原先直接向 stdout 写入提示符
 ## 维护规则
 
 每次完成一个实际工作阶段，更新当前状态、实际实现架构、决策和剩余问题。README 作为最终提交文档，按用户要求维护，并保留方案与实际调整的区别；本文件持续记录开发事实，不添加日期标记，不保存凭据、私密配置或未经验证的完成结论。
+
+## Archify 当前实现架构图
+
+按用户要求，读取课程需求、README、工作记忆及当前源码，以提交 7fc2e68f56191ae4b5a44cd3de225464b3ccbb7d 为依据生成交互架构图。图展示 CLI、分发执行与历史、Command 用例、文档服务与会话、领域聚合、Composite、存储端口、SVG 适配器和本地文件，并附源码行号。图为当前实现的系统概览，不改写 README 架构方案，也不修改生产代码。
+
+候选位于 .archify/architecture-svg-editor-20261026-190000/candidate.json。F 盘发布因硬链接失败，交付文件与完整验证证据改存本次任务的 C 盘可视化目录：C:/Users/16356/.codex/visualizations/2026/10/26/01a17689-e770-7a80-a1f2-63cf88110c52/.archify/architecture-svg-editor-20261026-190000/。Archify finalize 的 validate、deliver、check、browser-check 全部通过，无诊断；未进行人工视觉审查，未重新运行业务测试。没有暂存、提交、推送或创建 tag。
+
+## 两阶段要求归档与文档入口更新
+
+按用户要求，将根目录的 Phase 1 要求迁入 doc/phase_cli_1.md，并从 F:/School/复旦/大三上/软件设计/pj1-phase2/ 复制 Phase 2 要求至 doc/phase_cli_2.md。保留两份课程原文；Phase 2 的两张示意截图沿用相对目录 docs/images/，复制到 doc/docs/images/，以保持原文图片链接有效。这些截图是课程要求的示意素材，不是本项目的实现或验收证据。
+
+更新 AGENTS.md 的阅读入口与阶段范围说明，补充 README、Phase 1 开发计划和测试清单的需求入口，修正实例回放文档中的 Phase 1 引用。README 的 Phase 1 架构方案及既有验收结果保持原有含义；归档要求不视为开始 Phase 2 开发。未修改生产代码、测试实现、依赖或现有架构图，未暂存、提交、推送或创建 tag；保留开始时 WORK_MEMORY.md 的已有改动及未跟踪的 .archify/。
+
+实际验证：Phase 1 迁移前后 SHA-256 相同，迁移后 Git blob 与 HEAD 中原文件一致；Phase 2 原文及两张截图的 SHA-256 分别与来源一致。脚本检查 11 处需求/图片链接及 AGENTS.md 的四个阅读入口全部存在，README 从第 1 节架构方案起的原有内容与 HEAD 比较一致；git diff --check 通过。本轮仅整理文档，未运行业务测试。

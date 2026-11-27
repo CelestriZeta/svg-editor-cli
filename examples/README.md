@@ -1,6 +1,6 @@
 # 课程实例回放
 
-两个脚本只包含 `phase_cli_1.md` 中需要输入的 CLI 命令，不含 `svg>` 提示符和执行结果：
+两个脚本只包含 [Phase 1 要求](../doc/phase_cli_1.md) 中需要输入的 CLI 命令，不含 `svg>` 提示符和执行结果：
 
 - [typical.txt](typical.txt)：第 6 节的典型会话，包含分组、移动、撤销重做、保存与读取。
 - [flowchart.txt](flowchart.txt)：第 6.1 节的两节点流程图，使用本阶段支持的普通容器组合。
