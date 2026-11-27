@@ -17,8 +17,10 @@ import type { ShapeScaledResult } from '../results/ShapeScaledResult.js';
 import type { TreeResult } from '../results/TreeResult.js';
 import type { TreeSubtreeResult } from '../results/TreeSubtreeResult.js';
 import type { UngroupedResult } from '../results/UngroupedResult.js';
+import type { PresentedCommandResult } from '../results/PresentedCommandResult.js';
 
 export interface CommandResultVisitor<T> {
+  visitPresented<V>(result: PresentedCommandResult<V>): T;
   visitCanvas(result: CanvasResult): T;
   visitCanvasCreated(result: CanvasCreatedResult): T;
   visitCanvasResized(result: CanvasResizedResult): T;

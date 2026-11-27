@@ -6,7 +6,7 @@ import { RecordingDocumentStore } from '../support/RecordingDocumentStore.js';
 describe('command failure state', () => {
   it('[CREATE-07/09/14, HIST-08] keeps all state unchanged after failures', async () => {
     const store = new RecordingDocumentStore();
-    const harness = new ApplicationHarness(store);
+    const harness = await ApplicationHarness.create(store);
     const { repl } = harness;
 
     expect(await repl.executeLine('init 200 100')).toBe('canvas 200x100 created');

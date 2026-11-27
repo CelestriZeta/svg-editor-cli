@@ -11,23 +11,24 @@ import { Repl } from '../../src/cli/Repl.js';
 import { ShapeFormatter } from '../../src/cli/ShapeFormatter.js';
 import { ShowFormatter } from '../../src/cli/ShowFormatter.js';
 import { TreeFormatter } from '../../src/cli/TreeFormatter.js';
+import { PluginRegistry } from '../../src/application/extensions/PluginRegistry.js';
+import { BuiltinCommandsPlugin } from '../../src/plugins/builtin-commands/BuiltinCommandsPlugin.js';
 
 export class ApplicationHarness {
   readonly #history: CommandHistory;
   readonly #executor: CommandExecutor;
   readonly #formatter: OutputFormatter;
   readonly #repl: Repl;
+  readonly #builtins: BuiltinCommandsPlugin;
 
-  public constructor(store: DocumentStore) {
+  private constructor(store: DocumentStore, private readonly pluginRegistry: PluginRegistry) {
     const session = new EditorSession();
     const documents = new DocumentService(session, store);
     this.#history = new CommandHistory();
-    const dispatcher = new CommandDispatcher(
-      session,
-      documents,
-      this.#history,
-      new DocumentViewVisitor()
+    this.#builtins = new BuiltinCommandsPlugin(
+      session, documents, this.#history, new DocumentViewVisitor(), pluginRegistry
     );
+    const dispatcher = new CommandDispatcher(pluginRegistry);
     this.#executor = new CommandExecutor(this.#history);
     const shapes = new ShapeFormatter();
     this.#formatter = new OutputFormatter(
@@ -40,6 +41,17 @@ export class ApplicationHarness {
       this.#executor,
       this.#formatter
     );
+  }
+
+  public static async create(store: DocumentStore): Promise<ApplicationHarness> {
+    const plugins = new PluginRegistry();
+    const harness = new ApplicationHarness(store, plugins);
+    await plugins.activate('builtin-commands', harness.#builtins);
+    return harness;
+  }
+
+  public get plugins(): PluginRegistry {
+    return this.pluginRegistry;
   }
 
   public get history(): CommandHistory {

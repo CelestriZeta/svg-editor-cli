@@ -40,7 +40,7 @@ describe('SVG reading', () => {
       ].join('\n'),
       'utf8'
     );
-    const harness = new ApplicationHarness(
+    const harness = await ApplicationHarness.create(
       new SvgDocumentStore(new SvgReader(), new SvgWriteVisitor())
     );
 
@@ -84,7 +84,7 @@ describe('SVG reading', () => {
   });
 
   it('[READ-05/06/08/12] rejects invalid SVG without replacing the session', async () => {
-    const harness = new ApplicationHarness(
+    const harness = await ApplicationHarness.create(
       new SvgDocumentStore(new SvgReader(), new SvgWriteVisitor())
     );
     const { history, repl } = harness;
@@ -126,7 +126,7 @@ describe('SVG reading', () => {
   });
 
   it('[CANVAS-01/02/03, HIST-03/04] queries and resizes the canvas atomically', async () => {
-    const harness = new ApplicationHarness(
+    const harness = await ApplicationHarness.create(
       new SvgDocumentStore(new SvgReader(), new SvgWriteVisitor())
     );
     const { history, repl } = harness;

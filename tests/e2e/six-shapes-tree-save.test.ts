@@ -21,7 +21,7 @@ describe('six shapes -> tree -> save', () => {
 
   it('[CREATE-02/03/04/05/06, SAVE-05] dispatches and serializes all built-in shapes', async () => {
     const file = directory.file('shapes.svg');
-    const harness = new ApplicationHarness(
+    const harness = await ApplicationHarness.create(
       new SvgDocumentStore(new SvgReader(), new SvgWriteVisitor())
     );
     const { repl } = harness;

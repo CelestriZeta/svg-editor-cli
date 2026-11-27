@@ -1,7 +1,8 @@
 import { DomainError } from '../domain/DomainError.js';
 import type { SvgDocument } from '../domain/document/SvgDocument.js';
+import type { ActiveDocument } from './ports/ActiveDocument.js';
 
-export class EditorSession {
+export class EditorSession implements ActiveDocument {
   #document: SvgDocument | undefined;
   #defaultPath: string | undefined;
 

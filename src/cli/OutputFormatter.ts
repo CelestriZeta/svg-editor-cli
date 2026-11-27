@@ -1,4 +1,5 @@
 import type { CommandResult } from '../application/commands/contracts/CommandResult.js';
+import type { PresentedCommandResult } from '../application/commands/results/PresentedCommandResult.js';
 import type { CommandResultVisitor } from '../application/commands/contracts/CommandResultVisitor.js';
 import { ReorderDirection } from '../application/commands/contracts/ReorderDirection.js';
 import type { CanvasCreatedResult } from '../application/commands/results/CanvasCreatedResult.js';
@@ -34,6 +35,10 @@ export class OutputFormatter implements CommandResultVisitor<string> {
 
   public format(result: CommandResult): string {
     return result.accept(this);
+  }
+
+  public visitPresented<T>(result: PresentedCommandResult<T>): string {
+    return result.text;
   }
 
   public visitError(result: ErrorResult): string {

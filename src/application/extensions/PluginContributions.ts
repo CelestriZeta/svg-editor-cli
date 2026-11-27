@@ -3,6 +3,7 @@ import type { CommandContribution } from './CommandContribution.js';
 import { ExtensionRegistry } from './ExtensionRegistry.js';
 import type { ShapeProvider } from './ShapeProvider.js';
 import type { TreeDecorator } from './TreeDecorator.js';
+import { PluginRegistrationError } from './PluginRegistrationError.js';
 
 /** 四类注册的同一发布版本，替换一次引用即可原子发布。 */
 export class PluginContributions {
@@ -38,8 +39,14 @@ export class PluginContributions {
   }
 
   public withCommand(command: CommandContribution): PluginContributions {
+    const commands = this.commands.with(command);
+    if (!Array.isArray(command.syntaxes) || command.syntaxes.length === 0 ||
+        command.syntaxes.some((syntax: unknown) =>
+          typeof syntax !== 'string' || syntax.trim().length === 0 || /[\r\n]/.test(syntax))) {
+      throw new PluginRegistrationError(`invalid command syntax: ${command.name}`);
+    }
     return new PluginContributions(
-      this.shapes, this.commands.with(command), this.decorators, this.attributes
+      this.shapes, commands, this.decorators, this.attributes
     );
   }
 

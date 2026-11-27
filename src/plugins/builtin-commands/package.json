@@ -1,0 +1,12 @@
+{
+  "name": "@svgframe/builtin-commands",
+  "private": true,
+  "type": "module",
+  "contributes": {
+    "commands": [
+      "init", "read", "create", "delete", "move", "scale", "set",
+      "group", "ungroup", "addto", "front", "back", "tree", "show",
+      "undo", "redo", "save", "canvas", "help"
+    ]
+  }
+}

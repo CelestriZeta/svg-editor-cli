@@ -8,7 +8,7 @@ import { RecordingDocumentStore } from '../support/RecordingDocumentStore.js';
 
 describe('REPL stream', () => {
   it('[CLI-01/02/06] writes the banner and processes script lines in order', async () => {
-    const harness = new ApplicationHarness(new RecordingDocumentStore());
+    const harness = await ApplicationHarness.create(new RecordingDocumentStore());
     const output: string[] = [];
     const lines = async function* (): AsyncGenerator<string> {
       yield '';
@@ -33,7 +33,7 @@ describe('REPL stream', () => {
   });
 
   it('[CLI-01] writes the svg prompt in interactive mode', async () => {
-    const harness = new ApplicationHarness(new RecordingDocumentStore());
+    const harness = await ApplicationHarness.create(new RecordingDocumentStore());
     const output: string[] = [];
     const lines = async function* (): AsyncGenerator<string> {
       yield 'init 10 20';
@@ -59,7 +59,7 @@ describe('REPL stream', () => {
 
   it('keeps the readline prompt when backspacing at the start and within input', async () => {
     vi.stubEnv('TERM', 'xterm');
-    const harness = new ApplicationHarness(new RecordingDocumentStore());
+    const harness = await ApplicationHarness.create(new RecordingDocumentStore());
     const input = new PassThrough();
     const output = new PassThrough();
     const terminalOutput: string[] = [];

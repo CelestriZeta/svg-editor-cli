@@ -100,9 +100,10 @@ describe('architecture guards', () => {
       ['application', new Set(['application', 'domain'])],
       ['cli', new Set(['cli', 'application'])],
       ['infrastructure', new Set(['infrastructure', 'application', 'domain'])],
+      ['plugins', new Set(['plugins', 'application', 'domain'])],
       [
         'bootstrap',
-        new Set(['bootstrap', 'cli', 'application', 'infrastructure', 'domain'])
+        new Set(['bootstrap', 'cli', 'application', 'infrastructure', 'domain', 'plugins'])
       ]
     ]);
 
@@ -134,7 +135,10 @@ describe('architecture guards', () => {
 
   it('[ARCH-06/08/09/10] keeps dispatch, command and bootstrap boundaries', async () => {
     const sourceFiles = await typescriptFiles(sourceRoot);
-    const commandFiles = await typescriptFiles(join(sourceRoot, 'application/commands'));
+    const commandFiles = [
+      ...await typescriptFiles(join(sourceRoot, 'application/commands')),
+      ...await typescriptFiles(join(sourceRoot, 'plugins/builtin-commands'))
+    ];
     const nonBootstrapFiles = sourceFiles.filter(
       (file) => !file.includes(`${join(sourceRoot, 'bootstrap')}`)
     );
@@ -174,7 +178,7 @@ describe('architecture guards', () => {
 
 
     const createCommandSource = await readFile(
-      join(sourceRoot, 'application/commands/CreateShapeCommand.ts'),
+      join(sourceRoot, 'plugins/builtin-commands/commands/CreateShapeCommand.ts'),
       'utf8'
     );
     expect(createCommandSource).toMatch(
@@ -215,5 +219,39 @@ describe('architecture guards', () => {
       expect(source).not.toMatch(/\b(?:describe|it)\.(?:skip|todo)\b/);
       expect(source).not.toMatch(/\bTO[D]O\b|\bFIXME\b/);
     }
+  });
+
+  it('[ARCH-P2-02] limits plugins to their own package and the public kernel API', async () => {
+    const pluginRoot = join(sourceRoot, 'plugins');
+    const files = await typescriptFiles(pluginRoot);
+    const publicApplicationPaths = [
+      'commands/contracts/', 'commands/results/', 'commands/support/',
+      'commands/EditChangeSetCommand.ts', 'commands/InvalidCommand.ts',
+      'extensions/Plugin.ts', 'extensions/PluginContext.ts',
+      'extensions/CommandContribution.ts', 'extensions/CommandCatalog.ts',
+      'ports/ActiveDocument.ts', 'ports/DocumentOperations.ts',
+      'ports/LoadedDocument.ts', 'queries/DocumentQuery.ts'
+    ];
+    for (const file of files) {
+      const source = await readFile(file, 'utf8');
+      const packageName = file.slice(pluginRoot.length + 1).split(/[\\/]/)[0];
+      for (const match of source.matchAll(/from\s+['"](\.[^'"]+\.js)['"]/g)) {
+        const target = resolve(dirname(file), (match[1] ?? '').replace(/\.js$/, '.ts'));
+        const relative = target.slice(sourceRoot.length + 1).replaceAll('\\', '/');
+        if (relative.startsWith('plugins/')) {
+          expect(relative.startsWith(`plugins/${packageName}/`)).toBe(true);
+        } else if (relative.startsWith('application/')) {
+          const applicationPath = relative.slice('application/'.length);
+          expect(publicApplicationPaths.some((allowed) =>
+            allowed.endsWith('/') ? applicationPath.startsWith(allowed) : applicationPath === allowed
+          )).toBe(true);
+        } else {
+          expect(relative.startsWith('domain/')).toBe(true);
+          expect(relative).not.toMatch(/domain\/(?:document\/(?:ShapeTree|ShapeStructurePlanner)|ShapeFactory)\.ts/);
+        }
+      }
+    }
+    const dispatcher = await readFile(join(sourceRoot, 'application/CommandDispatcher.ts'), 'utf8');
+    expect(dispatcher).not.toMatch(/Builtin|HelpCommand|new Map|definitions/);
   });
 });

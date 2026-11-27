@@ -15,6 +15,8 @@ import { TreeFormatter } from '../cli/TreeFormatter.js';
 import { SvgDocumentStore } from '../infrastructure/SvgDocumentStore.js';
 import { SvgReader } from '../infrastructure/SvgReader.js';
 import { SvgWriteVisitor } from '../infrastructure/SvgWriteVisitor.js';
+import { PluginRegistry } from '../application/extensions/PluginRegistry.js';
+import { BuiltinCommandsPlugin } from '../plugins/builtin-commands/BuiltinCommandsPlugin.js';
 
 export class Main {
   public async run(): Promise<void> {
@@ -24,12 +26,11 @@ export class Main {
       new SvgDocumentStore(new SvgReader(), new SvgWriteVisitor())
     );
     const history = new CommandHistory();
-    const dispatcher = new CommandDispatcher(
-      session,
-      documents,
-      history,
-      new DocumentViewVisitor()
-    );
+    const plugins = new PluginRegistry();
+    await plugins.activate('builtin-commands', new BuiltinCommandsPlugin(
+      session, documents, history, new DocumentViewVisitor(), plugins
+    ));
+    const dispatcher = new CommandDispatcher(plugins);
     const executor = new CommandExecutor(history);
     const shapes = new ShapeFormatter();
     const repl = new Repl(

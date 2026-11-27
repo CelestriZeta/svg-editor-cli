@@ -1,55 +1,56 @@
 import { describe, expect, it } from 'vitest';
 
 import { CommandDispatcher } from '../../src/application/CommandDispatcher.js';
-import { AddToCommand } from '../../src/application/commands/AddToCommand.js';
-import { BackShapeCommand } from '../../src/application/commands/BackShapeCommand.js';
-import { CreateShapeCommand } from '../../src/application/commands/CreateShapeCommand.js';
-import { DeleteShapeCommand } from '../../src/application/commands/DeleteShapeCommand.js';
-import { FrontShapeCommand } from '../../src/application/commands/FrontShapeCommand.js';
-import { GroupShapesCommand } from '../../src/application/commands/GroupShapesCommand.js';
-import { HelpCommand } from '../../src/application/commands/HelpCommand.js';
-import { InitCommand } from '../../src/application/commands/InitCommand.js';
+import { AddToCommand } from '../../src/plugins/builtin-commands/commands/AddToCommand.js';
+import { BackShapeCommand } from '../../src/plugins/builtin-commands/commands/BackShapeCommand.js';
+import { CreateShapeCommand } from '../../src/plugins/builtin-commands/commands/CreateShapeCommand.js';
+import { DeleteShapeCommand } from '../../src/plugins/builtin-commands/commands/DeleteShapeCommand.js';
+import { FrontShapeCommand } from '../../src/plugins/builtin-commands/commands/FrontShapeCommand.js';
+import { GroupShapesCommand } from '../../src/plugins/builtin-commands/commands/GroupShapesCommand.js';
+import { HelpCommand } from '../../src/plugins/builtin-commands/commands/HelpCommand.js';
+import { InitCommand } from '../../src/plugins/builtin-commands/commands/InitCommand.js';
 import { InvalidCommand } from '../../src/application/commands/InvalidCommand.js';
-import { MoveShapeCommand } from '../../src/application/commands/MoveShapeCommand.js';
-import { ReadDocumentCommand } from '../../src/application/commands/ReadDocumentCommand.js';
-import { RedoCommand } from '../../src/application/commands/RedoCommand.js';
-import { ResizeCanvasCommand } from '../../src/application/commands/ResizeCanvasCommand.js';
-import { SaveCommand } from '../../src/application/commands/SaveCommand.js';
-import { ScaleShapeCommand } from '../../src/application/commands/ScaleShapeCommand.js';
-import { SetShapeAttributeCommand } from '../../src/application/commands/SetShapeAttributeCommand.js';
-import { ShowCanvasCommand } from '../../src/application/commands/ShowCanvasCommand.js';
-import { ShowCommand } from '../../src/application/commands/ShowCommand.js';
-import { TreeCommand } from '../../src/application/commands/TreeCommand.js';
-import { UngroupShapeCommand } from '../../src/application/commands/UngroupShapeCommand.js';
-import { UndoCommand } from '../../src/application/commands/UndoCommand.js';
+import { MoveShapeCommand } from '../../src/plugins/builtin-commands/commands/MoveShapeCommand.js';
+import { ReadDocumentCommand } from '../../src/plugins/builtin-commands/commands/ReadDocumentCommand.js';
+import { RedoCommand } from '../../src/plugins/builtin-commands/commands/RedoCommand.js';
+import { ResizeCanvasCommand } from '../../src/plugins/builtin-commands/commands/ResizeCanvasCommand.js';
+import { SaveCommand } from '../../src/plugins/builtin-commands/commands/SaveCommand.js';
+import { ScaleShapeCommand } from '../../src/plugins/builtin-commands/commands/ScaleShapeCommand.js';
+import { SetShapeAttributeCommand } from '../../src/plugins/builtin-commands/commands/SetShapeAttributeCommand.js';
+import { ShowCanvasCommand } from '../../src/plugins/builtin-commands/commands/ShowCanvasCommand.js';
+import { ShowCommand } from '../../src/plugins/builtin-commands/commands/ShowCommand.js';
+import { TreeCommand } from '../../src/plugins/builtin-commands/commands/TreeCommand.js';
+import { UngroupShapeCommand } from '../../src/plugins/builtin-commands/commands/UngroupShapeCommand.js';
+import { UndoCommand } from '../../src/plugins/builtin-commands/commands/UndoCommand.js';
 import { ErrorResult } from '../../src/application/commands/results/ErrorResult.js';
 import { CommandHistory } from '../../src/application/CommandHistory.js';
 import { DocumentService } from '../../src/application/DocumentService.js';
 import { EditorSession } from '../../src/application/EditorSession.js';
 import { DocumentViewVisitor } from '../../src/application/queries/DocumentViewVisitor.js';
 import { RecordingDocumentStore } from '../support/RecordingDocumentStore.js';
+import { PluginRegistry } from '../../src/application/extensions/PluginRegistry.js';
+import { BuiltinCommandsPlugin } from '../../src/plugins/builtin-commands/BuiltinCommandsPlugin.js';
 
-function createDispatcher(): {
+async function createDispatcher(): Promise<{
   readonly dispatcher: CommandDispatcher;
   readonly session: EditorSession;
-} {
+}> {
   const session = new EditorSession();
   const documents = new DocumentService(session, new RecordingDocumentStore());
   const history = new CommandHistory();
+  const plugins = new PluginRegistry();
+  await plugins.activate('builtin-commands', new BuiltinCommandsPlugin(
+    session, documents, history, new DocumentViewVisitor(), plugins
+  ));
   return {
-    dispatcher: new CommandDispatcher(
-      session,
-      documents,
-      history,
-      new DocumentViewVisitor()
-    ),
+    dispatcher: new CommandDispatcher(plugins),
     session
   };
 }
 
 describe('CommandDispatcher', () => {
   it('[CMD-01] creates the expected command for every implemented name', async () => {
-    const { dispatcher } = createDispatcher();
+    const { dispatcher } = await createDispatcher();
 
     expect(dispatcher.create(['init'])).toBeInstanceOf(InitCommand);
     await dispatcher.create(['init', '100', '50']).execute();
@@ -97,7 +98,7 @@ describe('CommandDispatcher', () => {
   });
 
   it('[CMD-02/03] returns semantic errors for unknown commands and invalid arity', async () => {
-    const { dispatcher } = createDispatcher();
+    const { dispatcher } = await createDispatcher();
     await dispatcher.create(['init']).execute();
     const cases: readonly [readonly string[], string][] = [
       [[], 'missing command'],
@@ -145,7 +146,7 @@ describe('CommandDispatcher', () => {
   });
 
   it('[CREATE-11, CMD-03] binds create-in to an existing container', async () => {
-    const { dispatcher, session } = createDispatcher();
+    const { dispatcher, session } = await createDispatcher();
     await dispatcher.create(['init']).execute();
     await dispatcher.create(['create', 'g', 'g1']).execute();
 

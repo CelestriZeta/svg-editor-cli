@@ -6,8 +6,9 @@ import type { DocumentStore } from './ports/DocumentStore.js';
 import { DocumentReadError } from './ports/DocumentReadError.js';
 import { DocumentStoreError } from './ports/DocumentStoreError.js';
 import type { LoadedDocument } from './ports/LoadedDocument.js';
+import type { DocumentOperations } from './ports/DocumentOperations.js';
 
-export class DocumentService {
+export class DocumentService implements DocumentOperations {
   public constructor(
     private readonly session: EditorSession,
     private readonly store: DocumentStore

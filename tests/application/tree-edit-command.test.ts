@@ -2,11 +2,11 @@ import { describe, expect, it } from 'vitest';
 
 import { CommandExecutor } from '../../src/application/CommandExecutor.js';
 import { CommandHistory } from '../../src/application/CommandHistory.js';
-import { AddToCommand } from '../../src/application/commands/AddToCommand.js';
-import { BackShapeCommand } from '../../src/application/commands/BackShapeCommand.js';
-import { FrontShapeCommand } from '../../src/application/commands/FrontShapeCommand.js';
-import { GroupShapesCommand } from '../../src/application/commands/GroupShapesCommand.js';
-import { UngroupShapeCommand } from '../../src/application/commands/UngroupShapeCommand.js';
+import { AddToCommand } from '../../src/plugins/builtin-commands/commands/AddToCommand.js';
+import { BackShapeCommand } from '../../src/plugins/builtin-commands/commands/BackShapeCommand.js';
+import { FrontShapeCommand } from '../../src/plugins/builtin-commands/commands/FrontShapeCommand.js';
+import { GroupShapesCommand } from '../../src/plugins/builtin-commands/commands/GroupShapesCommand.js';
+import { UngroupShapeCommand } from '../../src/plugins/builtin-commands/commands/UngroupShapeCommand.js';
 import { GroupCreatedResult } from '../../src/application/commands/results/GroupCreatedResult.js';
 import { ShapeReorderedResult } from '../../src/application/commands/results/ShapeReorderedResult.js';
 import { SvgDocument } from '../../src/domain/document/SvgDocument.js';

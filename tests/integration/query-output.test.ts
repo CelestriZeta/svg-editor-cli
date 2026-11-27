@@ -5,7 +5,7 @@ import { RecordingDocumentStore } from '../support/RecordingDocumentStore.js';
 
 describe('tree and show queries', () => {
   it('[CLI-10] formats the full document or a shape subtree', async () => {
-    const harness = new ApplicationHarness(new RecordingDocumentStore());
+    const harness = await ApplicationHarness.create(new RecordingDocumentStore());
     const { repl } = harness;
 
     await repl.executeLine('init 300 200');
@@ -38,7 +38,7 @@ describe('tree and show queries', () => {
   });
 
   it('[CLI-11] shows every shape geometry and style with its parent', async () => {
-    const harness = new ApplicationHarness(new RecordingDocumentStore());
+    const harness = await ApplicationHarness.create(new RecordingDocumentStore());
     const { repl } = harness;
 
     await repl.executeLine('init 300 200');
@@ -91,7 +91,7 @@ describe('tree and show queries', () => {
   });
 
   it('[CLI-12, HIST-03] rejects invalid queries without changing history', async () => {
-    const harness = new ApplicationHarness(new RecordingDocumentStore());
+    const harness = await ApplicationHarness.create(new RecordingDocumentStore());
     const { history, repl } = harness;
 
     await repl.executeLine('init 100 100');

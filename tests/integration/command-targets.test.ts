@@ -6,7 +6,7 @@ import { RecordingDocumentStore } from '../support/RecordingDocumentStore.js';
 describe('shape and container target failures', () => {
   it('[TARGET-01, TREE-03/04/06/08/09/13] preserves state for every invalid target', async () => {
     const store = new RecordingDocumentStore();
-    const harness = new ApplicationHarness(store);
+    const harness = await ApplicationHarness.create(store);
     const { history, repl } = harness;
     await repl.executeLine('init 100 100');
     await repl.executeLine('create g outer');

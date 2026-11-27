@@ -12,8 +12,9 @@ import { GeometrySnapshot } from './GeometrySnapshot.js';
 import { ShapeAnchor } from './ShapeAnchor.js';
 import { ShapeReference } from './ShapeReference.js';
 import { ShapeSnapshot } from './ShapeSnapshot.js';
+import type { DocumentQuery } from './DocumentQuery.js';
 
-export class DocumentViewVisitor extends ShapeVisitor<ShapeSnapshot> {
+export class DocumentViewVisitor extends ShapeVisitor<ShapeSnapshot> implements DocumentQuery {
   public constructor(private readonly recursive = true) {
     super();
   }

@@ -5,7 +5,7 @@ import { RecordingDocumentStore } from '../support/RecordingDocumentStore.js';
 
 describe('document lifecycle', () => {
   it('[DOC-03/04, HIST-06] replaces the document and clears history', async () => {
-    const harness = new ApplicationHarness(new RecordingDocumentStore());
+    const harness = await ApplicationHarness.create(new RecordingDocumentStore());
     const { history, repl } = harness;
 
     expect(await repl.executeLine('init 100 50')).toBe('canvas 100x50 created');

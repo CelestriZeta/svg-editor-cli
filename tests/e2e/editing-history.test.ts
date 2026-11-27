@@ -8,7 +8,7 @@ import { RecordingDocumentStore } from '../support/RecordingDocumentStore.js';
 
 describe('shape editing and undo history', () => {
   it('[DELETE-02, CHANGE-02/03/04/05, HIST-01/02] edits, undoes and redoes through the CLI', async () => {
-    const harness = new ApplicationHarness(new RecordingDocumentStore());
+    const harness = await ApplicationHarness.create(new RecordingDocumentStore());
     const { history, repl } = harness;
 
     expect(await repl.executeLine('init 400 300')).toBe('canvas 400x300 created');
@@ -89,7 +89,7 @@ describe('shape editing and undo history', () => {
   });
 
   it('[CHANGE-02, GEO-02/04] edits and restores complete composite subtrees', async () => {
-    const harness = new ApplicationHarness(new RecordingDocumentStore());
+    const harness = await ApplicationHarness.create(new RecordingDocumentStore());
     const { repl } = harness;
 
     await repl.executeLine('init 200 200');
@@ -145,7 +145,7 @@ describe('shape editing and undo history', () => {
   });
 
   it('[HIST-04/05/09, CHANGE-13] preserves history on barriers, empty stacks and failed undo', async () => {
-    const harness = new ApplicationHarness(new RecordingDocumentStore());
+    const harness = await ApplicationHarness.create(new RecordingDocumentStore());
     const { history, repl } = harness;
 
     expect(await repl.executeLine('undo')).toBe(
@@ -191,7 +191,7 @@ describe('shape editing and undo history', () => {
   });
 
   it('[TARGET-01, SET-05/06/07, GEO-06] keeps every failed edit out of the history', async () => {
-    const harness = new ApplicationHarness(new RecordingDocumentStore());
+    const harness = await ApplicationHarness.create(new RecordingDocumentStore());
     const { history, repl } = harness;
 
     await repl.executeLine('init 100 100');
@@ -226,7 +226,7 @@ describe('shape editing and undo history', () => {
   });
 
   it('[CHANGE-06/07/08/09, HIST-03] undo and redo every structural edit command', async () => {
-    const harness = new ApplicationHarness(new RecordingDocumentStore());
+    const harness = await ApplicationHarness.create(new RecordingDocumentStore());
     const { history, repl } = harness;
 
     await repl.executeLine('init 200 200');
@@ -273,7 +273,7 @@ describe('shape editing and undo history', () => {
   });
 
   it('[HIST-01/02] does not create empty history units for unchanged edits', async () => {
-    const harness = new ApplicationHarness(new RecordingDocumentStore());
+    const harness = await ApplicationHarness.create(new RecordingDocumentStore());
     const { history, repl } = harness;
 
     await repl.executeLine('init 100 100');

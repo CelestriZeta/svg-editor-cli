@@ -27,7 +27,7 @@ describe('save failure atomicity with real files', () => {
   it.each(['create', 'partial write', 'replace'] as const)(
     '[SAVE-07/08] preserves the same target and complete session after %s failure',
     async (failure) => {
-      const harness = new ApplicationHarness(new SvgDocumentStore(new SvgReader(), new SvgWriteVisitor()));
+      const harness = await ApplicationHarness.create(new SvgDocumentStore(new SvgReader(), new SvgWriteVisitor()));
       const { repl, history } = harness;
       const path = directory.file('existing.svg');
       await repl.executeLine('init 100 100');

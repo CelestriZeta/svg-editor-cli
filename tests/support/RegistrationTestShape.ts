@@ -1,5 +1,5 @@
 import type { ShapeProvider } from '../../src/application/extensions/ShapeProvider.js';
-import { RectSpecBuilder } from '../../src/application/commands/specs/RectSpecBuilder.js';
+import { RectSpecBuilder } from '../../src/plugins/builtin-commands/specs/RectSpecBuilder.js';
 import { CommandNumberParser } from '../../src/application/commands/support/CommandNumberParser.js';
 import type { ShapeSpec } from '../../src/domain/specs/ShapeSpec.js';
 

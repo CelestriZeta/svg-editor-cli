@@ -6,7 +6,7 @@ import { RecordingDocumentStore } from '../support/RecordingDocumentStore.js';
 describe('structure editing commands', () => {
   it('[CREATE-11/12/13, TREE-05/07/10] edits nested structure through the CLI', async () => {
     const store = new RecordingDocumentStore();
-    const harness = new ApplicationHarness(store);
+    const harness = await ApplicationHarness.create(store);
     const { repl } = harness;
 
     expect(await repl.executeLine('init 400 300')).toBe('canvas 400x300 created');
@@ -62,7 +62,7 @@ describe('structure editing commands', () => {
   });
 
   it('[TREE-03/04/06/09/11] rejects invalid structure operations', async () => {
-    const harness = new ApplicationHarness(new RecordingDocumentStore());
+    const harness = await ApplicationHarness.create(new RecordingDocumentStore());
     const { repl } = harness;
 
     expect(await repl.executeLine('init 100 100')).toBe('canvas 100x100 created');
@@ -108,7 +108,7 @@ describe('structure editing commands', () => {
   });
 
   it('[CREATE-10/14, CMD-03, E2E-05] rejects box, unknown types and bad arity', async () => {
-    const harness = new ApplicationHarness(new RecordingDocumentStore());
+    const harness = await ApplicationHarness.create(new RecordingDocumentStore());
     const { repl } = harness;
 
     await repl.executeLine('init 100 100');

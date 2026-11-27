@@ -1,5 +1,6 @@
 import type { AttributeHandler } from './AttributeHandler.js';
 import type { CommandContribution } from './CommandContribution.js';
+import type { CommandCatalog } from './CommandCatalog.js';
 import type { ExtensionRegistry } from './ExtensionRegistry.js';
 import type { Plugin } from './Plugin.js';
 import { PluginActivationError } from './PluginActivationError.js';
@@ -9,7 +10,7 @@ import { PluginRegistrationError } from './PluginRegistrationError.js';
 import type { ShapeProvider } from './ShapeProvider.js';
 import type { TreeDecorator } from './TreeDecorator.js';
 
-export class PluginRegistry {
+export class PluginRegistry implements CommandCatalog {
   #published = new PluginContributions();
   #tail: Promise<void> = Promise.resolve();
 
@@ -27,6 +28,14 @@ export class PluginRegistry {
 
   public get attributes(): ExtensionRegistry<AttributeHandler> {
     return this.#published.attributes;
+  }
+
+  public findCommand(name: string): CommandContribution | undefined {
+    return this.commands.get(name);
+  }
+
+  public commandSyntaxes(): readonly string[] {
+    return Object.freeze(this.commands.values().flatMap((command) => command.syntaxes));
   }
 
   public activate(name: string, plugin: Plugin): Promise<void> {

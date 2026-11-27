@@ -1,8 +1,9 @@
 import { DomainError } from '../domain/DomainError.js';
 import type { CommandResult } from './commands/contracts/CommandResult.js';
 import type { UndoableCommand } from './commands/contracts/UndoableCommand.js';
+import type { HistoryController } from './commands/contracts/HistoryController.js';
 
-export class CommandHistory {
+export class CommandHistory implements HistoryController {
   readonly #undoStack: UndoableCommand[] = [];
   readonly #redoStack: UndoableCommand[] = [];
   #blocked = false;

@@ -4,7 +4,7 @@
 
 ## 1. 当前范围与架构
 
-已实现第一部分 VSCode 插件实践：Explorer 文件标记、原生 Outline 元素层级与源码定位、编辑更新及异常 XML 恢复。第二部分按逐步检查、逐步提交的顺序推进，目前完成第 1 步公共扩展契约与事务式注册基础，详见第 6 节；CLI 入口尚未接入注册层，原 CLI 的 Command、Composite、存储端口、历史和六种图形调用链保持原实现。
+已实现第一部分 VSCode 插件实践：Explorer 文件标记、原生 Outline 元素层级与源码定位、编辑更新及异常 XML 恢复。第二部分按逐步检查、逐步提交的顺序推进：第 1 步注册基础已提交为 9e56bf1；当前完成第 2 步内置命令注册化与动态 help，等待用户检查，详见第 7 节。默认 CLI 已通过注册表分发命令；图形创建、属性设置、树标签和 SVG 读写的插件化仍待后续节点，领域 Composite 与历史语义保持原有行为。
 
 | 目录或类 | 实际职责 |
 |---|---|
@@ -46,7 +46,7 @@ note right of cli : 本部分无依赖或修改
 @enduml
 ```
 
-这是第一部分新增独立宿主插件后的实际依赖图，不是第二部分 CLI 的重构前后对比图。CLI 第 1 步的扩展点清单与阶段依赖对比见第 6 节；双装配、配置格式、dir 模式分析和 Git 历史指标随对应步骤实现后填写。
+这是第一部分新增独立宿主插件后的实际依赖图，不是第二部分 CLI 的重构前后对比图。CLI 第 1 步的阶段记录见第 6 节，第 2 步当前扩展点清单与依赖对比见第 7 节；双装配、配置格式、dir 模式分析和 Git 历史指标随对应步骤实现后填写。
 
 ## 2. VSCode 与扩展的协作
 
@@ -285,3 +285,104 @@ note right of ext : 尚未由 bootstrap 创建或调用
 ### 6.4 后续节点
 
 用户检查并完成本步提交后，下一步迁移内置命令和动态 help。图形创建、查询与读写、复合结构、属性调用、树装饰、双装配、stats、dir、box 与 modified-star 按已讨论的后续节点推进。配置格式、两种启动步骤、dir 模式映射、其余 ADR、指标与接入零内核差异证据随对应实现填写，当前不预写最终结论。
+
+## 7. CLI 重构第 2 步：内置命令注册化与动态 help
+
+第 6 节保留第 1 步当时的实际状态。本步从干净的 9e56bf1 继续，不重写 Phase 1 设计或旧检查结果。已迁移命令调用链，尚未达到四类扩展全部贯通的框架节点；本步不提交、推送或创建标签。
+
+### 7.1 模块职责与实际调整
+
+| 位置 | 当前职责 |
+|---|---|
+| [CommandDispatcher](../src/application/CommandDispatcher.ts) | 仅依赖 CommandCatalog 查找贡献并构造 Command；处理缺失名称、未知名称和工厂契约失败；不导入内置命令、插件或帮助实现 |
+| [CommandCatalog](../src/application/extensions/CommandCatalog.ts)、[PluginRegistry](../src/application/extensions/PluginRegistry.ts) | 只读查询当前发布的命令及其语法；后续成功注册立即可见，失败批次不进入分发与帮助 |
+| [src/plugins/builtin-commands](../src/plugins/builtin-commands/) | 独立内置命令源码包；BuiltinCommandsPlugin 按原顺序注册 19 个名字，BuiltinCommandContribution 封装稳定的名称、冻结语法和构造行为 |
+| `builtin-commands/commands`、`factories`、`specs` | 从 application/commands 迁移的 21 个命令类文件（含重排基类）、3 个参数工厂、6 个图形规格 Builder，共 30 个原有实现文件；树与历史操作仍调用原领域/框架契约 |
+| `application/commands` | 保留 Command/UndoableCommand、EditChangeSetCommand、InvalidCommand、结果类型与公共支持工具，移出具体内置命令 |
+| [ActiveDocument](../src/application/ports/ActiveDocument.ts)、[DocumentOperations](../src/application/ports/DocumentOperations.ts)、[HistoryController](../src/application/commands/contracts/HistoryController.ts)、[DocumentQuery](../src/application/queries/DocumentQuery.ts) | 公开服务接口，分别限定当前文档获取、文档用例、撤销重做和查询投影；既有类实现接口，插件不导入会话、文档服务、历史或查询 Visitor 的具体实现 |
+| [PresentedCommandResult](../src/application/commands/results/PresentedCommandResult.ts)、[CommandPresenter](../src/application/commands/contracts/CommandPresenter.ts) | 通用插件结果与展示协作契约；无需向内核 Visitor 逐项增加 stats、dir 等结果类型 |
+| [Main.run](../src/bootstrap/Main.ts) | 创建同一套服务与历史，等待内置插件事务激活成功，再启动注册分发器和 REPL |
+
+这是对第 1 步初版接口的实际接入：CommandContribution 不只是测试接口，默认运行也消费其 create；没有另建命令执行器或历史。插件入口使用类及类实例，避免为 19 条定义新增重复薄类；参数解码仍保留在有实际职责的工厂中。
+
+内置插件放在 src/plugins 下，以保留 tsconfig 的 src 根与 dist/bootstrap/entry.js 启动路径。包内 package.json 声明名称与 contributes.commands，源码入口提供默认导出；当前由 Main 显式构造并通过 PluginRegistry.activate 注册，没有实现动态模块解析、包发布、配置装配或 manifest 运行期校验。图形 Builder 目前随创建命令移动，仍是六类型集中映射，后续第 3 步再由 ShapeProvider 接管，不将它追述为已插件化图形。
+
+### 7.2 当前扩展点清单与依赖规则
+
+| 接口 | 内核调用位置 | 当前实现 | 禁用可选扩展时 | 契约错误 |
+|---|---|---|---|---|
+| CommandContribution / Command | CommandDispatcher.create → contribution.create；CommandExecutor.run → command.execute | BuiltinCommandsPlugin 的 19 条内置贡献；ProbeContribution 为测试验证插件 | 默认装配仍提供 Phase 1 命令和六图形；未注册命令返回 error: unknown command: name，且不出现在 help 中 | 重名/非法语法整批拒绝；构造抛错或返回非 Command 时转为 error: command failed 并保留 cause |
+| CommandCatalog | BuiltinCommandsPlugin.createHelp → commandSyntaxes；CommandDispatcher.create → findCommand | PluginRegistry | help 只展示已成功发布的贡献，顺序为注册顺序 | 当前语法须为非空单行字符串数组；失败注册不污染目录 |
+| ShapeProvider | | RegistrationTestShape（测试） | 尚未接管默认图形装配 | 注册层校验沿用第 6 节，业务返回值校验待迁移 |
+| TreeDecorator | | RegistrationTestDecorator（测试） | 当前 tree 继续使用原排版 | 注册层校验沿用第 6 节，装饰组合待迁移 |
+| AttributeHandler | | RegistrationTestAttribute（测试） | 当前 set 继续使用原白名单和属性槽 | 注册层校验沿用第 6 节，选择、冲突和业务事务待迁移 |
+
+依赖规则延续 domain 只依赖 domain、application 不依赖 plugins/cli/infrastructure、cli 不依赖 plugins、infrastructure 不依赖 plugins。新增 plugins 层只能访问本包、公开应用接口/结果/支持工具及领域公开抽象，禁止访问其他插件、内部 ShapeTree/Planner/ShapeFactory、具体 EditorSession/DocumentService/CommandHistory/DocumentViewVisitor 或宿主模块；由 bootstrap 依赖并装配两侧。
+
+当前公开应用 API 范围由 [architecture.test.ts](../tests/integration/architecture.test.ts) 的 ARCH-P2-02 列出：commands/contracts、commands/results、commands/support、EditChangeSetCommand、InvalidCommand、Plugin/PluginContext、CommandContribution/CommandCatalog、ActiveDocument/DocumentOperations/LoadedDocument 与 DocumentQuery。其他应用实现不因 TS export 就自动成为插件 API。
+
+第 6.2 节展示重构前和第 1 步的状态；本步实际依赖如下：
+
+```plantuml
+@startuml
+skinparam componentStyle rectangle
+component "bootstrap/Main" as boot
+component "cli/REPL 与 OutputFormatter" as cli
+package "application 内核" {
+  component "PluginRegistry / CommandCatalog" as registry
+  component "CommandDispatcher" as dispatcher
+  component "CommandExecutor / CommandHistory" as executor
+  component "公开契约、服务接口、结果与支持工具" as api
+  component "EditorSession / DocumentService / DocumentViewVisitor" as services
+}
+component "plugins/builtin-commands" as builtins
+component "domain" as domain
+component "infrastructure" as infra
+boot ..> builtins
+boot ..> registry
+boot ..> services
+boot ..> executor
+boot ..> cli
+boot ..> infra
+cli --> dispatcher
+cli --> executor
+cli --> api
+dispatcher --> api
+registry --> api
+executor --> api
+builtins --> api
+builtins --> domain
+services --> api
+services --> domain
+api --> domain
+infra --> api
+infra --> domain
+note bottom of builtins : activate 通过受限上下文注册；help 查询当前目录
+@enduml
+```
+
+### 7.3 通用结果、失败原子性与 ADR
+
+新增插件可以返回自己的语义值，并由独立 CommandPresenter 提供具体文案。PresentedCommandResult 在构造时调用一次 presenter，缓存字符串；OutputFormatter.visitPresented 只返回缓存内容，不执行可能抛错的插件展示代码。内核和应用公共结果中没有 probe、stats 或 dir 文案。
+
+这与最初讨论的“在 CLI 排版时再委托 presenter”有实际调整：若展示在编辑已经入历史之后才失败，会留下成功修改却无结果的窗口。编辑插件使用 EditChangeSetCommand，并在 createResult 内构造 PresentedCommandResult，展示失败即可复用已有回滚；undo/redo 构造结果失败时同样恢复状态和历史。该保证不代表可以补偿插件绕过契约自行执行的外部副作用。决策及取舍见 [ADR-003](adr/003-command-registration-and-presentation.md)。
+
+### 7.4 实际验证与架构自查
+
+先写新增集成测试，运行时因 PresentedCommandResult.js 缺失失败；实现后，注册分发、动态帮助、原命令构造与架构测试 4 个文件/18 项通过，严格类型检查通过。随后补充 undo/redo 展示失败、非法 Command 返回值与插件 API 白名单守卫，再执行针对性和全量检查。
+
+| 实际执行 | 结果 |
+|---|---|
+| 实现前指定 registered-commands.test.ts | 按预期因通用结果模块缺失失败 |
+| pnpm exec vitest run tests/integration/registered-commands.test.ts tests/integration/architecture.test.ts | 2 文件/18 项通过（10 项新增集成测试、8 项架构守卫） |
+| pnpm run check | CLI 33 文件/130 测试、扩展 3 文件/21 测试通过；两部分类型检查与构建通过 |
+| 真实构建产物与 final 样本逐字节比较 | 7 个输入/预期/SVG 样本未变；两份会话的 stdout 与两份保存 SVG 均与 final 标签中的样本逐字节一致，共 11 项比较通过 |
+| 本地链接、文本格式与 git diff --check | 6 份文档的 58 个本地路径与代码块检查通过，本步文本均为 UTF-8/LF、含末尾换行；diff 检查通过 |
+
+证据：[完整检查日志](cli/evidence/step-02-check.txt)、[final 基线比较](cli/evidence/step-02-baseline.txt)。基线比较使用隔离临时目录，启动当前 dist/bootstrap/entry.js，不规范化输出换行；先从 Git 读取 final 的样本并验证工作样本未改，再比较当前真实输出。临时目录已在确认绝对路径后清理。本轮没有重新启动 GUI 宿主或安装 VSIX。
+
+架构复查覆盖类/字段封装、职责、依赖方向、多态/分派、Command/Composite、领域输入、展示、异常原子性、扩展契约与测试组织。发现并处理：内置实现不应由内核分发器持有；Move/Scale 不应在插件内部默认 new 具体查询 Visitor；动态 help 不能持有旧注册快照；工厂异常不能使 REPL 退出；插件展示失败必须发生在编辑结果构造期。修正后默认装配共享同一历史，公开上下文仍只负责注册，领域层与 XML/终端隔离保持原状。
+
+### 7.5 剩余事项
+
+等待用户检查并完成第 2 步提交后，继续第 3 步图形创建注册化。后续步骤仍须实现图形/查询/SVG 扩展、复合结构保护、属性选择与事务、树装饰和生命周期，再接入加载器、目录端口与装配能力，最后独立接入 stats、dir、box 与 modified-star。未实现配置装配或宣称接入零内核差异判据已经通过，未生成最终指标或 p2 标签。

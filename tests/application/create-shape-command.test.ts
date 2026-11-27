@@ -1,6 +1,6 @@
 import { describe, expect, it } from 'vitest';
 
-import { CreateShapeCommand } from '../../src/application/commands/CreateShapeCommand.js';
+import { CreateShapeCommand } from '../../src/plugins/builtin-commands/commands/CreateShapeCommand.js';
 import { ShapeCreatedResult } from '../../src/application/commands/results/ShapeCreatedResult.js';
 import { SvgDocument } from '../../src/domain/document/SvgDocument.js';
 import { Group } from '../../src/domain/shapes/Group.js';

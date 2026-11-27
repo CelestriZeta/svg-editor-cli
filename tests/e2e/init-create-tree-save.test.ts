@@ -21,7 +21,7 @@ describe('init -> create rect -> tree -> save', () => {
 
   it('[SAVE-02/04/06, HIST-07] runs the complete path through a real file', async () => {
     const file = directory.file('demo.svg');
-    const harness = new ApplicationHarness(
+    const harness = await ApplicationHarness.create(
       new SvgDocumentStore(new SvgReader(), new SvgWriteVisitor())
     );
     const { history, repl } = harness;
@@ -64,7 +64,7 @@ describe('init -> create rect -> tree -> save', () => {
 
   it('[EXEC-02] keeps history and path unchanged after a real write failure', async () => {
     const invalidFile = directory.file('missing/demo.svg');
-    const harness = new ApplicationHarness(
+    const harness = await ApplicationHarness.create(
       new SvgDocumentStore(new SvgReader(), new SvgWriteVisitor())
     );
     const { history, repl } = harness;
@@ -89,7 +89,7 @@ describe('init -> create rect -> tree -> save', () => {
     const validFile = directory.file('valid.svg');
     const targetDirectory = directory.file('target');
     await mkdir(targetDirectory);
-    const harness = new ApplicationHarness(
+    const harness = await ApplicationHarness.create(
       new SvgDocumentStore(new SvgReader(), new SvgWriteVisitor())
     );
     const { history, repl } = harness;

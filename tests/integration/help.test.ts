@@ -5,7 +5,7 @@ import { RecordingDocumentStore } from '../support/RecordingDocumentStore.js';
 
 describe('help', () => {
   it('[CMD-04] derives help from the same definitions used by dispatch', async () => {
-    const harness = new ApplicationHarness(new RecordingDocumentStore());
+    const harness = await ApplicationHarness.create(new RecordingDocumentStore());
 
     expect(await harness.repl.executeLine('help')).toBe(
       [

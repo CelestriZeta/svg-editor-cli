@@ -1,11 +1,12 @@
+import { DocumentViewVisitor } from '../../src/application/queries/DocumentViewVisitor.js';
 import { describe, expect, it } from 'vitest';
 
 import { CommandExecutor } from '../../src/application/CommandExecutor.js';
 import { CommandHistory } from '../../src/application/CommandHistory.js';
-import { DeleteShapeCommand } from '../../src/application/commands/DeleteShapeCommand.js';
-import { MoveShapeCommand } from '../../src/application/commands/MoveShapeCommand.js';
-import { ScaleShapeCommand } from '../../src/application/commands/ScaleShapeCommand.js';
-import { SetShapeAttributeCommand } from '../../src/application/commands/SetShapeAttributeCommand.js';
+import { DeleteShapeCommand } from '../../src/plugins/builtin-commands/commands/DeleteShapeCommand.js';
+import { MoveShapeCommand } from '../../src/plugins/builtin-commands/commands/MoveShapeCommand.js';
+import { ScaleShapeCommand } from '../../src/plugins/builtin-commands/commands/ScaleShapeCommand.js';
+import { SetShapeAttributeCommand } from '../../src/plugins/builtin-commands/commands/SetShapeAttributeCommand.js';
 import { ErrorResult } from '../../src/application/commands/results/ErrorResult.js';
 import { ShapeMovedResult } from '../../src/application/commands/results/ShapeMovedResult.js';
 import { ShapeScaledResult } from '../../src/application/commands/results/ShapeScaledResult.js';
@@ -20,8 +21,8 @@ describe('edit command construction', () => {
     const executor = new CommandExecutor(history);
     const commands = [
       new DeleteShapeCommand(document, 'missing'),
-      new MoveShapeCommand(document, 'missing', 1, 2),
-      new ScaleShapeCommand(document, 'missing', 2),
+      new MoveShapeCommand(document, 'missing', 1, 2, new DocumentViewVisitor()),
+      new ScaleShapeCommand(document, 'missing', 2, new DocumentViewVisitor()),
       new SetShapeAttributeCommand(
         document,
         'missing',
@@ -46,10 +47,10 @@ describe('edit command construction', () => {
     document.createShape(new RectSpec('r1', 1, 2, 3, 4));
 
     const moved = await executor.execute(
-      new MoveShapeCommand(document, 'r1', 0, 0)
+      new MoveShapeCommand(document, 'r1', 0, 0, new DocumentViewVisitor())
     );
     const scaled = await executor.execute(
-      new ScaleShapeCommand(document, 'r1', 1)
+      new ScaleShapeCommand(document, 'r1', 1, new DocumentViewVisitor())
     );
 
     expect(moved).toBeInstanceOf(ShapeMovedResult);

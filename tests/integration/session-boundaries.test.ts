@@ -5,7 +5,7 @@ import { RecordingDocumentStore } from '../support/RecordingDocumentStore.js';
 
 describe('session boundaries', () => {
   it('[HIST-10] allows help without a document and rejects document commands', async () => {
-    const harness = new ApplicationHarness(new RecordingDocumentStore());
+    const harness = await ApplicationHarness.create(new RecordingDocumentStore());
     const { repl } = harness;
 
     expect(await repl.executeLine('help')).toContain('  init [w] [h]');
@@ -25,7 +25,7 @@ describe('session boundaries', () => {
 
   it('[DOC-03/04] rejects invalid init values and clears the default path', async () => {
     const store = new RecordingDocumentStore();
-    const harness = new ApplicationHarness(store);
+    const harness = await ApplicationHarness.create(store);
     const { history, repl } = harness;
 
     expect(await repl.executeLine('init 10 20')).toBe('canvas 10x20 created');
@@ -63,7 +63,7 @@ describe('session boundaries', () => {
   });
 
   it('[HIST-03] keeps history unchanged for tree and help queries', async () => {
-    const harness = new ApplicationHarness(new RecordingDocumentStore());
+    const harness = await ApplicationHarness.create(new RecordingDocumentStore());
     const { history, repl } = harness;
     await repl.executeLine('init 10 20');
     await repl.executeLine('create rect r1 0 0 1 1');
