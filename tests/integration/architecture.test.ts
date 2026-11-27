@@ -237,6 +237,7 @@ describe('architecture guards', () => {
       'extensions/AttributeCatalog.ts', 'extensions/AttributeResolver.ts',
       'extensions/PreparedAttributeEdit.ts', 'extensions/AttributeEditContext.ts',
       'extensions/ShapeCatalog.ts', 'extensions/ShapeProvider.ts',
+      'ports/DirectoryAccess.ts', 'ports/DirectoryEntry.ts',
       'ports/ActiveDocument.ts', 'ports/DocumentOperations.ts',
       'ports/LoadedDocument.ts', 'queries/DocumentQuery.ts',
       'ports/SvgContentKind.ts', 'ports/SvgShapeInput.ts', 'ports/SvgShapeOutput.ts',

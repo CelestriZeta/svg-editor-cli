@@ -615,3 +615,9 @@ metrics 脚本 scripts/metrics.mjs 从两个 Git ref 取源码，以 TypeScript 
 ## 14. stats 插件（第 9 步）
 
 独立包 src/plugins/stats 注册 stats；以快照 isContainer 判定组合节点，按 DFS 首次遇到的逻辑类型顺序统计叶子，根不计数，空文档输出 (total 0, containers 0)。查询不入历史，禁用后 help 消失并报未知命令。代码装配仅改 CodePlugins，配置可使用 ./dist/plugins/stats；同一插件类不依赖内置插件或宿主实现。
+
+## 15. dir 与适配器（第 10 步）
+
+独立 src/plugins/dir 通过配置接入，本次不改任何已有运行源码。DirCommand 是 Client，DirectoryAccess 是 Target，NodeDirectoryAccess 是 Adapter，Node fs.readdir/Dirent 是 Adaptee；同一个接口与命令类供两种装配使用。currentPath 返回进程 cwd，与当前 SVG 路径无关。只列直接项，保留隐藏项，目录优先、名称按 Unicode 码元升序稳定排列；符号链接和其他特殊项显示 FILE，不跟随目标。空目录、读取失败均有约定反馈。Query 类别不会更改历史或 IO 屏障。
+
+第 9 步目标测试起初父容器用了字符串、服务替身类型不完整，修正为公开容器对象及 Pick 服务契约后，类型与统计/架构 10 项通过。第 10 步覆盖替身排序/隐藏/空目录/错误、无文档、redo 保持和真实临时目录，结果以本次命令记录为准。
