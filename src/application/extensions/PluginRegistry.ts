@@ -31,6 +31,10 @@ export class PluginRegistry implements CommandCatalog, ShapeCatalog {
     return this.#published.attributes;
   }
 
+  public attributeHandlers(): readonly AttributeHandler[] {
+    return this.attributes.values();
+  }
+
   public findCommand(name: string): CommandContribution | undefined {
     return this.commands.get(name);
   }

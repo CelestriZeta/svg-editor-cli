@@ -1,3 +1,4 @@
+import type { AttributeCatalog } from '../../application/extensions/AttributeCatalog.js';
 import type { ShapeCatalog } from '../../application/extensions/ShapeCatalog.js';
 import { CreateCommandContribution } from './CreateCommandContribution.js';
 import type { SvgDocument } from '../../domain/document/SvgDocument.js';
@@ -35,7 +36,7 @@ export class BuiltinCommandsPlugin implements Plugin {
     private readonly documents: DocumentOperations,
     private readonly history: HistoryController,
     private readonly viewVisitor: DocumentQuery,
-    private readonly catalog: CommandCatalog & ShapeCatalog
+    private readonly catalog: CommandCatalog & ShapeCatalog & Partial<AttributeCatalog>
   ) {}
 
   public activate(context: PluginContext): void {
@@ -43,7 +44,8 @@ export class BuiltinCommandsPlugin implements Plugin {
     const numbers = new CommandNumberParser();
     const documentCommands = new DocumentCommandFactory(documents, numbers);
     const createShape = new CreateShapeCommandFactory(session, this.catalog);
-    const shapeEdits = new ShapeEditCommandFactory(session, numbers, viewVisitor);
+    const shapeEdits = new ShapeEditCommandFactory(session, numbers, viewVisitor,
+      this.catalog.attributeHandlers === undefined ? undefined : { attributeHandlers: () => this.catalog.attributeHandlers!() });
     const inDocument = (create: (document: SvgDocument) => Command): Command =>
       CommandDocumentBinding.withDocument(session, create);
 

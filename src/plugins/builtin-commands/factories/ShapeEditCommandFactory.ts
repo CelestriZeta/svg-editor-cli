@@ -1,3 +1,5 @@
+import type { AttributeCatalog } from '../../../application/extensions/AttributeCatalog.js';
+import { AttributeResolver } from '../../../application/extensions/AttributeResolver.js';
 import type { DocumentQuery } from '../../../application/queries/DocumentQuery.js';
 import { ShapeAttributeUpdate } from '../../../domain/shapes/ShapeAttributeUpdate.js';
 import { ShapeAttributeValueKind } from '../../../domain/shapes/ShapeAttributeValueKind.js';
@@ -15,7 +17,8 @@ export class ShapeEditCommandFactory {
   public constructor(
     private readonly session: ActiveDocument,
     private readonly numbers: CommandNumberParser,
-    private readonly views: DocumentQuery
+    private readonly views: DocumentQuery,
+    private readonly attributes?: AttributeCatalog
   ) {}
 
   public createDelete(args: readonly string[]): Command {
@@ -71,6 +74,11 @@ export class ShapeEditCommandFactory {
     }
     return CommandDocumentBinding.withDocument(this.session, (document) => {
       const shape = document.requireShape(shapeId);
+      return new SetShapeAttributeCommand(document, shapeId, ShapeAttributeUpdate.text(attribute, value), () =>
+        new AttributeResolver(this.attributes).prepare(this.views.inspect(shape), attribute, value, {
+          prepareSet: (id, update) => document.requireShape(id).prepareSet(update),
+          readAttribute: (id, attr) => document.requireShape(id).attributeValue(attr)
+        }, () => {
       const update =
         shape.attributeKind(attribute) === ShapeAttributeValueKind.Number
           ? ShapeAttributeUpdate.number(
@@ -78,7 +86,8 @@ export class ShapeEditCommandFactory {
               this.numbers.parseShape('set', value, attribute)
             )
           : ShapeAttributeUpdate.text(attribute, value);
-      return new SetShapeAttributeCommand(document, shapeId, update);
+      return { changeSet: shape.prepareSet(update), readValue: () => shape.attributeValue(attribute) };
+        }));
     });
   }
 }

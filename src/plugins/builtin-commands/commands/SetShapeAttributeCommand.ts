@@ -1,6 +1,7 @@
 import type { SvgDocument } from '../../../domain/document/SvgDocument.js';
 import { DomainError } from '../../../domain/DomainError.js';
-import type { CompositeChangeSet } from '../../../domain/CompositeChangeSet.js';
+import type { ChangeSet } from '../../../domain/ChangeSet.js';
+import type { PreparedAttributeEdit } from '../../../application/extensions/PreparedAttributeEdit.js';
 import type { ShapeAttributeUpdate } from '../../../domain/shapes/ShapeAttributeUpdate.js';
 import { ShapeAttributeValueKind } from '../../../domain/shapes/ShapeAttributeValueKind.js';
 import type { CommandResult } from '../../../application/commands/contracts/CommandResult.js';
@@ -10,25 +11,28 @@ import { ShapeAttributeSnapshot } from '../../../application/commands/results/Sh
 import { ShapeAttributeSetResult } from '../../../application/commands/results/ShapeAttributeSetResult.js';
 
 export class SetShapeAttributeCommand extends EditChangeSetCommand {
+  #prepared: PreparedAttributeEdit | undefined;
   #shapeType: string | undefined;
 
   public constructor(
     private readonly document: SvgDocument,
     private readonly shapeId: string,
-    private readonly update: ShapeAttributeUpdate
+    private readonly update: ShapeAttributeUpdate,
+    private readonly prepareEdit?: () => PreparedAttributeEdit
   ) {
     super();
   }
 
-  protected prepareChange(): CompositeChangeSet {
+  protected prepareChange(): ChangeSet {
     const shape = this.document.requireShape(this.shapeId);
     this.#shapeType = shape.type;
-    return shape.prepareSet(this.update);
+    this.#prepared = this.prepareEdit?.();
+    return this.#prepared?.changeSet ?? shape.prepareSet(this.update);
   }
 
   protected createResult(direction: EditDirection): CommandResult {
     const shape = this.document.requireShape(this.shapeId);
-    const value = shape.attributeValue(this.update.name);
+    const value = this.#prepared?.readValue() ?? shape.attributeValue(this.update.name);
     return new ShapeAttributeSetResult(
       this.requireShapeType(),
       this.shapeId,

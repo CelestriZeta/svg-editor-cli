@@ -585,3 +585,9 @@ subtree --> tree : 完整安装
 证据：[完整检查](cli/evidence/step-05-check.txt)、[final 字节比较](cli/evidence/step-05-baseline.txt)。临时目录在核对真实路径及专用前缀后清理；没有重跑 GUI、VSIX、依赖审计或极深树性能检查。
 
 本步停下供用户检查并提交；下一步为 AttributeHandler 的选择、默认回退、冲突与事务接线。后续仍需标签、双装配、正式插件及最终指标，未创建 p2 标签。
+
+## 11. 属性扩展实际接线（第 6 步）
+
+AttributeResolver.prepare 按 AttributeCatalog 查询处理器；BuiltinCommandsPlugin 注入实时目录，ShapeEditCommandFactory 提供只读投影与受限属性准备接口。SetShapeAttributeCommand 使用原 EditChangeSetCommand 完成整体历史。零命中保留 Phase 1 白名单；冲突先拒绝，处理器失败不回退，非法返回明确拒绝。详见 [ADR-007](adr/007-attribute-handler-transactions.md)。
+
+实际检查：类型检查及属性/架构 2 文件 13 项通过。新增测试首次使用不存在的 harness.session，改为公开 show 查询后通过；没有将这一错误描述为业务实现缺陷。自查确认封装、依赖方向、分派与失败补偿边界，未增加图形名分支。
