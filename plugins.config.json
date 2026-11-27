@@ -1,6 +1,9 @@
 {
   "plugins": [
     {
+      "module": "./dist/plugins/shape-box"
+    },
+    {
       "module": "./dist/plugins/stats"
     },
     {

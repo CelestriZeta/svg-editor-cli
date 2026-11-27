@@ -1,0 +1,18 @@
+dir
+init 800 600
+create box n 10 20 100 60 "hello"
+create circle c 5 5 2 red
+stats
+set n fill orange
+set n label "new title"
+undo
+redo
+tree
+save plugins.svg
+move n 5 0
+tree
+undo
+tree
+read plugins.svg
+stats
+dir

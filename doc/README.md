@@ -627,3 +627,7 @@ metrics 脚本 scripts/metrics.mjs 从两个 Git ref 取源码，以 TypeScript 
 新增 src/plugins/shape-box 与唯一顶层 CodePlugins 装配变更，内核及原插件不变。BoxProvider / BoxSpec / BoxShape、BoxAttributeHandler、BoxTypeDecorator 分别承担创建编解码、子树规格、不变量、传播与标签。详见 [ADR-009](adr/009-box-structure-and-fallback.md)。反馈沿用通用 created/updated 格式；不为示例中的专用文案改动核心。
 
 独立注册不需要别的插件；领域创建也只用公开规格与领域 API。集成覆盖嵌套/整体移动、必要部件保护、单次撤销重做、子 id 冲突、SVG 往返、未安装降级及破损拒绝。首轮测试发现 label 反馈预期加了通用格式并不提供的引号，校正预期而未增加名字分支。
+
+### 16.1 box 配置接入（第 11 步 B）
+
+plugins.config.json 添加 ./dist/plugins/shape-box，已有运行源码不变，使用已安装的同一插件。代码装配与配置装配声明相同四类贡献并经同一事务。纯命令输入保存在 [box 会话](transcript/box.txt)及 [新增命令会话](transcript/plugins.txt)，期望 stdout 和 SVG 在最终双装配回放后单独存档。此提交只改配置及允许的文档/会话，故已有内核、加载器和插件源码差异为零。
