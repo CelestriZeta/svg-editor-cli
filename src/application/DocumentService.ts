@@ -1,3 +1,4 @@
+import type { DocumentCheckpoints } from './DocumentCheckpoints.js';
 import { DomainError } from '../domain/DomainError.js';
 import type { CanvasSize } from '../domain/document/CanvasSize.js';
 import { SvgDocument } from '../domain/document/SvgDocument.js';
@@ -11,12 +12,14 @@ import type { DocumentOperations } from './ports/DocumentOperations.js';
 export class DocumentService implements DocumentOperations {
   public constructor(
     private readonly session: EditorSession,
-    private readonly store: DocumentStore
+    private readonly store: DocumentStore,
+    private readonly checkpoints?: DocumentCheckpoints
   ) {}
 
   public init(width: number, height: number): SvgDocument {
     const document = new SvgDocument(width, height);
     this.session.open(document);
+    this.checkpoints?.capture(document);
     return document;
   }
 
@@ -39,6 +42,7 @@ export class DocumentService implements DocumentOperations {
     }
 
     this.session.open(loaded.document, path);
+    this.checkpoints?.capture(loaded.document);
     return loaded;
   }
 
@@ -57,6 +61,7 @@ export class DocumentService implements DocumentOperations {
     }
 
     this.session.setDefaultPath(path);
+    this.checkpoints?.capture(document);
     return path;
   }
 

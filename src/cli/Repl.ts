@@ -36,7 +36,8 @@ export class Repl {
 
     const command = this.dispatcher.create(tokens);
     const result = await this.executor.execute(command);
-    return this.formatter.format(result);
+    try { return this.formatter.format(result); }
+    catch (error) { return this.formatter.format(new ErrorResult('tree decoration failed', error)); }
   }
 
   public async run(

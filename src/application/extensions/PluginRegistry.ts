@@ -31,6 +31,10 @@ export class PluginRegistry implements CommandCatalog, ShapeCatalog {
     return this.#published.attributes;
   }
 
+  public treeDecorators(): readonly TreeDecorator[] {
+    return this.decorators.values();
+  }
+
   public attributeHandlers(): readonly AttributeHandler[] {
     return this.attributes.values();
   }

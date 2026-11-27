@@ -1,3 +1,4 @@
+import { DocumentCheckpoints } from '../application/DocumentCheckpoints.js';
 import { BuiltinShapesPlugin } from '../plugins/builtin-shapes/BuiltinShapesPlugin.js';
 import { createInterface } from 'node:readline';
 
@@ -24,9 +25,11 @@ export class Main {
     const session = new EditorSession();
     const plugins = new PluginRegistry();
     await plugins.activate('builtin-shapes', new BuiltinShapesPlugin());
+    const views = new DocumentViewVisitor(plugins);
+    const checkpoints = new DocumentCheckpoints(views);
     const documents = new DocumentService(
       session,
-      new SvgDocumentStore(new SvgReader(plugins), new SvgWriteVisitor(plugins))
+      new SvgDocumentStore(new SvgReader(plugins), new SvgWriteVisitor(plugins)), checkpoints
     );
     const history = new CommandHistory();
     await plugins.activate('builtin-commands', new BuiltinCommandsPlugin(
@@ -40,7 +43,7 @@ export class Main {
       dispatcher,
       executor,
       new OutputFormatter(
-        new TreeFormatter(shapes),
+        new TreeFormatter(shapes, plugins, () => views.visit(session.requireDocument())), 
         new ShowFormatter(shapes)
       )
     );

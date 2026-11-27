@@ -591,3 +591,9 @@ subtree --> tree : 完整安装
 AttributeResolver.prepare 按 AttributeCatalog 查询处理器；BuiltinCommandsPlugin 注入实时目录，ShapeEditCommandFactory 提供只读投影与受限属性准备接口。SetShapeAttributeCommand 使用原 EditChangeSetCommand 完成整体历史。零命中保留 Phase 1 白名单；冲突先拒绝，处理器失败不回退，非法返回明确拒绝。详见 [ADR-007](adr/007-attribute-handler-transactions.md)。
 
 实际检查：类型检查及属性/架构 2 文件 13 项通过。新增测试首次使用不存在的 harness.session，改为公开 show 查询后通过；没有将这一错误描述为业务实现缺陷。自查确认封装、依赖方向、分派与失败补偿边界，未增加图形名分支。
+
+## 12. 树标签调用与保存点（第 7 步）
+
+TreeFormatter.decorate 对画布及每个节点按注册顺序调用 TreeDecorator.labels，空目录保持原字节；标签以单空格拼接，拒绝多行/非法返回。subtree 使用当前全文档快照。标签异常转为单行错误，不修改文档或历史。DocumentCheckpoints 在成功 init/read/save 后发布只读快照，失败 IO 不发布；监听器异常被隔离。具体 dirty 状态由后续标签实例维护。
+
+实际检查：类型检查及原展示/架构 11 项通过。新增标签顺序、缺省、子树、非法标签及观察者隔离测试随本步执行。架构自查保持领域无宿主依赖，未在渲染器引入具体标签名。
