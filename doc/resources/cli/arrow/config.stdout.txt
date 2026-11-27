@@ -1,0 +1,74 @@
+svg-editor 0.1 - type 'help' for commands
+canvas 400x240 created
+g#diagram created
+arrow#edge created in g#diagram
+commands:
+  init [w] [h]
+  read <file.svg>
+  create rect <id> <x> <y> <w> <h> [fill] [in <container-id>]
+  create circle <id> <cx> <cy> <r> [fill] [in <container-id>]
+  create ellipse <id> <cx> <cy> <rx> <ry> [fill] [in <container-id>]
+  create line <id> <x1> <y1> <x2> <y2> [stroke] [in <container-id>]
+  create text <id> <x> <y> "content" [in <container-id>]
+  create g <id> [in <container-id>]
+  create box <id> <x> <y> <w> <h> "<label>" [in <container-id>]
+  create arrow <id> <x1> <y1> <x2> <y2> [stroke] [in <container-id>]
+  delete <id>
+  move <id> <dx> <dy>
+  scale <id> <factor>
+  set <id> <attribute> <value>
+  group <new-gid> <id1> <id2>...
+  ungroup <gid>
+  addto <gid> <id>
+  front <id>
+  back <id>
+  tree [id]
+  show <id>
+  undo
+  redo
+  save [file.svg]
+  canvas [w] [h]
+  help
+  stats
+  dir
+svg (400x240) *
+└── g#diagram *
+    └── g#edge         (20,80) -> (200,80) stroke=#3366ff *
+        ├── line#edge-shaft (20,80) -> (200,80) *
+        ├── line#edge-head-left (200,80) -> (180,90) *
+        └── line#edge-head-right (200,80) -> (180,70) *
+g#edge  parent=g#diagram
+  (20,80) -> (200,80)
+  stroke=#3366ff
+arrow#edge moved to (30,100)
+arrow#edge moved back to (20,80)
+arrow#edge moved to (30,100)
+arrow#edge scaled by 1.5 to (45,150)
+arrow#edge scale undone to (30,100)
+arrow#edge updated: stroke=red
+arrow#edge updated: stroke-width=3
+arrow#edge updated: stroke-width unset
+arrow#edge updated: stroke-width=3
+line: 3  (total 3, containers 2)
+saved to arrow.svg (5 elements)
+svg (400x240)
+└── g#diagram
+    └── g#edge         (30,100) -> (210,100) stroke=red stroke-width=3
+        ├── line#edge-shaft (30,100) -> (210,100)
+        ├── line#edge-head-left (210,100) -> (190,110)
+        └── line#edge-head-right (210,100) -> (190,90)
+read arrow.svg (5 elements)
+svg (400x240)
+└── g#diagram
+    └── g#edge         (30,100) -> (210,100) stroke=red stroke-width=3
+        ├── line#edge-shaft (30,100) -> (210,100)
+        ├── line#edge-head-left (210,100) -> (190,110)
+        └── line#edge-head-right (210,100) -> (190,90)
+arrow#edge moved to (35,100)
+arrow#edge moved back to (30,100)
+svg (400x240)
+└── g#diagram
+    └── g#edge         (30,100) -> (210,100) stroke=red stroke-width=3
+        ├── line#edge-shaft (30,100) -> (210,100)
+        ├── line#edge-head-left (210,100) -> (190,110)
+        └── line#edge-head-right (210,100) -> (190,90)

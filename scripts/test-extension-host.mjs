@@ -6,7 +6,7 @@ import { runTests } from '@vscode/test-electron';
 
 const root = fileURLToPath(new URL('..', import.meta.url));
 const profile = await mkdtemp(join(tmpdir(), 'svg-tools-host-'));
-const report = join(root, 'doc/vscode/evidence');
+const report = join(root, 'doc/resources/vscode');
 await mkdir(report, { recursive: true });
 const reportPath = join(report, 'host-results.json');
 await writeFile(reportPath, JSON.stringify({ passed: false, status: 'running' }, null, 2) + '\n');

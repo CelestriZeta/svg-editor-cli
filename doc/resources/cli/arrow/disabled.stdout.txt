@@ -1,0 +1,10 @@
+svg-editor 0.1 - type 'help' for commands
+read arrow.svg (5 elements)
+svg (400x240)
+└── g#diagram
+    └── g#edge         stroke=red stroke-width=3
+        ├── line#edge-shaft (30,100) -> (210,100)
+        ├── line#edge-head-left (210,100) -> (190,110)
+        └── line#edge-head-right (210,100) -> (190,90)
+saved to fallback.svg (5 elements)
+error: unknown shape type: arrow (is the plugin loaded?)

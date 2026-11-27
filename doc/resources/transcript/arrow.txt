@@ -1,0 +1,23 @@
+init 400 240
+create g diagram
+create arrow edge 20 80 200 80 #3366ff in diagram
+help
+tree
+show edge
+move edge 10 20
+undo
+redo
+scale edge 1.5
+undo
+set edge stroke red
+set edge stroke-width 3
+undo
+redo
+stats
+save arrow.svg
+tree
+read arrow.svg
+tree
+move edge 5 0
+undo
+tree

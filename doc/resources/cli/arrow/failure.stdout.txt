@@ -1,0 +1,10 @@
+svg-editor 0.1 - type 'help' for commands
+canvas 800x600 created
+arrow#edge created
+arrow#edge moved to (1,0)
+arrow#edge moved back to (0,0)
+error: invalid arrow parts: edge
+arrow#edge moved to (1,0)
+line#edge-shaft  parent=g#edge
+  (1,0) -> (61,0)
+saved to kept.svg (4 elements)

@@ -10,6 +10,9 @@
       "module": "./dist/plugins/dir"
     },
     {
+      "module": "./dist/plugins/shape-arrow"
+    },
+    {
       "module": "./dist/plugins/modified-star"
     }
   ]

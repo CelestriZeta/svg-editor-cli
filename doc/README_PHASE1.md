@@ -271,5 +271,5 @@ pnpm run check
 
 #### 手工回放
 
-作业要求的两份完整运行实例已整理到 [`doc/manual_test/`](manual_test/)：
+作业要求的两份完整运行实例已整理到 [`doc/resources/manual_test/`](resources/manual_test)：
 读取了已有的`other.svg`，分别运行`flowchart.txt`和`typical.txt`得到了`flowchart.svg`和`demo.svg`. 经验证，结果正确。

@@ -1,0 +1,4 @@
+PASS code/config stdout and SVG byte-identical; help/stats/styles/history available
+PASS disabled plugin rejects create and preserves visible three-line fallback
+PASS malformed real SVG read preserves active document and redo
+PASS runtime delta contains only new arrow plugin and CodePlugins assembly

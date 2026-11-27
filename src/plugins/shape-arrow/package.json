@@ -1,0 +1,9 @@
+{
+  "name": "@svgframe/plugin-shape-arrow",
+  "private": true,
+  "type": "module",
+  "main": "ArrowPlugin.js",
+  "contributes": {
+    "shapes": ["arrow"]
+  }
+}

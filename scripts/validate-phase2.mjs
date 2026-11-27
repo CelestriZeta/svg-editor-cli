@@ -4,7 +4,7 @@ import { tmpdir } from 'node:os';
 import { basename, dirname, join, resolve } from 'node:path';
 
 const root = resolve('.');
-const evidence = resolve('doc/cli/evidence/phase2');
+const evidence = resolve('doc/resources/cli/phase2');
 const entry = join(root, 'dist/bootstrap/entry.js');
 const temporary = await mkdtemp(join(tmpdir(), 'svg-phase2-'));
 const work = join(temporary, 'work');
@@ -56,7 +56,7 @@ try {
   }
   for (const session of ['typical', 'flowchart', 'box', 'plugins']) {
     const input = await readFile(join(root, session === 'typical' || session === 'flowchart'
-      ? 'tests/fixtures/acceptance/' + session + '.txt' : 'doc/transcript/' + session + '.txt'));
+      ? 'tests/fixtures/acceptance/' + session + '.txt' : 'doc/resources/transcript/' + session + '.txt'));
     await seed();
     const fixedNames = await readdir(work);
     const a = replay(input, []);

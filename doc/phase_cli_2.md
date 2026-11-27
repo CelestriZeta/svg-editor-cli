@@ -16,7 +16,7 @@
 
 开发一个可在 VSCode 中运行的扩展，使 Explorer 中的 `.svg` 文件旁显示 `[]` 标记。标记是界面附加信息，不修改文件名或文件内容；非 SVG 文件和目录不加标记。
 
-![SVG 文件标记的真实运行效果](docs/images/vscode-svg-badge.jpg)
+![SVG 文件标记的真实运行效果](resources/images/vscode-svg-badge.jpg)
 
 *图 A.1：Explorer 中 `example.svg` 右侧显示 `[]`，普通文本文件和目录没有该标记，实际文件名不变。主题、图标和布局不要求与截图一致。*
 
@@ -26,7 +26,7 @@
 
 先观察 VSCode 现有大纲视图的行为，再实现上述效果。测试至少覆盖嵌套分组、无 id 元素、编辑更新和不完整 XML。
 
-![SVG 大纲与源码定位的真实运行效果](docs/images/vscode-svg-outline.jpg)
+![SVG 大纲与源码定位的真实运行效果](resources/images/vscode-svg-outline.jpg)
 
 *图 A.2：左下方大纲展示 SVG 的嵌套层级，选中 `rect#start` 后定位到右侧第 3 行源码；无 id 的文本元素显示为 `text`。截图用于说明效果，界面样式不作统一要求。*
 
@@ -357,8 +357,8 @@ rg -n "import|require|switch" <加载器目录>
 双装配一致性：同一份输入会话分别在两种方式下执行，插件集合、顺序、options、初始文件和运行目录一致，两次输出逐字节相同。输入文件只存命令与注释，不含 `svg>` 提示符或示例输出；预期输出和所需 SVG 文件单独保存。覆盖 Phase 1 §6 的基础会话、§6.1 版本 B 的 box 会话，以及包含 `stats`、`dir` 的新增命令会话。验证 `dir` 时使用内容固定的临时工作目录，输出日志写入该目录之外，避免日志文件本身改变目录列表。基础兼容性比较时须禁用新增插件（包括树标签），对照 `final` 的输出。
 
 ```bash
-<启动入口> < doc/transcript/cli-1.txt                                # 方式 A
-<启动入口> --config plugins.config.json < doc/transcript/cli-1.txt  # 方式 B
+<启动入口> < doc/resources/transcript/cli-1.txt                                # 方式 A
+<启动入口> --config plugins.config.json < doc/resources/transcript/cli-1.txt  # 方式 B
 # 两次输出的 diff 必须为空
 ```
 

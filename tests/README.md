@@ -8,7 +8,7 @@ Phase 2 第 2 步已将具体命令迁至 `src/plugins/builtin-commands`，原�
 
 ## 验证结果
 
-阶段 8 验收后复核全部测试条目：共 140 条，其中 137 条通过、3 条明确 N/A。当时自动化套件为 31 个测试文件、96 个测试。典型会话与版本 A 流程图通过生产 CLI 进程回放；两个 SVG 用 Edge 无头模式渲染并查看截图的过程记录曾位于 `doc/acceptance/README.md`，该目录现已不在工作区，不能作为当前可访问证据。现存课程回放材料在 [doc/manual_test](../doc/manual_test/)，不将其当作原截图的替代证据。用户代码检查、提交和 final tag 不属于上述当时已执行的测试结果。
+阶段 8 验收后复核全部测试条目：共 140 条，其中 137 条通过、3 条明确 N/A。当时自动化套件为 31 个测试文件、96 个测试。典型会话与版本 A 流程图通过生产 CLI 进程回放；两个 SVG 用 Edge 无头模式渲染并查看截图的过程记录曾位于 `doc/acceptance/README.md`，该目录现已不在工作区，不能作为当前可访问证据。现存课程回放材料在 [doc/resources/manual_test](../doc/resources/manual_test)，不将其当作原截图的替代证据。用户代码检查、提交和 final tag 不属于上述当时已执行的测试结果。
 
 阶段 7 补齐 `tree [id]`、`show <id>`、完整 `help` 和交互式 `svg>` 提示符。树与明细共用统一不可变查询快照和 CLI ShapeFormatter，未知 id 经命令执行守卫输出单行错误且不进入历史；非交互脚本仍按行回放，不混入提示符。
 

@@ -1,0 +1,10 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<svg xmlns="http://www.w3.org/2000/svg" width="400" height="240" viewBox="0 0 400 240">
+  <g id="diagram">
+    <g id="edge" stroke="red" stroke-width="3">
+      <line id="edge-shaft" x1="30" y1="100" x2="210" y2="100"/>
+      <line id="edge-head-left" x1="210" y1="100" x2="190" y2="110"/>
+      <line id="edge-head-right" x1="210" y1="100" x2="190" y2="90"/>
+    </g>
+  </g>
+</svg>
