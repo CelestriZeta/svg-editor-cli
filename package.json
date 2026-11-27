@@ -8,7 +8,7 @@
     "node": ">=24"
   },
   "scripts": {
-    "build": "node scripts/clean.mjs && tsc -p tsconfig.build.json",
+    "build": "node scripts/clean.mjs && tsc -p tsconfig.build.json && node scripts/copy-plugin-manifests.mjs",
     "cli": "node dist/bootstrap/entry.js",
     "check": "pnpm run typecheck && pnpm run test && pnpm run build && pnpm run check:extension",
     "build:extension": "node scripts/build-extension.mjs",

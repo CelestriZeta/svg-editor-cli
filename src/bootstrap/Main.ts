@@ -1,3 +1,6 @@
+import { NodeDirectoryAccess } from '../infrastructure/NodeDirectoryAccess.js';
+import { PluginLoader } from './PluginLoader.js';
+import { CodePlugins } from './CodePlugins.js';
 import { DocumentCheckpoints } from '../application/DocumentCheckpoints.js';
 import { BuiltinShapesPlugin } from '../plugins/builtin-shapes/BuiltinShapesPlugin.js';
 import { createInterface } from 'node:readline';
@@ -35,6 +38,12 @@ export class Main {
     await plugins.activate('builtin-commands', new BuiltinCommandsPlugin(
       session, documents, history, new DocumentViewVisitor(plugins), plugins
     ));
+    const services = Object.freeze({ documents: session, query: views, checkpoints, directory: new NodeDirectoryAccess() });
+    const loader = new PluginLoader(plugins, services, message => process.stdout.write(message + '\n'));
+    const args = process.argv.slice(2);
+    if (args.length === 0) await new CodePlugins().install(loader, services);
+    else if (args.length === 2 && args[0] === '--config') await loader.config(args[1]!);
+    else process.stdout.write('error: invalid plugin config\n');
     const dispatcher = new CommandDispatcher(plugins);
     const executor = new CommandExecutor(history);
     const shapes = new ShapeFormatter();
@@ -43,7 +52,7 @@ export class Main {
       dispatcher,
       executor,
       new OutputFormatter(
-        new TreeFormatter(shapes, plugins, () => views.visit(session.requireDocument())), 
+        new TreeFormatter(shapes, plugins, () => views.visit(session.requireDocument())),
         new ShowFormatter(shapes)
       )
     );

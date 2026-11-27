@@ -1,3 +1,4 @@
+import type { PluginManifest } from './PluginManifest.js';
 import type { AttributeHandler } from './AttributeHandler.js';
 import type { CommandContribution } from './CommandContribution.js';
 import type { CommandCatalog } from './CommandCatalog.js';
@@ -55,17 +56,19 @@ export class PluginRegistry implements CommandCatalog, ShapeCatalog {
     return Object.freeze(this.commands.values().flatMap((command) => command.syntaxes));
   }
 
-  public activate(name: string, plugin: Plugin): Promise<void> {
-    const activation = this.#tail.then(() => this.runActivation(name, plugin));
+  public activate(name: string, plugin: Plugin, manifest?: PluginManifest): Promise<void> {
+    const activation = this.#tail.then(() => this.runActivation(name, plugin, manifest));
     this.#tail = activation.catch(() => undefined);
     return activation;
   }
 
-  private async runActivation(name: string, plugin: Plugin): Promise<void> {
+  private async runActivation(name: string, plugin: Plugin, manifest?: PluginManifest): Promise<void> {
     const registration = new PluginRegistration(this.#published);
     try {
       await plugin.activate(registration.context);
-      this.#published = registration.finish();
+      const pending = registration.finish();
+      manifest?.validate(this.#published, pending);
+      this.#published = pending;
     } catch (error) {
       registration.close();
       if (error instanceof PluginRegistrationError) {

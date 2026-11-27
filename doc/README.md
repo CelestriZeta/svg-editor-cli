@@ -597,3 +597,15 @@ AttributeResolver.prepare 按 AttributeCatalog 查询处理器；BuiltinCommands
 TreeFormatter.decorate 对画布及每个节点按注册顺序调用 TreeDecorator.labels，空目录保持原字节；标签以单空格拼接，拒绝多行/非法返回。subtree 使用当前全文档快照。标签异常转为单行错误，不修改文档或历史。DocumentCheckpoints 在成功 init/read/save 后发布只读快照，失败 IO 不发布；监听器异常被隔离。具体 dirty 状态由后续标签实例维护。
 
 实际检查：类型检查及原展示/架构 11 项通过。新增标签顺序、缺省、子树、非法标签及观察者隔离测试随本步执行。架构自查保持领域无宿主依赖，未在渲染器引入具体标签名。
+
+## 13. 双装配与框架节点（第 8 步）
+
+默认运行 node dist/bootstrap/entry.js，经 CodePlugins.install 代码装配；node dist/bootstrap/entry.js --config plugins.config.json 只读取配置可选插件。六图形和 Phase 1 命令始终先装入，空配置保留原行为。配置格式为 {"plugins":[{"module":"./dist/plugins/example","options":{},"enabled":true}]}；相对模块相对于配置文件所在目录，包名遵循 Node 解析，默认导出类接收 services/options。详见 [ADR-008](adr/008-plugin-manifest-and-loading.md)。
+
+PluginLoader 不导入具体插件，代码与配置均经 activate 的同一事务，清单比较四类名称集合后才发布。插件包需 package.json 的 name、type:module、main 及 contributes；四类未声明视为空。非法配置输出 error: invalid plugin config 并保留默认启动；四种模块/导出/清单/激活失败和重复注册均输出需求中的单行格式并继续。
+
+metrics 脚本 scripts/metrics.mjs 从两个 Git ref 取源码，以 TypeScript AST 计算函数基础复杂度及决策增量；内核（含 IO/CLI）、装配、插件分列，VSCode 单列。框架首次结果由普通提交的实际源码生成；最终验收再次生成，不手填指标。
+
+实际检查：类型检查、加载器 5 项与架构 9 项通过，包含求值依赖失败、禁用、options、部分注册回滚与同一代码装配路径。第 7 步提交前 diff 检查实际报告 Main.ts 尾空格，本步移除；不将那次检查记为通过。自查未发现内核反向依赖插件，加载器没有插件名称映射。
+
+框架节点完整回归：pnpm run check 通过，CLI 40 文件/180 项，VSCode 3 文件/21 项，两部分类型及构建通过。
