@@ -621,3 +621,9 @@ metrics 脚本 scripts/metrics.mjs 从两个 Git ref 取源码，以 TypeScript 
 独立 src/plugins/dir 通过配置接入，本次不改任何已有运行源码。DirCommand 是 Client，DirectoryAccess 是 Target，NodeDirectoryAccess 是 Adapter，Node fs.readdir/Dirent 是 Adaptee；同一个接口与命令类供两种装配使用。currentPath 返回进程 cwd，与当前 SVG 路径无关。只列直接项，保留隐藏项，目录优先、名称按 Unicode 码元升序稳定排列；符号链接和其他特殊项显示 FILE，不跟随目标。空目录、读取失败均有约定反馈。Query 类别不会更改历史或 IO 屏障。
 
 第 9 步目标测试起初父容器用了字符串、服务替身类型不完整，修正为公开容器对象及 Pick 服务契约后，类型与统计/架构 10 项通过。第 10 步覆盖替身排序/隐藏/空目录/错误、无文档、redo 保持和真实临时目录，结果以本次命令记录为准。
+
+## 16. box 代码接入（第 11 步 A）
+
+新增 src/plugins/shape-box 与唯一顶层 CodePlugins 装配变更，内核及原插件不变。BoxProvider / BoxSpec / BoxShape、BoxAttributeHandler、BoxTypeDecorator 分别承担创建编解码、子树规格、不变量、传播与标签。详见 [ADR-009](adr/009-box-structure-and-fallback.md)。反馈沿用通用 created/updated 格式；不为示例中的专用文案改动核心。
+
+独立注册不需要别的插件；领域创建也只用公开规格与领域 API。集成覆盖嵌套/整体移动、必要部件保护、单次撤销重做、子 id 冲突、SVG 往返、未安装降级及破损拒绝。首轮测试发现 label 反馈预期加了通用格式并不提供的引号，校正预期而未增加名字分支。
